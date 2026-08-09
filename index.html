@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- SIMPLA | FRONT-END CONSOLIDADO v4 | Perfis + RLS + Auditoria -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarberManager - Gestão Simples</title>
@@ -1090,6 +1091,288 @@
             #configuracoes h3 { font-size:17px !important; }
         }
 
+    
+        @media (max-width:768px) {
+            #agenda .slot-card > div:last-child button { min-height:42px; }
+            #aviso-recebimento-agenda { order:0 !important; width:100% !important; }
+        }
+
+    
+        @media (max-width:768px) {
+            #agenda .header > div > div:first-child {
+                display:grid !important;
+                grid-template-columns:1fr 1fr !important;
+                width:100% !important;
+                gap:8px !important;
+            }
+            #agenda .header > div > div:first-child label,
+            #agenda .header > div > div:first-child input {
+                grid-column:1 / -1;
+            }
+            #agenda .header > div > div:first-child .btn-salvar {
+                width:100% !important;
+                font-size:12px !important;
+                padding:9px 8px !important;
+            }
+        }
+
+    
+        @media (max-width:768px) {
+            #financeiro .filtros-bar > div:last-child {
+                grid-template-columns:1fr 1fr !important;
+                gap:8px !important;
+            }
+            #financeiro .filtros-bar > div:last-child button {
+                width:100% !important;
+                min-height:44px !important;
+                white-space:normal !important;
+                line-height:1.2 !important;
+                font-size:12px !important;
+            }
+        }
+
+    
+        .hist-cli-kpis {
+            display:grid;
+            grid-template-columns:repeat(4,minmax(0,1fr));
+            gap:10px;
+            margin-bottom:14px;
+        }
+        .hist-cli-kpi {
+            background:white;
+            border:1px solid #e2e8f0;
+            border-left:4px solid var(--cor-accent);
+            border-radius:7px;
+            padding:11px 10px;
+            min-width:0;
+        }
+        .hist-cli-kpi span,
+        .hist-cli-label {
+            display:block;
+            font-size:9px;
+            color:#718096;
+            font-weight:800;
+            margin-bottom:5px;
+        }
+        .hist-cli-kpi strong {
+            display:block;
+            color:#1a1c23;
+            font-size:15px;
+            line-height:1.2;
+            overflow-wrap:anywhere;
+        }
+        .hist-cli-relacionamento {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:10px;
+            margin-bottom:18px;
+        }
+        .hist-cli-relacionamento > div {
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-radius:7px;
+            padding:11px 12px;
+        }
+        .hist-cli-relacionamento strong {
+            display:block;
+            font-size:12px;
+            line-height:1.35;
+            color:#2d3748;
+            overflow-wrap:anywhere;
+        }
+        @media(max-width:768px) {
+            #modal-historico-cliente .modal-balao {
+                text-align:left !important;
+            }
+            #modal-historico-cliente > .modal-balao > div:first-child {
+                align-items:flex-start !important;
+                flex-direction:column !important;
+                gap:10px !important;
+            }
+            #modal-historico-cliente > .modal-balao > div:first-child > div {
+                width:100% !important;
+                display:grid !important;
+                grid-template-columns:1fr 1fr !important;
+                gap:8px !important;
+            }
+            #modal-historico-cliente > .modal-balao > div:first-child button {
+                width:100% !important;
+                min-height:42px !important;
+                white-space:normal !important;
+            }
+            .hist-cli-kpis {
+                grid-template-columns:1fr 1fr !important;
+            }
+            .hist-cli-relacionamento {
+                grid-template-columns:1fr !important;
+            }
+            #modal-historico-cliente table {
+                min-width:620px !important;
+            }
+        }
+        @media(max-width:430px) {
+            .hist-cli-kpis {
+                grid-template-columns:1fr !important;
+            }
+        }
+
+    
+        .cfg-fidelizacao-grid {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:14px;
+        }
+        .hist-cli-status-relacionamento {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:14px;
+            background:#fffaf0;
+            border:1px solid #f6e05e;
+            border-left:4px solid var(--cor-accent);
+            border-radius:7px;
+            padding:12px;
+            margin-bottom:14px;
+        }
+        .hist-cli-status-badges {
+            display:flex;
+            flex-wrap:wrap;
+            gap:6px;
+        }
+        .hist-cli-status-badge {
+            display:inline-block;
+            padding:5px 9px;
+            border-radius:99px;
+            font-size:10px;
+            font-weight:800;
+            line-height:1.2;
+        }
+        .hist-cli-status-badge.vip {
+            background:#fefcbf;
+            color:#744210;
+            border:1px solid #f6e05e;
+        }
+        .hist-cli-status-badge.recorrente {
+            background:#c6f6d5;
+            color:#22543d;
+            border:1px solid #9ae6b4;
+        }
+        .hist-cli-status-badge.novo {
+            background:#edf2f7;
+            color:#4a5568;
+            border:1px solid #cbd5e0;
+        }
+        .hist-cli-status-explicacao {
+            max-width:48%;
+            text-align:right;
+            font-size:10px;
+            line-height:1.4;
+            color:#718096;
+            text-transform:none;
+        }
+        @media(max-width:768px) {
+            .cfg-fidelizacao-grid { grid-template-columns:1fr !important; }
+            .hist-cli-status-relacionamento {
+                flex-direction:column !important;
+                align-items:flex-start !important;
+            }
+            .hist-cli-status-explicacao {
+                max-width:100% !important;
+                text-align:left !important;
+            }
+        }
+
+    
+        .cfg-usuarios-grid {
+            display:grid;
+            grid-template-columns:2fr 1fr;
+            gap:12px;
+        }
+        .usuarios-table select {
+            min-width:140px;
+            padding:6px;
+            font-size:11px;
+        }
+        .usuarios-table code {
+            font-size:10px;
+            overflow-wrap:anywhere;
+        }
+        @media(max-width:768px) {
+            .cfg-usuarios-grid { grid-template-columns:1fr !important; }
+            #box-cfg-usuarios .usuarios-table { min-width:650px !important; }
+        }
+
+    
+        .cfg-usuarios-grid-criacao { grid-template-columns:1.2fr 1.2fr 1fr; }
+        @media(max-width:768px) { .cfg-usuarios-grid-criacao { grid-template-columns:1fr !important; } }
+    
+        .acesso-negado-perfil {
+            padding:14px 16px;
+            border-radius:8px;
+            background:#fffaf0;
+            border:1px solid #f6e05e;
+            border-left:4px solid #d69e2e;
+            color:#744210;
+            font-size:12px;
+            line-height:1.5;
+            text-transform:none;
+            margin-bottom:16px;
+        }
+        .perfil-badge {
+            display:inline-block;
+            padding:3px 7px;
+            border-radius:99px;
+            background:rgba(255,255,255,.10);
+            color:#e2e8f0;
+            font-size:9px;
+            font-weight:800;
+            margin-top:4px;
+        }
+    
+        .perfis-resumo-grid {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:8px;
+            margin-top:10px;
+        }
+        .perfis-resumo-grid > div {
+            padding:9px 10px;
+            border:1px solid #e2e8f0;
+            background:#fff;
+            border-radius:6px;
+            text-transform:none;
+        }
+        .perfis-resumo-grid b {
+            display:block;
+            font-size:10px;
+            color:#1a202c;
+            margin-bottom:3px;
+        }
+        .perfis-resumo-grid span {
+            display:block;
+            font-size:10px;
+            color:#718096;
+            line-height:1.35;
+        }
+        @media(max-width:768px) {
+            .perfis-resumo-grid { grid-template-columns:1fr !important; }
+            #btn-exportar-clientes-tela { width:100%; }
+            #filtro-cliente-input { width:100% !important; }
+        }
+
+    
+        .auditoria-toolbar{display:grid;grid-template-columns:180px minmax(220px,1fr) auto;gap:10px;align-items:end;}
+        .auditoria-table-wrap{overflow-x:auto;margin-top:12px;}
+        .auditoria-table{min-width:900px;margin-top:0;}
+        .auditoria-table td{vertical-align:top;text-transform:none;}
+        .auditoria-detalhes{max-width:360px;white-space:normal;overflow-wrap:anywhere;font-size:11px;line-height:1.4;color:#4a5568;text-transform:none;}
+        .auditoria-badge{display:inline-block;padding:3px 7px;border-radius:99px;background:#edf2f7;font-size:10px;font-weight:800;}
+        @media(max-width:768px){
+            .auditoria-toolbar{grid-template-columns:1fr !important;}
+            .auditoria-toolbar .btn-salvar{width:100% !important;}
+            .auditoria-table{min-width:900px !important;}
+        }
+
     </style>
 </head>
 <body class="auth-pending">
@@ -1111,7 +1394,7 @@
                 <div id="cloud-panel-login" class="cloud-auth-panel active">
                     <h2 class="cloud-auth-title">Bem-vindo</h2>
                     <p class="cloud-auth-help">Entre com o e-mail e a senha cadastrados no sistema.</p>
-                    <div class="cloud-auth-field"><label>E-mail</label><input id="cloud-login-email" type="email" autocomplete="email" placeholder="voce@exemplo.com"></div>
+                    <div class="cloud-auth-field"><label>E-mail do administrador ou ID de acesso</label><input id="cloud-login-email" type="text" autocomplete="username" placeholder="admin@exemplo.com ou BARBEIRO01"><div style="font-size:10px;color:#718096;margin-top:5px;line-height:1.4;">Administrador: e-mail + senha. Usuário operacional: ID + senha.</div></div>
                     <div class="cloud-auth-field"><label>Senha</label><div class="cloud-password-wrap"><input id="cloud-login-senha" type="password" autocomplete="current-password" placeholder="Sua senha"><button type="button" class="cloud-password-toggle" onclick="alternarVisibilidadeSenha('cloud-login-senha', this)" aria-label="Mostrar senha" title="Mostrar senha">👁</button></div></div>
                     <div style="text-align:right;margin:-2px 0 12px;">
                         <button type="button" onclick="mostrarRecuperarSenhaCloud()" style="border:0;background:none;color:#2b6cb0;cursor:pointer;font-size:12px;padding:0;text-transform:none;">Esqueci minha senha</button>
@@ -1379,6 +1662,45 @@
                 </div>
             </div>
             <div id="hist-cli-detalhes" style="font-size: 13px; color: #4a5568; margin-bottom: 16px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;"></div>
+
+            <div id="hist-cli-status-relacionamento" class="hist-cli-status-relacionamento">
+                <div>
+                    <span class="hist-cli-label">STATUS DE RELACIONAMENTO</span>
+                    <div id="hist-cli-status-badges" class="hist-cli-status-badges"></div>
+                </div>
+                <div id="hist-cli-status-explicacao" class="hist-cli-status-explicacao"></div>
+            </div>
+
+            <div id="hist-cli-kpis" class="hist-cli-kpis">
+                <div class="hist-cli-kpi">
+                    <span>ATENDIMENTOS</span>
+                    <strong id="hist-cli-qtd">0</strong>
+                </div>
+                <div class="hist-cli-kpi">
+                    <span>TOTAL GASTO</span>
+                    <strong id="hist-cli-total">R$ 0,00</strong>
+                </div>
+                <div class="hist-cli-kpi">
+                    <span>TICKET MÉDIO</span>
+                    <strong id="hist-cli-ticket">R$ 0,00</strong>
+                </div>
+                <div class="hist-cli-kpi">
+                    <span>ÚLTIMO ATENDIMENTO</span>
+                    <strong id="hist-cli-ultimo">-</strong>
+                </div>
+            </div>
+
+            <div class="hist-cli-relacionamento">
+                <div>
+                    <span class="hist-cli-label">SERVIÇO MAIS CONSUMIDO</span>
+                    <strong id="hist-cli-servico-top">-</strong>
+                </div>
+                <div>
+                    <span class="hist-cli-label">ORIGEM DOS ATENDIMENTOS</span>
+                    <strong id="hist-cli-origem">-</strong>
+                </div>
+            </div>
+
             <h4 style="font-size: 14px; color: #4a5568; margin-bottom: 8px;">Atendimentos na Barbearia</h4>
             <table style="font-size: 13px; margin-top: 4px;">
                 <thead>
@@ -1583,7 +1905,10 @@
             <div class="form-container" id="sec-cli-tabela">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px;">
                     <h3 style="margin: 0;">Clientes Cadastrados</h3>
-                    <input type="text" id="filtro-cliente-input" placeholder="🔍 Buscar por nome ou telefone..." oninput="atualizarTabelaClientes()" style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 4px; width: 280px; font-size: 14px;">
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <input type="text" id="filtro-cliente-input" placeholder="🔍 Buscar por nome ou telefone..." oninput="atualizarTabelaClientes()" style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 4px; width: 280px; font-size: 14px;">
+                        <button id="btn-exportar-clientes-tela" class="btn-salvar" style="padding:8px 12px;background:#2f855a;color:white;font-size:12px;" onclick="exportarClientesExcel()">📥 Exportar Clientes</button>
+                    </div>
                 </div>
                 <table>
                     <thead>
@@ -1620,6 +1945,8 @@
                 <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
                     <button onclick="definirMesAtual()">Mês Atual</button>
                     <button onclick="definirHoje()">Hoje</button>
+                    <button onclick="exportarFinanceiroExcel()">📊 Exportar Excel</button>
+                    <button onclick="exportarFinanceiroPDF()">📄 Exportar PDF</button>
                 </div>
             </div>
 
@@ -1835,8 +2162,8 @@
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <label style="font-size: 14px; font-weight: 500;">📅 Data:</label>
                         <input type="date" id="agenda-data-filtro" onchange="validarDataAgendaFiltro(); atualizarAgendaCloudERender()" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px; background: white;">
-                    <button class="btn-salvar" style="padding: 8px 12px; background:#2f855a; color:white;" onclick="exportarAgendaDiaExcel()">📊 Excel</button>
-                    <button class="btn-salvar" style="padding: 8px 12px; background:#c53030; color:white;" onclick="exportarAgendaDiaPDF()">📄 PDF</button>
+                    <button class="btn-salvar" style="padding: 8px 12px; background:#2f855a; color:white;" onclick="exportarAgendaDiaExcel()">📊 Exportar Excel</button>
+                    <button class="btn-salvar" style="padding: 8px 12px; background:#c53030; color:white;" onclick="exportarAgendaDiaPDF()">📄 Exportar PDF</button>
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <label style="font-size: 14px; font-weight: 500;">⏱️ Tempo Padrão (Min):</label>
@@ -1960,6 +2287,41 @@
                     </div>
                 </div>
                 <button class="btn-salvar" style="margin-bottom:24px;" onclick="salvarConfigCancelamentos()">💾 Salvar Permissões de Cancelamento</button>
+
+                <hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;">
+
+                <h3 style="color: var(--cor-accent);">🏆 Fidelização e Clientes VIP</h3>
+                <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">
+                    Defina como o sistema identifica clientes recorrentes e VIP. O status é calculado automaticamente a partir do histórico financeiro do cliente.
+                </p>
+                <div class="section-box-cfg" id="box-cfg-fidelizacao">
+                    <h4>Critérios de relacionamento</h4>
+                    <div class="cfg-fidelizacao-grid">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Mínimo de atendimentos para VIP</label>
+                            <input type="number" id="cfg-vip-atendimentos" min="1" step="1" value="5">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Valor total gasto para VIP (R$)</label>
+                            <input type="number" id="cfg-vip-gasto" min="0" step="10" value="500">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Regra para classificação VIP</label>
+                            <select id="cfg-vip-modo">
+                                <option value="OU">Atingir qualquer critério (OU)</option>
+                                <option value="E">Atingir todos os critérios (E)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Mínimo de atendimentos para cliente recorrente</label>
+                            <input type="number" id="cfg-recorrente-atendimentos" min="2" step="1" value="3">
+                        </div>
+                    </div>
+                    <p style="font-size:11px;color:#718096;margin-top:12px;text-transform:none;">
+                        Cliente recorrente e cliente VIP são classificações independentes. Um cliente pode ser recorrente sem ainda atingir os critérios de VIP.
+                    </p>
+                </div>
+                <button class="btn-salvar" style="margin-bottom:24px;" onclick="salvarConfigFidelizacao()">💾 Salvar Critérios de Fidelização</button>
 
                 <hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;">
 
@@ -2106,6 +2468,114 @@
                 </div>
 
                 <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                <h3 style="color: var(--cor-accent);">👥 Usuários e Acessos</h3>
+                <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">
+                    Cada pessoa usa seu próprio acesso. O administrador cria um ID e uma senha inicial para usuários operacionais; administradores continuam usando e-mail e senha.
+                </p>
+                <div class="section-box-cfg" id="box-cfg-usuarios">
+                    <div id="usuarios-acesso-admin">
+                        <h4>Criar usuário / acesso</h4>
+                        <div class="cfg-usuarios-grid cfg-usuarios-grid-criacao">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>ID de acesso</label>
+                                <input type="text" id="cfg-login-id" maxlength="24" placeholder="Ex.: BARBEIRO01" oninput="normalizarCampoLoginId(this)">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Senha inicial</label>
+                                <div style="position:relative;">
+                                    <input type="password" id="cfg-login-senha" minlength="8" placeholder="Mínimo 8 caracteres" style="padding-right:42px;">
+                                    <button type="button" onclick="alternarSenhaCampo('cfg-login-senha', this)" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);border:0;background:transparent;padding:5px;cursor:pointer;">👁️</button>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Perfil de acesso</label>
+                                <select id="cfg-usuario-perfil">
+                                    <option value="FUNCIONARIO">Operacional / Funcionário</option>
+                                    <option value="FINANCEIRO">Financeiro</option>
+                                    <option value="GESTOR">Gestor</option>
+                                    <option value="ADMIN">Administrador</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn-salvar" id="btn-criar-acesso" onclick="criarAcessoOperacional()">➕ Criar Acesso</button>
+                            <button onclick="carregarUsuariosEmpresa()" style="padding:9px 12px;">↻ Atualizar Lista</button>
+                        </div>
+                        <div style="margin-top:10px;padding:10px;border-radius:6px;background:#ebf8ff;border:1px solid #bee3f8;font-size:11px;color:#2c5282;line-height:1.5;text-transform:none;">
+                            Usuários criados pelo administrador usarão somente <b>ID + senha</b>. O e-mail técnico criado internamente não será exibido.
+                        </div>
+                        <div class="perfis-resumo-grid">
+                            <div><b>ADMIN</b><span>Acesso total, configurações e usuários.</span></div>
+                            <div><b>GESTOR</b><span>Operação + financeiro + Dashboard, sem funções administrativas.</span></div>
+                            <div><b>OPERACIONAL</b><span>Clientes + Agenda + lançamentos financeiros, sem Dashboard e relatórios financeiros.</span></div>
+                            <div><b>FINANCEIRO</b><span>Financeiro + Dashboard + consultas, sem cadastrar clientes ou alterar Agenda.</span></div>
+                        </div>
+                    </div>
+
+                    <div id="usuarios-acesso-nao-admin" style="display:none;padding:12px;border-radius:6px;background:#fffaf0;border:1px solid #f6e05e;font-size:12px;color:#744210;text-transform:none;">
+                        Somente administradores podem gerenciar os acessos da empresa.
+                    </div>
+
+                    <h4 style="margin-top:18px;">Usuários vinculados</h4>
+                    <div style="overflow-x:auto;">
+                        <table class="usuarios-table">
+                            <thead>
+                                <tr>
+                                    <th>ID / Usuário</th>
+                                    <th>Perfil</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cfg-usuarios-tbody">
+                                <tr><td colspan="4" style="text-align:center;color:#718096;">Carregando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;">
+
+
+                <h3 style="color: var(--cor-accent);">🧾 Histórico de Auditoria</h3>
+                <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">
+                    Registro imutável das principais ações realizadas no sistema. A consulta é exclusiva do administrador.
+                </p>
+                <div class="section-box-cfg" id="box-cfg-auditoria">
+                    <div class="auditoria-toolbar">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Módulo</label>
+                            <select id="auditoria-filtro-modulo" onchange="renderizarAuditoria()">
+                                <option value="">Todos</option>
+                                <option value="CLIENTES">Clientes</option>
+                                <option value="AGENDA">Agenda</option>
+                                <option value="FINANCEIRO">Financeiro</option>
+                                <option value="CONFIGURACOES">Configurações</option>
+                                <option value="USUARIOS">Usuários</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Buscar</label>
+                            <input id="auditoria-filtro-texto" type="text" placeholder="Usuário, ação, registro..." oninput="renderizarAuditoria()">
+                        </div>
+                        <button class="btn-salvar" onclick="carregarAuditoria()" style="align-self:end;">↻ Atualizar histórico</button>
+                    </div>
+                    <div id="auditoria-status" style="font-size:11px;color:#718096;margin-top:10px;text-transform:none;"></div>
+                    <div class="auditoria-table-wrap">
+                        <table class="auditoria-table">
+                            <thead><tr>
+                                <th>Data / Hora</th><th>Usuário</th><th>Perfil</th>
+                                <th>Módulo</th><th>Ação</th><th>Detalhes</th>
+                            </tr></thead>
+                            <tbody id="auditoria-tbody">
+                                <tr><td colspan="6" style="text-align:center;color:#718096;">Clique em “Atualizar histórico”.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;">
 
                 <h3>Gerenciamento de Dados e Exportação</h3>
                 <p style="font-size: 13px; color: #718096; margin-bottom: 16px;">Extraia informações ou resete o sistema:</p>
@@ -2273,6 +2743,16 @@
             agenda:true, aniversariantes:true, materiais:true, comparativo:true, vip:true, insights:true
         }, DataStore.getJSON('barber_config_dashboard', {}));
 
+        // Critérios de relacionamento são armazenados dentro da configuração do Dashboard
+        // (campo JSONB já existente no Supabase), sem necessidade de alterar o banco.
+        configDashboard.fidelizacao = {
+            vipAtendimentos: 5,
+            vipGasto: 500,
+            vipModo: 'OU',
+            recorrenteAtendimentos: 3,
+            ...(configDashboard.fidelizacao || {})
+        };
+
         let configCampos = DataStore.getJSON('barber_config_campos', {
             sobrenome: true,
             telefone: true,
@@ -2287,6 +2767,7 @@
         });
 
         let carrinho = [];
+        let agendamentoEmRecebimentoId = null;
         let clienteParaExcluirId = null;
         let dadosTemporariosNovoCliente = null;
         let graficoPizzaInstance = null;
@@ -2886,9 +3367,10 @@
 
         async function entrarCloud() {
             if(!CloudDB) { exibirMensagemCloud('cloud-auth-message','Não foi possível carregar a biblioteca do Supabase. Verifique sua conexão com a internet.','error'); return; }
-            const email = document.getElementById('cloud-login-email')?.value.trim();
+            const identificador = document.getElementById('cloud-login-email')?.value.trim() || '';
+            const email = identificador.includes('@') ? identificador.toLowerCase() : emailTecnicoPorLoginId(identificador);
             const password = document.getElementById('cloud-login-senha')?.value || '';
-            if(!email || !password) { exibirMensagemCloud('cloud-auth-message','Informe e-mail e senha.','error'); return; }
+            if(!identificador || !password) { exibirMensagemCloud('cloud-auth-message','Informe seu e-mail/ID e a senha.','error'); return; }
             definirCarregandoCloud('cloud-btn-login', true, 'Entrar');
             try {
                 const { data, error } = await CloudDB.auth.signInWithPassword({ email, password });
@@ -2897,7 +3379,7 @@
                 await processarUsuarioCloud(data.user);
             } catch(err) {
                 console.error(err);
-                exibirMensagemCloud('cloud-auth-message','Não foi possível entrar. Confira o e-mail e a senha e tente novamente.','error');
+                exibirMensagemCloud('cloud-auth-message','Não foi possível entrar. Confira o e-mail/ID e a senha e tente novamente.','error');
             } finally { definirCarregandoCloud('cloud-btn-login', false, 'Entrar'); }
         }
 
@@ -2975,6 +3457,9 @@
                 DataStore.setJSON('app_empresa_atual', empresaAtual);
                 DataStore.setJSON('app_usuario_atual', usuarioAtual);
                 await liberarAplicativoCloud();
+                aplicarPermissoesPerfil();
+                aplicarAcessoAdministrativoUI();
+                carregarUsuariosEmpresa().catch(console.error);
             } catch(err) {
                 console.error('Erro ao localizar empresa:', err);
                 exibirMensagemCloud('cloud-auth-message','A conta foi autenticada, mas não foi possível consultar a empresa. Verifique a estrutura/RLS do Supabase.','error');
@@ -3001,11 +3486,487 @@
                 DataStore.setJSON('app_empresa_atual', empresaAtual);
                 DataStore.setJSON('app_usuario_atual', usuarioAtual);
                 await liberarAplicativoCloud();
+                aplicarPermissoesPerfil();
+                aplicarAcessoAdministrativoUI();
+                carregarUsuariosEmpresa().catch(console.error);
             } catch(err) {
                 console.error(err);
                 exibirMensagemCloud('cloud-empresa-message',`Não foi possível criar o negócio: ${err?.message || 'erro desconhecido'}`,'error');
             } finally { definirCarregandoCloud('cloud-btn-empresa', false, 'Criar meu negócio'); }
         }
+
+
+        const DOMINIO_LOGIN_OPERACIONAL = 'acesso.simpla.app';
+
+        function normalizarLoginId(valor) {
+            return String(valor || '').trim().toUpperCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^A-Z0-9._-]/g, '').slice(0, 24);
+        }
+
+        function normalizarCampoLoginId(el) {
+            if(el) el.value = normalizarLoginId(el.value);
+        }
+
+        function emailTecnicoPorLoginId(loginId) {
+            return `${normalizarLoginId(loginId).toLowerCase()}@${DOMINIO_LOGIN_OPERACIONAL}`;
+        }
+
+        function alternarSenhaCampo(idCampo, botao) {
+            const campo = document.getElementById(idCampo);
+            if(!campo) return;
+            campo.type = campo.type === 'password' ? 'text' : 'password';
+            if(botao) botao.textContent = campo.type === 'password' ? '👁️' : '🙈';
+        }
+
+        async function criarAcessoOperacional() {
+            if(!validarAcessoPerfil('usuarios','Somente administradores podem gerenciar usuários.')) return;
+            if(!usuarioEhAdmin()) { alert('Somente administradores podem criar acessos.'); return; }
+            const loginId = normalizarLoginId(document.getElementById('cfg-login-id')?.value);
+            const senha = document.getElementById('cfg-login-senha')?.value || '';
+            const perfil = document.getElementById('cfg-usuario-perfil')?.value || 'FUNCIONARIO';
+            if(loginId.length < 3) { alert('Crie um ID com pelo menos 3 caracteres.'); return; }
+            if(senha.length < 8) { alert('A senha inicial deve ter pelo menos 8 caracteres.'); return; }
+
+            const btn = document.getElementById('btn-criar-acesso');
+            if(btn) { btn.disabled = true; btn.textContent = 'Criando acesso...'; }
+            try {
+                const { data, error } = await CloudDB.functions.invoke('gerenciar-usuario-empresa', {
+                    body: { acao:'criar', empresaId:empresaAtual.id, loginId, senha, perfil }
+                });
+                if(error) throw error;
+                if(data?.error) throw new Error(data.error);
+                document.getElementById('cfg-login-id').value = '';
+                document.getElementById('cfg-login-senha').value = '';
+                await carregarUsuariosEmpresa();
+                await registrarAuditoria('USUARIOS','USUARIO_CRIADO',data?.usuarioId || loginId,{usuario:loginId,perfil_novo:perfil});
+                alert(`Usuário criado com sucesso!\n\nID: ${loginId}\nPerfil: ${perfil === 'FUNCIONARIO' ? 'OPERACIONAL' : perfil}\n\nO usuário já pode entrar usando este ID e a senha definida.`);
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível criar o acesso.\n\n${err?.message || 'Verifique a Edge Function gerenciar-usuario-empresa.'}`);
+            } finally {
+                if(btn) { btn.disabled = false; btn.textContent = '➕ Criar Acesso'; }
+            }
+        }
+
+        async function redefinirSenhaUsuarioEmpresa(usuarioId, loginId) {
+            if(!validarAcessoPerfil('usuarios','Somente administradores podem gerenciar usuários.')) return;
+            if(!usuarioEhAdmin()) return;
+            const senha = prompt(`Nova senha para ${loginId || 'o usuário'} (mínimo 8 caracteres):`);
+            if(senha === null) return;
+            if(senha.length < 8) { alert('A senha precisa ter pelo menos 8 caracteres.'); return; }
+            try {
+                const { data, error } = await CloudDB.functions.invoke('gerenciar-usuario-empresa', {
+                    body: { acao:'redefinir_senha', empresaId:empresaAtual.id, usuarioId, senha }
+                });
+                if(error) throw error;
+                if(data?.error) throw new Error(data.error);
+                await registrarAuditoria('USUARIOS','SENHA_REDEFINIDA',usuarioId,{usuario:loginId || usuarioId});
+                alert('Senha redefinida com sucesso!');
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível redefinir a senha: ${err?.message || 'erro desconhecido'}`);
+            }
+        }
+
+        const AUDITORIA_CLOUD_ATIVO = true;
+        let auditoriaRegistros = [];
+
+        function obterLoginAuditoria() {
+            const nome = String(usuarioAtual?.nome || '').trim();
+            const email = String(usuarioAtual?.email || '').trim();
+            if(nome && nome.toUpperCase() !== 'USUÁRIO') return nome;
+            if(email.endsWith('@acesso.simpla.app')) return email.split('@')[0].toUpperCase();
+            return email || 'USUÁRIO';
+        }
+
+        function limparDetalhesAuditoria(valor) {
+            if(valor === undefined || valor === null) return null;
+            if(Array.isArray(valor)) return valor.map(limparDetalhesAuditoria);
+            if(typeof valor === 'object') {
+                const saida = {};
+                Object.entries(valor).forEach(([chave,conteudo]) => {
+                    if(conteudo !== undefined && conteudo !== null && !String(chave).toLowerCase().includes('senha')) {
+                        saida[chave] = limparDetalhesAuditoria(conteudo);
+                    }
+                });
+                return saida;
+            }
+            return valor;
+        }
+
+        async function registrarAuditoria(modulo, acao, registroId=null, detalhes={}) {
+            if(!AUDITORIA_CLOUD_ATIVO || !CloudDB || !empresaAtual?.cloud || !empresaAtual?.id || !usuarioAtual?.id) return false;
+            try {
+                const { error } = await CloudDB.from('auditoria_acoes').insert({
+                    empresa_id: empresaAtual.id,
+                    usuario_id: usuarioAtual.id,
+                    login_id: obterLoginAuditoria(),
+                    perfil: obterPerfilAtual(),
+                    modulo: String(modulo || 'SISTEMA').toUpperCase(),
+                    acao: String(acao || 'ACAO').toUpperCase(),
+                    registro_id: registroId === null || registroId === undefined ? null : String(registroId),
+                    detalhes: limparDetalhesAuditoria(detalhes || {})
+                });
+                if(error) throw error;
+                return true;
+            } catch(err) {
+                console.error('Falha ao registrar auditoria:', err);
+                return false;
+            }
+        }
+
+        function formatarDetalhesAuditoria(detalhes) {
+            if(!detalhes || typeof detalhes !== 'object' || !Object.keys(detalhes).length) return '-';
+            return Object.entries(detalhes)
+                .filter(([,v]) => v !== null && v !== undefined && v !== '')
+                .map(([k,v]) => {
+                    let valor = typeof v === 'object' ? JSON.stringify(v) : v;
+                    if(['valor','total'].includes(k)) {
+                        const n = Number(v);
+                        if(Number.isFinite(n)) valor = `R$ ${n.toFixed(2)}`;
+                    }
+                    return `${k.replaceAll('_',' ')}: ${valor}`;
+                }).join(' • ');
+        }
+
+        async function carregarAuditoria() {
+            if(!usuarioEhAdmin() || !CloudDB || !empresaAtual?.id) return;
+            const tbody = document.getElementById('auditoria-tbody');
+            const status = document.getElementById('auditoria-status');
+            if(tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#718096;">Carregando histórico...</td></tr>';
+            if(status) status.textContent = 'Consultando os 250 registros mais recentes...';
+            try {
+                const { data, error } = await CloudDB
+                    .from('auditoria_acoes')
+                    .select('id,usuario_id,login_id,perfil,modulo,acao,registro_id,detalhes,criado_em')
+                    .eq('empresa_id', empresaAtual.id)
+                    .order('criado_em',{ascending:false})
+                    .limit(250);
+                if(error) throw error;
+                auditoriaRegistros = data || [];
+                renderizarAuditoria();
+                if(status) status.textContent = `${auditoriaRegistros.length} registro(s) carregado(s).`;
+            } catch(err) {
+                console.error(err);
+                if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#c53030;">Não foi possível carregar o histórico: ${err?.message || 'erro desconhecido'}</td></tr>`;
+                if(status) status.textContent = '';
+            }
+        }
+
+        function renderizarAuditoria() {
+            const tbody = document.getElementById('auditoria-tbody');
+            if(!tbody) return;
+            const modulo = document.getElementById('auditoria-filtro-modulo')?.value || '';
+            const texto = String(document.getElementById('auditoria-filtro-texto')?.value || '').trim().toUpperCase();
+            const lista = auditoriaRegistros.filter(r => {
+                if(modulo && String(r.modulo || '').toUpperCase() !== modulo) return false;
+                if(!texto) return true;
+                return [r.login_id,r.perfil,r.modulo,r.acao,r.registro_id,formatarDetalhesAuditoria(r.detalhes)].join(' ').toUpperCase().includes(texto);
+            });
+            if(!lista.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#718096;">Nenhum registro encontrado.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = lista.map(r => {
+                const perfil = String(r.perfil || '-').toUpperCase() === 'FUNCIONARIO' ? 'OPERACIONAL' : String(r.perfil || '-').toUpperCase();
+                return `<tr>
+                    <td>${r.criado_em ? new Date(r.criado_em).toLocaleString('pt-BR') : '-'}</td>
+                    <td><b>${r.login_id || r.usuario_id || '-'}</b></td>
+                    <td><span class="auditoria-badge">${perfil}</span></td>
+                    <td>${r.modulo || '-'}</td>
+                    <td><b>${r.acao || '-'}</b>${r.registro_id ? `<br><small>ID: ${r.registro_id}</small>` : ''}</td>
+                    <td><div class="auditoria-detalhes">${formatarDetalhesAuditoria(r.detalhes)}</div></td>
+                </tr>`;
+            }).join('');
+        }
+
+        const REGRAS_PERFIL = {
+            ADMIN: {
+                telas: ['dashboard','clientes','financeiro','agenda','configuracoes'],
+                dashboard: true,
+                clientesVisualizar: true,
+                clientesEditar: true,
+                clientesExcluir: true,
+                clientesExportar: true,
+                agendaVisualizar: true,
+                agendaEditar: true,
+                agendaCancelar: true,
+                agendaBloquear: true,
+                agendaExportar: true,
+                financeiroVisualizar: true,
+                financeiroOperar: true,
+                financeiroExcluir: true,
+                financeiroExportar: true,
+                configuracoes: true,
+                usuarios: true,
+                dashboardFinanceiro: true
+            },
+            GESTOR: {
+                telas: ['dashboard','clientes','financeiro','agenda'],
+                dashboard: true,
+                clientesVisualizar: true,
+                clientesEditar: true,
+                clientesExcluir: false,
+                clientesExportar: true,
+                agendaVisualizar: true,
+                agendaEditar: true,
+                agendaCancelar: true,
+                agendaBloquear: true,
+                agendaExportar: true,
+                financeiroVisualizar: true,
+                financeiroOperar: true,
+                financeiroExcluir: true,
+                financeiroExportar: true,
+                configuracoes: false,
+                usuarios: false,
+                dashboardFinanceiro: true
+            },
+            FINANCEIRO: {
+                telas: ['dashboard','clientes','financeiro','agenda'],
+                dashboard: true,
+                clientesVisualizar: true,
+                clientesEditar: false,
+                clientesExcluir: false,
+                clientesExportar: false,
+                agendaVisualizar: true,
+                agendaEditar: false,
+                agendaCancelar: false,
+                agendaBloquear: false,
+                agendaExportar: false,
+                financeiroVisualizar: true,
+                financeiroOperar: true,
+                financeiroExcluir: true,
+                financeiroExportar: true,
+                configuracoes: false,
+                usuarios: false,
+                dashboardFinanceiro: true
+            },
+            FUNCIONARIO: {
+                telas: ['clientes','financeiro','agenda'],
+                dashboard: false,
+                clientesVisualizar: true,
+                clientesEditar: true,
+                clientesExcluir: false,
+                clientesExportar: false,
+                agendaVisualizar: true,
+                agendaEditar: true,
+                agendaCancelar: true,
+                agendaBloquear: true,
+                agendaExportar: true,
+                financeiroVisualizar: true,
+                financeiroOperar: true,
+                financeiroExcluir: false,
+                financeiroExportar: false,
+                configuracoes: false,
+                usuarios: false,
+                dashboardFinanceiro: false
+            }
+        };
+
+        function obterPerfilAtual() {
+            const perfil = String(usuarioAtual?.perfil || empresaAtual?.perfil || 'FUNCIONARIO').toUpperCase();
+            return REGRAS_PERFIL[perfil] ? perfil : 'FUNCIONARIO';
+        }
+
+        function regraPerfil(chave) {
+            const perfil = obterPerfilAtual();
+            return REGRAS_PERFIL[perfil]?.[chave] === true;
+        }
+
+        function perfilPodeAcessarTela(tela) {
+            return REGRAS_PERFIL[obterPerfilAtual()]?.telas?.includes(tela) === true;
+        }
+
+        function validarAcessoPerfil(chave, mensagem) {
+            if(regraPerfil(chave)) return true;
+            alert(mensagem || 'Seu perfil não possui permissão para esta operação.');
+            return false;
+        }
+
+        function aplicarPermissoesPerfil() {
+            const perfil = obterPerfilAtual();
+
+            ['dashboard','clientes','financeiro','agenda','configuracoes'].forEach(tela => {
+                const btn = document.getElementById(`menu-btn-${tela}`);
+                if(btn) btn.style.display = perfilPodeAcessarTela(tela) ? '' : 'none';
+            });
+
+            // Configurações nunca ficam visíveis fora do ADMIN.
+            const telaCfg = document.getElementById('configuracoes');
+            if(telaCfg && !regraPerfil('configuracoes')) telaCfg.classList.remove('active');
+
+            // Dashboard operacional: oculta indicadores financeiros/sensíveis.
+            const secoesFinanceiras = [
+                'dash-sec-kpis','dash-sec-fluxo','dash-sec-composicao',
+                'dash-sec-servicos','dash-sec-materiais','dash-sec-comparativo',
+                'dash-sec-insights'
+            ];
+            secoesFinanceiras.forEach(id => {
+                const el = document.getElementById(id);
+                if(el && !regraPerfil('dashboardFinanceiro')) el.style.display = 'none';
+            });
+
+            // Identificação do perfil no box lateral.
+            const userBox = document.querySelector('.cloud-user-box');
+            if(userBox) {
+                let badge = userBox.querySelector('.perfil-badge');
+                if(!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'perfil-badge';
+                    userBox.appendChild(badge);
+                }
+                badge.textContent = `PERFIL: ${perfil === 'FUNCIONARIO' ? 'OPERACIONAL' : perfil}`;
+            }
+
+            // Se o usuário caiu em uma tela proibida por cache, leva ao Dashboard.
+            if(telaAtualId && !perfilPodeAcessarTela(telaAtualId)) {
+                const telaInicial = perfil === 'FUNCIONARIO' ? 'agenda' : 'dashboard';
+                telaAtualId = telaInicial;
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(telaInicial)?.classList.add('active');
+                document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(`menu-btn-${telaInicial}`)?.classList.add('active');
+            }
+            setTimeout(aplicarPermissoesAcoesVisuais, 0);
+        }
+
+        function usuarioEhAdmin() {
+            return String(usuarioAtual?.perfil || empresaAtual?.perfil || '').toUpperCase() === 'ADMIN';
+        }
+
+        function aplicarAcessoAdministrativoUI() {
+            const admin = usuarioEhAdmin();
+            const areaAdmin = document.getElementById('usuarios-acesso-admin');
+            const aviso = document.getElementById('usuarios-acesso-nao-admin');
+            const boxAuditoria = document.getElementById('box-cfg-auditoria');
+            if(areaAdmin) areaAdmin.style.display = admin ? '' : 'none';
+            if(aviso) aviso.style.display = admin ? 'none' : '';
+            if(boxAuditoria) boxAuditoria.style.display = admin ? '' : 'none';
+            const meuId = document.getElementById('cfg-meu-usuario-id');
+            if(meuId) meuId.textContent = usuarioAtual?.id || '-';
+        }
+
+        async function copiarMeuUsuarioId() {
+            const id = usuarioAtual?.id || '';
+            if(!id) return;
+            try {
+                await navigator.clipboard.writeText(id);
+                alert('ID do usuário copiado!');
+            } catch(_) {
+                prompt('Copie o ID do usuário:', id);
+            }
+        }
+
+        async function carregarUsuariosEmpresa() {
+            aplicarAcessoAdministrativoUI();
+            const tbody = document.getElementById('cfg-usuarios-tbody');
+            if(!tbody || !CloudDB || !empresaAtual?.cloud) return;
+
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#718096;">Carregando...</td></tr>';
+
+            try {
+                const { data, error } = await CloudDB
+                    .from('usuarios_empresas')
+                    .select('usuario_id, login_id, perfil, ativo, criado_em')
+                    .eq('empresa_id', empresaAtual.id)
+                    .order('criado_em', { ascending:true });
+                if(error) throw error;
+
+                const rows = data || [];
+                if(!rows.length) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#718096;">Nenhum usuário vinculado.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                rows.forEach(v => {
+                    const proprio = String(v.usuario_id) === String(usuarioAtual?.id);
+                    const tr = document.createElement('tr');
+                    const perfilAtual = String(v.perfil || 'FUNCIONARIO').toUpperCase();
+                    tr.innerHTML = `
+                        <td>
+                            <div><b>${proprio ? 'Você' : (v.login_id || 'Usuário')}</b></div>
+                            <code>${proprio ? (usuarioAtual?.email || v.usuario_id) : (v.login_id || v.usuario_id)}</code>
+                        </td>
+                        <td>
+                            ${usuarioEhAdmin()
+                                ? `<select onchange="alterarPerfilUsuarioEmpresa('${v.usuario_id}', this.value)" ${proprio ? 'data-proprio="1"' : ''}>
+                                     <option value="FUNCIONARIO" ${perfilAtual==='FUNCIONARIO'?'selected':''}>Operacional</option>
+                                     <option value="FINANCEIRO" ${perfilAtual==='FINANCEIRO'?'selected':''}>Financeiro</option>
+                                     <option value="GESTOR" ${perfilAtual==='GESTOR'?'selected':''}>Gestor</option>
+                                     <option value="ADMIN" ${perfilAtual==='ADMIN'?'selected':''}>Administrador</option>
+                                   </select>`
+                                : perfilAtual}
+                        </td>
+                        <td>${v.ativo ? '<span style="color:#2f855a;font-weight:bold;">ATIVO</span>' : '<span style="color:#c53030;font-weight:bold;">INATIVO</span>'}</td>
+                        <td>
+                            ${usuarioEhAdmin() && !proprio
+                                ? `<div style="display:flex;gap:5px;flex-wrap:wrap;">
+                                     <button onclick="redefinirSenhaUsuarioEmpresa('${v.usuario_id}', '${String(v.login_id || '').replace(/'/g,'')}')" style="font-size:10px;padding:6px 8px;">🔑 Nova senha</button>
+                                     <button class="btn-excluir-tabela" onclick="alternarUsuarioEmpresa('${v.usuario_id}', ${v.ativo ? 'false' : 'true'})">${v.ativo ? 'Desativar' : 'Reativar'}</button>
+                                   </div>`
+                                : proprio ? '<span style="font-size:10px;color:#718096;">Conta atual</span>' : '-'}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch(err) {
+                console.error('Erro ao carregar usuários:', err);
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#c53030;">Não foi possível carregar os usuários: ${err?.message || 'erro desconhecido'}</td></tr>`;
+            }
+        }
+
+        async function vincularUsuarioEmpresa() { return criarAcessoOperacional(); }
+
+        async function alterarPerfilUsuarioEmpresa(usuarioId, novoPerfil) {
+            if(!validarAcessoPerfil('usuarios','Somente administradores podem gerenciar usuários.')) return;
+            if(!usuarioEhAdmin()) return;
+            if(String(usuarioId) === String(usuarioAtual?.id) && novoPerfil !== 'ADMIN') {
+                alert('Para evitar que a empresa fique sem administrador por engano, seu próprio perfil não pode ser reduzido por esta tela.');
+                await carregarUsuariosEmpresa();
+                return;
+            }
+            try {
+                const { error } = await CloudDB
+                    .from('usuarios_empresas')
+                    .update({ perfil:novoPerfil })
+                    .eq('empresa_id', empresaAtual.id)
+                    .eq('usuario_id', usuarioId);
+                if(error) throw error;
+                await registrarAuditoria('USUARIOS','PERFIL_ALTERADO',usuarioId,{perfil_novo:novoPerfil});
+                await carregarUsuariosEmpresa();
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível alterar o perfil: ${err?.message || 'erro desconhecido'}`);
+                await carregarUsuariosEmpresa();
+            }
+        }
+
+        async function alternarUsuarioEmpresa(usuarioId, ativo) {
+            if(!validarAcessoPerfil('usuarios','Somente administradores podem gerenciar usuários.')) return;
+            if(!usuarioEhAdmin()) return;
+            if(String(usuarioId) === String(usuarioAtual?.id)) {
+                alert('Você não pode desativar o próprio acesso por esta tela.');
+                return;
+            }
+            const acao = ativo ? 'reativar' : 'desativar';
+            if(!confirm(`Deseja ${acao} este usuário?`)) return;
+            try {
+                const { error } = await CloudDB
+                    .from('usuarios_empresas')
+                    .update({ ativo })
+                    .eq('empresa_id', empresaAtual.id)
+                    .eq('usuario_id', usuarioId);
+                if(error) throw error;
+                await registrarAuditoria('USUARIOS',ativo ? 'USUARIO_REATIVADO' : 'USUARIO_DESATIVADO',usuarioId,{status:ativo ? 'ATIVO' : 'INATIVO'});
+                await carregarUsuariosEmpresa();
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível ${acao} o usuário: ${err?.message || 'erro desconhecido'}`);
+            }
+        }
+
 
         const CONFIG_CLOUD_ATIVO = true;
         let salvandoConfigCloud = false;
@@ -3015,7 +3976,16 @@
             if(row.expediente && Object.keys(row.expediente).length) configExpediente = { ...configExpediente, ...row.expediente };
             if(row.modulos && Object.keys(row.modulos).length) configModulos = { ...configModulos, ...row.modulos, paginas:{...configModulos.paginas,...(row.modulos.paginas||{})}, recursosClientes:{...configModulos.recursosClientes,...(row.modulos.recursosClientes||{})}, recursosFinanceiro:{...configModulos.recursosFinanceiro,...(row.modulos.recursosFinanceiro||{})} };
             if(row.campos_cliente && Object.keys(row.campos_cliente).length) configCampos = { ...configCampos, ...row.campos_cliente };
-            if(row.dashboard && Object.keys(row.dashboard).length) configDashboard = { ...configDashboard, ...row.dashboard };
+            if(row.dashboard && Object.keys(row.dashboard).length) {
+                configDashboard = {
+                    ...configDashboard,
+                    ...row.dashboard,
+                    fidelizacao: {
+                        ...(configDashboard.fidelizacao || {}),
+                        ...(row.dashboard.fidelizacao || {})
+                    }
+                };
+            }
             if(row.cancelamentos && Object.keys(row.cancelamentos).length) configCancelamentos = { ...configCancelamentos, ...row.cancelamentos };
             if(row.mensagem_aniversario != null) mensagemAniversario = row.mensagem_aniversario;
             if(row.mensagem_confirmacao != null) mensagemConfirmacaoAgendamento = row.mensagem_confirmacao;
@@ -3041,6 +4011,7 @@
             carregarConfigModulosUI(); aplicarVisibilidadeModulos();
             carregarConfigCamposUI(); aplicarVisibilidadeCampos();
             carregarConfigDashboardUI(); aplicarVisibilidadeDashboard();
+            carregarConfigFidelizacaoUI();
             carregarConfigCancelamentosUI();
             const a=document.getElementById('cfg-msg-aniversario'); if(a) a.value=mensagemAniversario;
             const c=document.getElementById('cfg-msg-confirmacao-agendamento'); if(c) c.value=mensagemConfirmacaoAgendamento;
@@ -3305,6 +4276,7 @@
         }
 
         async function salvarConfigEmpresaV2() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
             const nome = document.getElementById('cfg-empresa-nome')?.value.trim();
             const tipo = document.getElementById('cfg-empresa-tipo')?.value || 'OUTRO';
             empresaAtual = { ...empresaAtual, nome: nome || nomeBarbearia || 'Meu Negócio', tipoNegocio: tipo, atualizadoEm: new Date().toISOString() };
@@ -3319,6 +4291,7 @@
                 const { error } = await CloudDB.from('empresas').update({ nome: empresaAtual.nome, tipo_negocio: empresaAtual.tipoNegocio, atualizado_em: new Date().toISOString() }).eq('id', empresaAtual.id);
                 if(error) { alert('Os dados foram salvos localmente, mas houve falha ao atualizar a empresa na nuvem: ' + error.message); return; }
             }
+            await registrarAuditoria('CONFIGURACOES','IDENTIDADE_NEGOCIO_ALTERADA',empresaAtual.id,{nome:empresaAtual.nome,tipo:empresaAtual.tipoNegocio});
             alert('Identidade do negócio salva com sucesso.');
         }
 
@@ -3347,6 +4320,7 @@
         }
 
         async function salvarConfigExpediente() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
             configExpediente.abertura = document.getElementById('cfg-horario-abertura').value || '08:00';
             configExpediente.fechamento = document.getElementById('cfg-horario-fechamento').value || '18:00';
             configExpediente.intervalo = parseInt(document.getElementById('cfg-horario-intervalo').value) || 45;
@@ -3354,6 +4328,7 @@
             salvarStorage();
             await persistirConfiguracoesCloud();
             renderizarAgenda();
+            await registrarAuditoria('CONFIGURACOES','EXPEDIENTE_ALTERADO',empresaAtual.id,{abertura:configExpediente.abertura,fechamento:configExpediente.fechamento,intervalo:configExpediente.intervalo});
             alert('Horário de funcionamento salvo com sucesso!');
         }
 
@@ -3387,6 +4362,7 @@
         }
 
         async function salvarConfigModulos() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
             configModulos.paginas.agenda = document.getElementById('cfg-mod-agenda').checked;
             configModulos.paginas.clientes = document.getElementById('cfg-mod-clientes').checked;
             configModulos.paginas.financeiro = document.getElementById('cfg-mod-financeiro').checked;
@@ -3405,6 +4381,7 @@
             salvarStorage();
             await persistirConfiguracoesCloud();
             aplicarVisibilidadeModulos();
+            await registrarAuditoria('CONFIGURACOES','MODULOS_RECURSOS_ALTERADOS',empresaAtual.id,{modulos:configModulos});
             alert('Páginas e recursos salvos com sucesso!');
         }
 
@@ -3452,21 +4429,101 @@
         }
 
         async function salvarConfigCancelamentos() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
             Object.keys(configCancelamentos).forEach(chave => {
                 const el=document.getElementById(`cfg-cancel-${chave}`);
                 if(el) configCancelamentos[chave]=el.checked;
             });
             salvarStorage();
             await persistirConfiguracoesCloud();
+            await registrarAuditoria('CONFIGURACOES','PERMISSOES_CANCELAMENTO_ALTERADAS',empresaAtual.id,{permissoes:configCancelamentos});
             alert('Permissões de cancelamento salvas com sucesso!');
         }
 
         function validarPermissaoCancelamento(tipo, rotulo) {
+            const tiposFinanceiros = ['entradas','saidas','materiais','gastosFixos','servicos','produtos'];
+            if(tiposFinanceiros.includes(tipo) && !regraPerfil('financeiroExcluir') && !usuarioEhAdmin()) {
+                alert(`Seu perfil não pode ${rotulo}.`);
+                return false;
+            }
+            if(tipo === 'clientes' && !regraPerfil('clientesExcluir')) {
+                alert(`Seu perfil não pode ${rotulo}.`);
+                return false;
+            }
+            if((tipo === 'agendamentos' || tipo === 'bloqueios') && !regraPerfil(tipo === 'bloqueios' ? 'agendaBloquear' : 'agendaCancelar')) {
+                alert(`Seu perfil não pode ${rotulo}.`);
+                return false;
+            }
             if(configCancelamentos[tipo]===false){
                 alert(`Esta operação está desativada nas Configurações: ${rotulo}.`);
                 return false;
             }
             return true;
+        }
+
+        function obterConfigFidelizacao() {
+            const cfg = configDashboard.fidelizacao || {};
+            return {
+                vipAtendimentos: Math.max(1, Number(cfg.vipAtendimentos || 5)),
+                vipGasto: Math.max(0, Number(cfg.vipGasto || 500)),
+                vipModo: cfg.vipModo === 'E' ? 'E' : 'OU',
+                recorrenteAtendimentos: Math.max(2, Number(cfg.recorrenteAtendimentos || 3))
+            };
+        }
+
+        function avaliarFidelizacaoCliente(clienteId) {
+            const atends = entradas.filter(e => String(e.clienteId || '') === String(clienteId));
+            const qtdAtendimentos = atends.length;
+            const totalGasto = atends.reduce((acc,e) => acc + Number(e.total || 0), 0);
+            const cfg = obterConfigFidelizacao();
+
+            const atingiuQtdVip = qtdAtendimentos >= cfg.vipAtendimentos;
+            const atingiuGastoVip = totalGasto >= cfg.vipGasto;
+            const vip = cfg.vipModo === 'E'
+                ? (atingiuQtdVip && atingiuGastoVip)
+                : (atingiuQtdVip || atingiuGastoVip);
+            const recorrente = qtdAtendimentos >= cfg.recorrenteAtendimentos;
+
+            return {
+                vip,
+                recorrente,
+                qtdAtendimentos,
+                totalGasto,
+                cfg,
+                atingiuQtdVip,
+                atingiuGastoVip
+            };
+        }
+
+        function carregarConfigFidelizacaoUI() {
+            const cfg = obterConfigFidelizacao();
+            const a = document.getElementById('cfg-vip-atendimentos');
+            const g = document.getElementById('cfg-vip-gasto');
+            const m = document.getElementById('cfg-vip-modo');
+            const r = document.getElementById('cfg-recorrente-atendimentos');
+            if(a) a.value = cfg.vipAtendimentos;
+            if(g) g.value = cfg.vipGasto;
+            if(m) m.value = cfg.vipModo;
+            if(r) r.value = cfg.recorrenteAtendimentos;
+        }
+
+        async function salvarConfigFidelizacao() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
+            const vipAtendimentos = Math.max(1, Number(document.getElementById('cfg-vip-atendimentos')?.value || 5));
+            const vipGasto = Math.max(0, Number(document.getElementById('cfg-vip-gasto')?.value || 500));
+            const vipModo = document.getElementById('cfg-vip-modo')?.value === 'E' ? 'E' : 'OU';
+            const recorrenteAtendimentos = Math.max(2, Number(document.getElementById('cfg-recorrente-atendimentos')?.value || 3));
+
+            configDashboard.fidelizacao = { vipAtendimentos, vipGasto, vipModo, recorrenteAtendimentos };
+            salvarStorage();
+            await persistirConfiguracoesCloud();
+
+            if(clienteAtualHistoricoId && document.getElementById('modal-historico-cliente')?.classList.contains('active')) {
+                abrirHistoricoCliente(clienteAtualHistoricoId);
+            }
+            renderizarDashboard();
+            await registrarAuditoria('CONFIGURACOES','FIDELIZACAO_ALTERADA',empresaAtual.id,{fidelizacao:configDashboard.fidelizacao});
+            alert('Critérios de fidelização salvos com sucesso!');
         }
 
         function carregarConfigDashboardUI() {
@@ -3477,6 +4534,7 @@
         }
 
         async function salvarConfigDashboard() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
             Object.keys(configDashboard).forEach(chave => {
                 const el = document.getElementById(`cfg-dash-${chave}`);
                 if(el) configDashboard[chave] = el.checked;
@@ -3485,6 +4543,7 @@
             await persistirConfiguracoesCloud();
             aplicarVisibilidadeDashboard();
             renderizarDashboard();
+            await registrarAuditoria('CONFIGURACOES','DASHBOARD_CONFIGURADO',empresaAtual.id,{dashboard:configDashboard});
             alert('Recursos do Dashboard salvos com sucesso!');
         }
 
@@ -3497,6 +4556,7 @@
         }
 
         async function salvarConfigMensagem(tipo) {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
             const cfgMsgEl = document.getElementById('cfg-msg-aniversario');
             const cfgMsgConfirmacaoEl = document.getElementById('cfg-msg-confirmacao-agendamento');
 
@@ -3511,6 +4571,7 @@
 
             salvarStorage();
             await persistirConfiguracoesCloud();
+            await registrarAuditoria('CONFIGURACOES','MENSAGEM_PADRAO_ALTERADA',tipo,{tipo});
             alert('Configuração salva com sucesso!');
         }
 
@@ -3522,6 +4583,7 @@
         }
 
         async function salvarConfigCampos() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
             for (let chave in configCampos) {
                 let el = document.getElementById(`cfg-${chave}`);
                 if (el) configCampos[chave] = el.checked;
@@ -3529,6 +4591,7 @@
             salvarStorage();
             await persistirConfiguracoesCloud();
             aplicarVisibilidadeCampos();
+            await registrarAuditoria('CONFIGURACOES','CAMPOS_CLIENTE_ALTERADOS',empresaAtual.id,{campos:configCampos});
             alert('Campos do cadastro salvos com sucesso!');
         }
 
@@ -3541,6 +4604,71 @@
             }
         }
 
+
+        function aplicarPermissoesAcoesVisuais() {
+            const perfil = obterPerfilAtual();
+
+            // CLIENTES
+            const cadastroClientes = document.getElementById('sec-cli-cadastro');
+            if(cadastroClientes) {
+                cadastroClientes.style.display = regraPerfil('clientesEditar') ? '' : 'none';
+            }
+            const btnExportClientes = document.getElementById('btn-exportar-clientes-tela');
+            if(btnExportClientes) {
+                btnExportClientes.style.display = regraPerfil('clientesExportar') ? '' : 'none';
+            }
+
+            document.querySelectorAll('#clientes button').forEach(btn => {
+                const texto = (btn.textContent || '').toUpperCase();
+                const onclick = String(btn.getAttribute('onclick') || '').toLowerCase();
+                const ehExportacao = texto.includes('EXPORT') || texto.includes('EXCEL') || texto.includes('PDF') || onclick.includes('export');
+                const ehExclusao = texto.includes('EXCLUIR') || onclick.includes('excluir');
+                if(ehExportacao && !regraPerfil('clientesExportar')) btn.style.display = 'none';
+                if(ehExclusao && !regraPerfil('clientesExcluir')) btn.style.display = 'none';
+            });
+
+            // FINANCEIRO
+            document.querySelectorAll('#financeiro button').forEach(btn => {
+                const texto = (btn.textContent || '').toUpperCase();
+                const onclick = String(btn.getAttribute('onclick') || '').toLowerCase();
+                const ehExportacao = texto.includes('EXPORT') || texto.includes('EXCEL') || texto.includes('PDF') || onclick.includes('export');
+                const ehExclusao = texto.includes('EXCLUIR') || onclick.includes('excluir');
+                if(ehExportacao && !regraPerfil('financeiroExportar')) btn.style.display = 'none';
+                if(ehExclusao && !regraPerfil('financeiroExcluir')) btn.style.display = 'none';
+            });
+
+            // AGENDA
+            document.querySelectorAll('#agenda button').forEach(btn => {
+                const texto = (btn.textContent || '').toUpperCase();
+                const onclick = String(btn.getAttribute('onclick') || '').toLowerCase();
+
+                const ehExportacao = texto.includes('EXPORT') || texto.includes('EXCEL') || texto.includes('PDF') || onclick.includes('export');
+                const ehRecebimento = texto.includes('FINALIZAR ATENDIMENTO') ||
+                                      texto.includes('FINALIZADO E RECEBIDO') ||
+                                      onclick.includes('iniciarrecebimento');
+
+                if(ehExportacao && !regraPerfil('agendaExportar')) {
+                    btn.style.display = 'none';
+                    return;
+                }
+
+                // Financeiro vê a Agenda e pode receber, mas não altera agendamentos/bloqueios.
+                if(perfil === 'FINANCEIRO' && !ehRecebimento && !ehExportacao) {
+                    const podeNavegar = onclick.includes('renderizaragenda') ||
+                                       texto.includes('HOJE') ||
+                                       texto.includes('ANTERIOR') ||
+                                       texto.includes('PRÓX');
+                    if(!podeNavegar) btn.disabled = true;
+                }
+            });
+
+            // CONFIGURAÇÕES: somente ADMIN.
+            document.querySelectorAll('#configuracoes button, #configuracoes input, #configuracoes select, #configuracoes textarea')
+                .forEach(el => {
+                    if(!regraPerfil('configuracoes')) el.disabled = true;
+                });
+        }
+
         function alternarMenuMobile() {
             document.body.classList.toggle('mobile-menu-open');
         }
@@ -3550,6 +4678,10 @@
         }
 
         function mudarTela(idTela, event) {
+            if(!perfilPodeAcessarTela(idTela)) {
+                alert('Seu perfil não possui acesso a esta área.');
+                return;
+            }
             telaAtualId = idTela;
             fecharMenuMobile();
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -3568,6 +4700,8 @@
                 atualizarTabelaClientes();
                 atualizarAniversariantesDia();
                 atualizarAniversariantesMes();
+            } else if(idTela === 'configuracoes') {
+                if(usuarioEhAdmin()) carregarAuditoria().catch(console.error);
             } else if(idTela === 'financeiro') {
                 if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
                     carregarFinanceiroCloud().catch(err => {
@@ -3743,6 +4877,10 @@
                     `;
                 } else if(agendamentoOcupado) {
                     card.className = 'slot-card ocupado';
+                    if(entradaJaGeradaPorAgendamento(agendamentoOcupado.id)) {
+                        card.style.borderLeftColor = '#38a169';
+                        card.style.background = '#f0fff4';
+                    }
                     
                     let badgeSemCadastro = agendamentoOcupado.isNaoCadastrado 
                         ? `<span class="slot-badge sem-cadastro">⚠️ Sem Cadastro</span>` 
@@ -3763,6 +4901,9 @@
                                 <span class="slot-horario">${agendamentoOcupado.horario} - ${fimApptFmt}</span>
                                 <div class="slot-badges-container">
                                     ${badgeSemCadastro}
+                                    ${entradaJaGeradaPorAgendamento(agendamentoOcupado.id)
+                                        ? '<span class="slot-badge" style="background:#c6f6d5;color:#22543d;">✓ CONCLUÍDO</span>'
+                                        : ''}
                                     <span class="slot-badge ocupado">${durAppt} MIN</span>
                                 </div>
                             </div>
@@ -3770,13 +4911,20 @@
                                 <b>Cliente:</b> ${agendamentoOcupado.clienteNome}<br>
                                 <b>Telefone:</b> ${whatsappHtml}<br>
                                 <b>Serviço:</b> ${agendamentoOcupado.servico}<br>
+                                ${(() => {
+                                    const rec = entradas.find(e => String(e.agendamentoId || '') === String(agendamentoOcupado.id));
+                                    return rec ? `<b>Recebido:</b> R$ ${Number(rec.total || 0).toFixed(2)} • ${rec.pagamento || '-'}<br>` : '';
+                                })()}
                                 <b>Obs:</b> ${agendamentoOcupado.obs || '-'}
                             </div>
                         </div>
                         ${dataRetroativa ? '<div style="font-size:12px;color:#718096;text-align:center;">Consulta histórica — sem ações de alteração</div>' : `
-                        <div style="display: flex; gap: 6px;">
-                            <button class="btn-salvar" style="flex: 1; font-size: 12px; padding: 6px; background: #3182ce; color: white;" onclick="abrirEdicaoAgendamento('${agendamentoOcupado.id}')">✏️ Editar</button>
-                            <button class="btn-excluir-tabela" style="flex: 1; font-size: 12px; padding: 6px;" onclick="cancelarAgendamento('${agendamentoOcupado.id}')">Liberar Horário</button>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            ${entradaJaGeradaPorAgendamento(agendamentoOcupado.id)
+                                ? '<button class="btn-salvar" disabled style="flex:1 1 100%;font-size:12px;padding:8px;background:#718096;color:white;cursor:not-allowed;">✓ Finalizado e recebido</button>'
+                                : `<button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#38a169;color:white;" onclick="iniciarRecebimentoAgendamento('${agendamentoOcupado.id}')">✓ Finalizar atendimento</button>
+                                   <button class="btn-salvar" style="flex:1;font-size:12px;padding:6px;background:#3182ce;color:white;" onclick="abrirEdicaoAgendamento('${agendamentoOcupado.id}')">✏️ Editar</button>
+                                   <button class="btn-excluir-tabela" style="flex:1;font-size:12px;padding:6px;" onclick="cancelarAgendamento('${agendamentoOcupado.id}')">Liberar Horário</button>`}
                         </div>`}
                     `;
                 } else {
@@ -3806,76 +4954,170 @@
         function obterAgendamentosDaDataSelecionada() {
             const data = document.getElementById('agenda-data-filtro')?.value;
             if(!data) return [];
-            return agendamentos.filter(a => a.data === data).sort((a,b) => timeToMin(a.horario) - timeToMin(b.horario));
+            return agendamentos
+                .filter(a => a.data === data)
+                .sort((a,b) => timeToMin(a.horario) - timeToMin(b.horario));
         }
 
         function formatarDataAgenda(data) {
             return data ? new Date(data + 'T00:00:00').toLocaleDateString('pt-BR') : '-';
         }
 
+        function obterReceitaDoAgendamento(agendamentoId) {
+            return entradas.find(e => String(e.agendamentoId || '') === String(agendamentoId)) || null;
+        }
+
+        function montarDadosExportacaoAgenda() {
+            if(!validarAcessoPerfil('agendaExportar','Seu perfil não pode exportar documentos da Agenda.')) return;
+            return obterAgendamentosDaDataSelecionada().map(a => {
+                const receita = obterReceitaDoAgendamento(a.id);
+                const fim = minToTime(timeToMin(a.horario) + (a.duracao || configExpediente.intervalo || 45));
+                return {
+                    agendamento: a,
+                    receita,
+                    horarioFim: fim,
+                    status: receita ? 'FINALIZADO / RECEBIDO' : 'AGENDADO',
+                    valorRecebido: receita ? Number(receita.total || 0) : 0,
+                    pagamento: receita?.pagamento || ''
+                };
+            });
+        }
+
         function exportarAgendaDiaExcel() {
+            if(!validarAcessoPerfil('agendaExportar','Seu perfil não pode exportar documentos da Agenda.')) return;
             const data = document.getElementById('agenda-data-filtro')?.value;
-            if(!data) { alert('Selecione uma data para exportar.'); return; }
-            const registros = obterAgendamentosDaDataSelecionada();
-            const linhas = registros.map(a => ({
+            if(!data) {
+                alert('Selecione uma data para exportar.');
+                return;
+            }
+
+            const registros = montarDadosExportacaoAgenda();
+            if(!registros.length) {
+                alert('Não há atendimentos nesta data para exportar.');
+                return;
+            }
+
+            const linhas = registros.map(({agendamento:a, horarioFim, status, valorRecebido, pagamento}) => ({
                 'Data': formatarDataAgenda(a.data),
-                'Horário': a.horario || '',
+                'Horário Inicial': a.horario || '',
+                'Horário Final': horarioFim || '',
                 'Cliente': a.clienteNome || '',
                 'Telefone': a.telefone || '',
                 'Serviço': a.servico || '',
                 'Duração (min)': a.duracao || '',
+                'Status': status,
+                'Forma de Pagamento': pagamento || '-',
+                'Valor Recebido (R$)': valorRecebido,
                 'Observações': a.obs || ''
             }));
-            if(!linhas.length) { alert('Não há agendamentos nesta data para exportar.'); return; }
+
             const ws = XLSX.utils.json_to_sheet(linhas);
+
+            // Larguras aproximadas para facilitar a leitura no Excel.
+            ws['!cols'] = [
+                {wch:12}, {wch:14}, {wch:14}, {wch:28}, {wch:18},
+                {wch:28}, {wch:14}, {wch:22}, {wch:20}, {wch:20}, {wch:36}
+            ];
+
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Agendamentos');
-            XLSX.writeFile(wb, `agendamentos_${data}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, ws, 'Atendimentos');
+            XLSX.writeFile(wb, `atendimentos_${data}.xlsx`);
         }
 
         function exportarAgendaDiaPDF() {
+            if(!validarAcessoPerfil('agendaExportar','Seu perfil não pode exportar documentos da Agenda.')) return;
             const data = document.getElementById('agenda-data-filtro')?.value;
-            if(!data) { alert('Selecione uma data para exportar.'); return; }
-            const registros = obterAgendamentosDaDataSelecionada();
-            if(!registros.length) { alert('Não há agendamentos nesta data para exportar.'); return; }
-            const { jsPDF } = window.jspdf || {};
-            if(!jsPDF) { alert('Não foi possível carregar o exportador de PDF.'); return; }
-            const doc = new jsPDF();
-            doc.setFontSize(16);
-            doc.text(`${nomeBarbearia} — Agendamentos`, 14, 18);
-            doc.setFontSize(11);
-            doc.text(`Data: ${formatarDataAgenda(data)}`, 14, 27);
-            let y = 38;
-            registros.forEach((a, i) => {
-                const fim = minToTime(timeToMin(a.horario) + (a.duracao || configExpediente.intervalo || 45));
-                const linhas = [
-                    `${a.horario || '--:--'} - ${fim} | ${formatarNomeCompletoCliente(a.clienteNome || '')}`,
-                    `Telefone: ${a.telefone || 'Não informado'} | Serviço: ${a.servico || '-'}`,
-                    `Observações: ${a.obs || '-'}`
-                ];
-                linhas.forEach(l => {
-                    const quebradas = doc.splitTextToSize(l, 180);
-                    doc.text(quebradas, 14, y);
-                    y += 6 * quebradas.length;
-                });
+            if(!data) {
+                alert('Selecione uma data para exportar.');
+                return;
+            }
 
-                // Separador visual entre os agendamentos
-                if (i < registros.length - 1) {
-                    y += 2;
-                    doc.setDrawColor(180, 180, 180);
-                    doc.setLineWidth(0.3);
-                    doc.line(14, y, 196, y);
-                    y += 6;
-                } else {
-                    y += 4;
+            const registros = montarDadosExportacaoAgenda();
+            if(!registros.length) {
+                alert('Não há atendimentos nesta data para exportar.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf || {};
+            if(!jsPDF) {
+                alert('Não foi possível carregar o exportador de PDF.');
+                return;
+            }
+
+            const doc = new jsPDF();
+            const margemX = 14;
+            let y = 18;
+
+            doc.setFontSize(16);
+            doc.text(`${nomeBarbearia} - Atendimentos do Dia`, margemX, y);
+
+            y += 9;
+            doc.setFontSize(11);
+            doc.text(`Data: ${formatarDataAgenda(data)}`, margemX, y);
+
+            const finalizados = registros.filter(r => !!r.receita);
+            const totalRecebido = finalizados.reduce((acc, r) => acc + r.valorRecebido, 0);
+
+            y += 7;
+            doc.setFontSize(9);
+            doc.text(
+                `Agendamentos: ${registros.length} | Finalizados: ${finalizados.length} | Total recebido: R$ ${totalRecebido.toFixed(2)}`,
+                margemX,
+                y
+            );
+
+            y += 10;
+
+            registros.forEach((r, i) => {
+                const a = r.agendamento;
+
+                if(y > 258) {
+                    doc.addPage();
+                    y = 18;
                 }
 
-                if(y > 275 && i < registros.length - 1) { doc.addPage(); y = 20; }
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.text(
+                    `${a.horario || '--:--'} - ${r.horarioFim} | ${a.clienteNome || 'CLIENTE NÃO INFORMADO'}`,
+                    margemX,
+                    y
+                );
+                doc.setFont(undefined, 'normal');
+                y += 6;
+
+                const linhas = [
+                    `Status: ${r.status}`,
+                    `Telefone: ${a.telefone || 'Não informado'}`,
+                    `Serviço: ${a.servico || '-'}`,
+                    `Duração: ${a.duracao || configExpediente.intervalo || '-'} min`,
+                    r.receita
+                        ? `Recebimento: R$ ${r.valorRecebido.toFixed(2)} | ${r.pagamento || '-'}`
+                        : `Recebimento: ainda não finalizado`,
+                    `Observações: ${a.obs || '-'}`
+                ];
+
+                linhas.forEach(texto => {
+                    const quebradas = doc.splitTextToSize(texto, 180);
+                    doc.setFontSize(9);
+                    doc.text(quebradas, margemX, y);
+                    y += 5 * quebradas.length;
+                });
+
+                if(i < registros.length - 1) {
+                    y += 2;
+                    doc.setDrawColor(190,190,190);
+                    doc.setLineWidth(0.25);
+                    doc.line(margemX, y, 196, y);
+                    y += 6;
+                }
             });
-            doc.save(`agendamentos_${data}.pdf`);
+
+            doc.save(`atendimentos_${data}.pdf`);
         }
 
         function abrirModalBloqueio(horario) {
+            if(!validarAcessoPerfil('agendaBloquear','Seu perfil não pode bloquear horários.')) return;
             const dataSelecionada = document.getElementById('agenda-data-filtro').value;
             if (dataSelecionada < obterHojeLocal()) {
                 alert('Não é possível bloquear horários em datas retroativas.');
@@ -3915,6 +5157,8 @@
                 }
                 fecharModalBloqueio();
                 renderizarAgenda();
+                const bloqueioCriado = bloqueios[bloqueios.length - 1];
+                await registrarAuditoria('AGENDA','HORARIO_BLOQUEADO',bloqueioCriado?.id || null,{data:bloqueioCriado?.data || data,horario,tipo});
                 alert('Horário bloqueado com sucesso!');
             } catch(err) {
                 console.error(err);
@@ -3923,6 +5167,7 @@
         }
 
         async function desbloquearHorario(id) {
+            if(!validarAcessoPerfil('agendaBloquear','Seu perfil não pode desbloquear horários.')) return;
             if(!validarPermissaoCancelamento('bloqueios','desbloquear horários')) return;
             if(!confirm('Tem certeza que deseja desbloquear este horário?')) return;
             try {
@@ -3930,9 +5175,11 @@
                     const { error } = await CloudDB.from('bloqueios_agenda').delete().eq('id', id).eq('empresa_id', empresaAtual.id);
                     if(error) throw error;
                 }
+                const bloqueioRemovido = bloqueios.find(b => String(b.id) === String(id));
                 bloqueios = bloqueios.filter(b => String(b.id) !== String(id));
                 salvarCacheAgendaCloud();
                 renderizarAgenda();
+                await registrarAuditoria('AGENDA','HORARIO_DESBLOQUEADO',id,{data:bloqueioRemovido?.data,horario:bloqueioRemovido?.horario,tipo:bloqueioRemovido?.tipo});
             } catch(err) {
                 console.error(err);
                 alert(`Não foi possível desbloquear o horário: ${err?.message || 'erro desconhecido'}`);
@@ -4106,7 +5353,96 @@
             return `https://wa.me/${numeroCompleto}?text=${encodeURIComponent(mensagem)}`;
         }
 
+
+        /* ===== INTEGRAÇÃO AGENDA -> CLIENTE -> FINANCEIRO ===== */
+        function obterServicoDoAgendamento(agendamento) {
+            if(!agendamento) return null;
+            return servicos.find(s =>
+                String(s.id) === String(agendamento.servicoId || '') ||
+                String(s.nome || '').toUpperCase() === String(agendamento.servico || '').toUpperCase()
+            ) || null;
+        }
+
+        function entradaJaGeradaPorAgendamento(agendamentoId) {
+            return entradas.some(e => String(e.agendamentoId || '') === String(agendamentoId));
+        }
+
+        async function iniciarRecebimentoAgendamento(id) {
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não possui acesso ao recebimento financeiro.')) return;
+            const agendamento = agendamentos.find(a => String(a.id) === String(id));
+            if(!agendamento) {
+                alert('Agendamento não encontrado.');
+                return;
+            }
+
+            if(entradaJaGeradaPorAgendamento(id)) {
+                alert('Este atendimento já foi finalizado e não pode gerar uma segunda receita.');
+                return;
+            }
+
+            agendamentoEmRecebimentoId = agendamento.id;
+
+            mudarTela('financeiro');
+            mudarAba('aba-entradas');
+
+            const buscaCliente = document.getElementById('busca-cliente');
+            const dataEntrada = document.getElementById('data-entrada');
+
+            if(buscaCliente) {
+                if(agendamento.clienteId) {
+                    const cliente = clientes.find(c => String(c.id) === String(agendamento.clienteId));
+                    buscaCliente.value = cliente
+                        ? `${cliente.codigo} - ${formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)}`
+                        : (agendamento.clienteNome || '');
+                } else {
+                    buscaCliente.value = agendamento.clienteNome || '';
+                }
+            }
+
+            if(dataEntrada) dataEntrada.value = agendamento.data || obterHojeLocal();
+
+            carrinho = [];
+            const servico = obterServicoDoAgendamento(agendamento);
+            if(servico) {
+                carrinho.push({ ...servico, tipoItem:'servico' });
+            } else if(agendamento.servico) {
+                carrinho.push({
+                    id: agendamento.servicoId || `agenda-${agendamento.id}`,
+                    nome: agendamento.servico,
+                    preco: 0,
+                    tipoItem:'servico'
+                });
+            }
+
+            atualizarCarrinhoUI();
+            atualizarEspelhoClienteFinanceiro?.();
+
+            const avisoId = 'aviso-recebimento-agenda';
+            document.getElementById(avisoId)?.remove();
+            const area = document.querySelector('#aba-entradas .entradas-form-area');
+            if(area) {
+                const aviso = document.createElement('div');
+                aviso.id = avisoId;
+                aviso.style.cssText = 'background:#ebf8ff;border:1px solid #90cdf4;border-left:4px solid #3182ce;color:#2a4365;padding:10px 12px;border-radius:6px;margin-bottom:14px;font-size:12px;line-height:1.45;';
+                aviso.innerHTML = `<b>Recebimento iniciado pela Agenda</b><br>${agendamento.clienteNome || 'Cliente'} • ${formatarDataAgenda(agendamento.data)} • ${agendamento.horario || ''}. Você pode acrescentar serviços ou produtos antes de finalizar.`;
+                area.prepend(aviso);
+            }
+
+            document.getElementById('financeiro')?.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+
+        function concluirAgendamentoAposRecebimento(agendamentoId, entradaGerada) {
+            if(!agendamentoId || !entradaGerada) return;
+            // A conclusão é determinada pelo vínculo da receita com o agendamento.
+            // Não altera o campo status da tabela agendamentos, evitando conflito
+            // com constraints já existentes no banco.
+            entradaGerada.agendamentoId = agendamentoId;
+            renderizarAgenda();
+            renderizarDashboard();
+        }
+
         async function salvarAgendamento() {
+            if(!validarAcessoPerfil('agendaEditar','Seu perfil possui apenas consulta da Agenda.')) return;
             const idEdicao = document.getElementById('agenda-edicao-id').value || null;
             const horaInicio = document.getElementById('agenda-hora-inicio').value || document.getElementById('agenda-slot-hora').value;
             const duracaoMin = parseInt(document.getElementById('agenda-duracao-min').value) || configExpediente.intervalo || 45;
@@ -4205,6 +5541,7 @@
                         fecharModalAgendamento();
                         renderizarAgenda();
                         renderizarDashboard();
+                        await registrarAuditoria('AGENDA','AGENDAMENTO_EDITADO',idEdicao,{cliente:clienteNome,data,horario:horaInicio,servico});
                         alert('Agendamento atualizado com sucesso!');
                         return;
                     }
@@ -4225,6 +5562,12 @@
                 fecharModalAgendamento();
                 renderizarAgenda();
                 renderizarDashboard();
+                if(idEdicao) {
+                    await registrarAuditoria('AGENDA','AGENDAMENTO_EDITADO',idEdicao,{cliente:clienteNome,data,horario:horaInicio,servico});
+                } else {
+                    const ultimoAgendamento = agendamentos[agendamentos.length - 1];
+                    await registrarAuditoria('AGENDA','AGENDAMENTO_CRIADO',ultimoAgendamento?.id || null,{cliente:clienteNome,data,horario:horaInicio,servico});
+                }
                 alert(idEdicao ? 'Agendamento atualizado com sucesso!' : 'Horário agendado com sucesso!');
             } catch(err) {
                 console.error(err);
@@ -4233,6 +5576,7 @@
         }
 
         async function cancelarAgendamento(id) {
+            if(!validarAcessoPerfil('agendaCancelar','Seu perfil não pode cancelar ou liberar agendamentos.')) return;
             if(!validarPermissaoCancelamento('agendamentos','cancelar agendamentos')) return;
             const agendamento = agendamentos.find(a => String(a.id) === String(id));
             if (agendamento && agendamento.data < obterHojeLocal()) { alert('Agendamentos retroativos não podem ser cancelados.'); return; }
@@ -4242,10 +5586,12 @@
                     const { error } = await CloudDB.from('agendamentos').update({ status:'CANCELADO', atualizado_em:new Date().toISOString() }).eq('id', id).eq('empresa_id', empresaAtual.id);
                     if(error) throw error;
                 }
+                const agendamentoCancelado = agendamentos.find(a => String(a.id) === String(id));
                 agendamentos = agendamentos.filter(a => String(a.id) !== String(id));
                 salvarCacheAgendaCloud();
                 renderizarAgenda();
                 renderizarDashboard();
+                await registrarAuditoria('AGENDA','AGENDAMENTO_CANCELADO',id,{cliente:agendamentoCancelado?.clienteNome,data:agendamentoCancelado?.data,horario:agendamentoCancelado?.horario});
             } catch(err) {
                 console.error(err);
                 alert(`Não foi possível cancelar o agendamento: ${err?.message || 'erro desconhecido'}`);
@@ -4254,6 +5600,7 @@
 
         /* --- MÓDULO CLIENTES --- */
         async function cadastrarCliente() {
+            if(!validarAcessoPerfil('clientesEditar','Seu perfil não pode cadastrar clientes.')) return;
             const nome = document.getElementById('cli-nome').value.trim();
             const sobrenome = configCampos.sobrenome ? document.getElementById('cli-sobrenome').value.trim() : '';
             const telefone = configCampos.telefone ? document.getElementById('cli-telefone').value.trim() : '';
@@ -4299,6 +5646,7 @@
                     salvarCacheClientesCloud();
                     limparFormularioCliente();
                     sincronizarDadosClientesTodasAsTelas();
+                    await registrarAuditoria('CLIENTES','CLIENTE_CADASTRADO',clienteObj.id,{nome:formatarNomeCompletoCliente(clienteObj.nome,clienteObj.sobrenome)});
                     alert('Cliente cadastrado na nuvem com sucesso! Ele já está disponível em Agendamentos e Financeiro.');
                     return clienteObj;
                 } catch(err) {
@@ -4516,16 +5864,83 @@
             const tbody = document.getElementById('hist-cli-tabela-corpo');
             tbody.innerHTML = '';
             const atends = entradas.filter(e => String(e.clienteId || '') === String(c.id));
+
+            const totalGasto = atends.reduce((acc, at) => acc + Number(at.total || 0), 0);
+            const qtdAtendimentos = atends.length;
+            const ticketMedio = qtdAtendimentos ? totalGasto / qtdAtendimentos : 0;
+
+            const ordenadosData = [...atends].sort((a,b) => new Date(b.data) - new Date(a.data));
+            const ultimoAtendimento = ordenadosData[0]?.data
+                ? new Date(ordenadosData[0].data + 'T00:00:00').toLocaleDateString('pt-BR')
+                : '-';
+
+            const contagemServicos = {};
+            atends.forEach(at => {
+                (at.itens || []).forEach(item => {
+                    if(item.tipoItem === 'produto') return;
+                    const nomeItem = String(item.nome || '').trim();
+                    if(!nomeItem) return;
+                    contagemServicos[nomeItem] = (contagemServicos[nomeItem] || 0) + Number(item.quantidade || 1);
+                });
+            });
+            const servicoMaisConsumido = Object.entries(contagemServicos)
+                .sort((a,b) => b[1] - a[1])[0];
+
+            const qtdAgenda = atends.filter(at => !!at.agendamentoId).length;
+            const qtdManual = qtdAtendimentos - qtdAgenda;
+            const origemTexto = qtdAtendimentos
+                ? `AGENDA: ${qtdAgenda} • MANUAL: ${qtdManual}`
+                : '-';
+
+            const statusRelacionamento = avaliarFidelizacaoCliente(c.id);
+            const badgesEl = document.getElementById('hist-cli-status-badges');
+            const explicacaoEl = document.getElementById('hist-cli-status-explicacao');
+            if(badgesEl) {
+                const badges = [];
+                if(statusRelacionamento.vip) badges.push('<span class="hist-cli-status-badge vip">🏆 CLIENTE VIP</span>');
+                if(statusRelacionamento.recorrente) badges.push('<span class="hist-cli-status-badge recorrente">↻ CLIENTE RECORRENTE</span>');
+                if(!statusRelacionamento.vip && !statusRelacionamento.recorrente) badges.push('<span class="hist-cli-status-badge novo">CLIENTE EM DESENVOLVIMENTO</span>');
+                badgesEl.innerHTML = badges.join('');
+            }
+            if(explicacaoEl) {
+                const cfg = statusRelacionamento.cfg;
+                const regraVip = cfg.vipModo === 'E'
+                    ? `${cfg.vipAtendimentos} atendimentos E R$ ${cfg.vipGasto.toFixed(2)} em compras`
+                    : `${cfg.vipAtendimentos} atendimentos OU R$ ${cfg.vipGasto.toFixed(2)} em compras`;
+                explicacaoEl.innerHTML = `VIP: ${regraVip}. Recorrente: a partir de ${cfg.recorrenteAtendimentos} atendimentos.`;
+            }
+
+            const elQtd = document.getElementById('hist-cli-qtd');
+            const elTotal = document.getElementById('hist-cli-total');
+            const elTicket = document.getElementById('hist-cli-ticket');
+            const elUltimo = document.getElementById('hist-cli-ultimo');
+            const elServico = document.getElementById('hist-cli-servico-top');
+            const elOrigem = document.getElementById('hist-cli-origem');
+
+            if(elQtd) elQtd.innerText = String(qtdAtendimentos);
+            if(elTotal) elTotal.innerText = `R$ ${totalGasto.toFixed(2)}`;
+            if(elTicket) elTicket.innerText = `R$ ${ticketMedio.toFixed(2)}`;
+            if(elUltimo) elUltimo.innerText = ultimoAtendimento;
+            if(elServico) elServico.innerText = servicoMaisConsumido
+                ? `${servicoMaisConsumido[0]} (${servicoMaisConsumido[1]}x)`
+                : '-';
+            if(elOrigem) elOrigem.innerText = origemTexto;
             if(atends.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #a0aec0;">Nenhum atendimento registrado para este cliente.</td></tr>`;
             } else {
                 atends.sort((a,b) => new Date(b.data) - new Date(a.data));
                 atends.forEach(at => {
-                    let servicosNomes = at.itens.map(i => i.nome).join(', ');
+                    let servicosNomes = Array.isArray(at.itens) && at.itens.length ? at.itens.map(i => i.nome).join(', ') : '-';
                     let tr = document.createElement('tr');
+                    const agOrigem = at.agendamentoId
+                        ? agendamentos.find(a => String(a.id) === String(at.agendamentoId))
+                        : null;
+                    const origemHtml = agOrigem
+                        ? `<div style="margin-top:4px;"><span style="display:inline-block;padding:2px 6px;border-radius:99px;background:#ebf8ff;color:#2b6cb0;font-size:10px;font-weight:bold;">AGENDA${agOrigem.horario ? ' • ' + agOrigem.horario : ''}</span></div>`
+                        : `<div style="margin-top:4px;"><span style="display:inline-block;padding:2px 6px;border-radius:99px;background:#edf2f7;color:#4a5568;font-size:10px;font-weight:bold;">LANÇAMENTO MANUAL</span></div>`;
                     tr.innerHTML = `
                         <td>${new Date(at.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
-                        <td>${servicosNomes}</td>
+                        <td>${servicosNomes}${origemHtml}</td>
                         <td>${at.pagamento}</td>
                         <td style="color: #38a169; font-weight: bold;">R$ ${at.total.toFixed(2)}</td>
                     `;
@@ -4568,6 +5983,7 @@
         }
 
         async function salvarEdicaoCliente() {
+            if(!validarAcessoPerfil('clientesEditar','Seu perfil não pode editar clientes.')) return;
             const id = document.getElementById('edit-cli-id').value;
             const c = clientes.find(x => String(x.id) === String(id));
             if(!c) return;
@@ -4607,6 +6023,7 @@
                     salvarStorage();
                     fecharModalEdicaoCliente();
                     sincronizarDadosClientesTodasAsTelas();
+                    await registrarAuditoria('CLIENTES','CLIENTE_EDITADO',id,{nome:formatarNomeCompletoCliente(atualizado.nome,atualizado.sobrenome)});
                     alert('Cliente atualizado na nuvem com sucesso! As demais telas já foram sincronizadas.');
                     return;
                 } catch(err) {
@@ -4630,6 +6047,7 @@
                     salvarCacheClientesCloud();
                     fecharModalHistorico();
                     sincronizarDadosClientesTodasAsTelas();
+                    await registrarAuditoria('CLIENTES','CLIENTE_EXCLUIDO',id,{});
                     alert('Cliente excluído da nuvem com sucesso.');
                 } catch(err) {
                     console.error('Erro ao excluir cliente:', err);
@@ -4640,6 +6058,7 @@
 
 
         async function excluirClienteModal() {
+            if(!validarAcessoPerfil('clientesExcluir','Seu perfil não pode excluir clientes.')) return;
             if(!validarPermissaoCancelamento('clientes','excluir clientes')) return;
             const id = document.getElementById('edit-cli-id').value;
             if(!confirm('Tem certeza que deseja excluir este cliente? Os lançamentos históricos existentes serão preservados.')) return;
@@ -4651,6 +6070,7 @@
                     salvarCacheClientesCloud();
                     fecharModalEdicaoCliente();
                     sincronizarDadosClientesTodasAsTelas();
+                    await registrarAuditoria('CLIENTES','CLIENTE_EXCLUIDO',id,{});
                     alert('Cliente excluído da nuvem com sucesso.');
                 } catch(err) {
                     console.error('Erro ao excluir cliente:', err);
@@ -4661,6 +6081,7 @@
 
 
         function exportarClientesExcel() {
+            if(!validarAcessoPerfil('clientesExportar','Seu perfil não pode exportar a relação de clientes.')) return;
             let csv = "Codigo;Nome;Sobrenome;WhatsApp;Aniversario;Email;Cidade;Observacoes\n";
             clientes.forEach(c => {
                 csv += `${c.codigo};${c.nome};${c.sobrenome || ''};${c.telefone || ''};${c.aniversario || ''};${c.email || ''};${c.cidade || ''};${c.obs || ''}\n`;
@@ -4999,6 +6420,7 @@
         }
 
         async function lancarEntrada() {
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar recebimentos.')) return;
             const buscaVal = document.getElementById('busca-cliente').value.trim();
             const dataVal = document.getElementById('data-entrada').value;
             const pagamentoVal = document.getElementById('pag-entrada').value;
@@ -5006,49 +6428,161 @@
             if(carrinho.length === 0) { alert('Adicione pelo menos um serviço ou produto ao carrinho!'); return; }
             if(!dataVal) { alert('Informe a data do atendimento!'); return; }
 
+            const agendamentoOrigemId = agendamentoEmRecebimentoId;
+            if(agendamentoOrigemId) {
+                const agendamentoOrigem = agendamentos.find(a => String(a.id) === String(agendamentoOrigemId));
+                if(!agendamentoOrigem) {
+                    agendamentoEmRecebimentoId = null;
+                    alert('O agendamento de origem não foi encontrado. Abra novamente o recebimento pela Agenda.');
+                    return;
+                }
+                if(entradaJaGeradaPorAgendamento(agendamentoOrigemId)) {
+                    alert('Este agendamento já foi finalizado. Nenhuma receita duplicada foi criada.');
+                    return;
+                }
+            }
+
             const cliEncontrado = localizarClienteUniversal(buscaVal);
             const clienteId = cliEncontrado ? cliEncontrado.id : null;
             const clienteNome = cliEncontrado ? formatarNomeCompletoCliente(cliEncontrado.nome, cliEncontrado.sobrenome) : formatarNomeCliente(buscaVal);
             const totalVal = carrinho.reduce((acc, i) => acc + Number(i.preco || 0), 0);
+
+            if(totalVal <= 0) {
+                const confirmarZero = confirm('O total deste atendimento está em R$ 0,00. Deseja finalizar mesmo assim?');
+                if(!confirmarZero) return;
+            }
+
             try {
                 let novaEntrada;
                 if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
-                    const payload = { empresa_id:empresaAtual.id, cliente_id:clienteId, cliente_nome:clienteNome, data:dataVal, pagamento:pagamentoVal, total:totalVal };
+                    const payload = {
+                        empresa_id: empresaAtual.id,
+                        cliente_id: clienteId,
+                        agendamento_id: agendamentoOrigemId || null,
+                        cliente_nome: clienteNome,
+                        data: dataVal,
+                        pagamento: pagamentoVal,
+                        total: totalVal
+                    };
                     const { data: at, error } = await CloudDB.from('atendimentos').insert(payload).select().single();
                     if(error) throw error;
+
                     const itensPayload = carrinho.map(i => ({
-                        empresa_id: empresaAtual.id, atendimento_id: at.id,
+                        empresa_id: empresaAtual.id,
+                        atendimento_id: at.id,
                         tipo: i.tipoItem === 'produto' ? 'PRODUTO' : 'SERVICO',
                         item_origem_id: (typeof i.id === 'string' && i.id.includes('-')) ? i.id : null,
-                        nome: i.nome, quantidade: 1, valor_unitario: Number(i.preco||0), valor_total: Number(i.preco||0)
+                        nome: i.nome,
+                        quantidade: 1,
+                        valor_unitario: Number(i.preco||0),
+                        valor_total: Number(i.preco||0)
                     }));
                     const { data: itensSalvos, error: itensErro } = await CloudDB.from('itens_atendimento').insert(itensPayload).select();
-                    if(itensErro) { await CloudDB.from('atendimentos').delete().eq('id',at.id); throw itensErro; }
+                    if(itensErro) {
+                        await CloudDB.from('atendimentos').delete().eq('id',at.id);
+                        throw itensErro;
+                    }
                     novaEntrada = entradaCloudParaLocal(at, itensSalvos || []);
+                    if(agendamentoOrigemId) novaEntrada.agendamentoId = agendamentoOrigemId;
                 } else {
-                    novaEntrada = { id:Date.now(), clienteId, clienteNome, data:dataVal, pagamento:pagamentoVal, itens:[...carrinho], total:totalVal };
+                    novaEntrada = {
+                        id:Date.now(),
+                        clienteId,
+                        clienteNome,
+                        data:dataVal,
+                        pagamento:pagamentoVal,
+                        itens:[...carrinho],
+                        total:totalVal,
+                        agendamentoId: agendamentoOrigemId || null
+                    };
                 }
+
                 entradas.push(novaEntrada);
+
+                if(agendamentoOrigemId) {
+                    concluirAgendamentoAposRecebimento(agendamentoOrigemId, novaEntrada);
+                }
+
                 salvarCacheFinanceiroCloud();
+                salvarStorage();
+
                 carrinho = [];
+                agendamentoEmRecebimentoId = null;
                 document.getElementById('busca-cliente').value = '';
-                atualizarEspelhoClienteFinanceiro(); atualizarCarrinhoUI(); atualizarDadosFinanceiros(); atualizarTabelaClientes(); renderizarDashboard();
-                alert('Atendimento lançado com sucesso!');
-            } catch(err) { console.error(err); alert(`Não foi possível lançar o atendimento: ${err?.message || 'erro desconhecido'}`); }
+                document.getElementById('aviso-recebimento-agenda')?.remove();
+
+                atualizarEspelhoClienteFinanceiro?.();
+                atualizarCarrinhoUI();
+                atualizarDadosFinanceiros();
+                atualizarTabelaClientes();
+                renderizarDashboard();
+                renderizarAgenda();
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_REGISTRADO',novaEntrada?.id || null,{cliente:clienteNome,valor:totalVal,data:dataVal,pagamento:pagamentoVal,agendamento_id:agendamentoOrigemId || null});
+                alert(agendamentoOrigemId
+                    ? 'Atendimento finalizado e receita registrada com sucesso!'
+                    : 'Atendimento lançado com sucesso!');
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível lançar o atendimento: ${err?.message || 'erro desconhecido'}`);
+            }
         }
 
         async function excluirEntrada(id) {
             if(!validarPermissaoCancelamento('entradas','excluir atendimentos/entradas')) return;
-            if(!confirm('Tem certeza que deseja excluir este lançamento de entrada?')) return;
+
+            const entrada = entradas.find(e => String(e.id) === String(id));
+            if(!entrada) {
+                alert('Lançamento não encontrado.');
+                return;
+            }
+
+            const vinculadaAgenda = !!entrada.agendamentoId;
+            const agendamentoVinculado = vinculadaAgenda
+                ? agendamentos.find(a => String(a.id) === String(entrada.agendamentoId))
+                : null;
+
+            const mensagem = vinculadaAgenda
+                ? `Este recebimento veio da Agenda${agendamentoVinculado ? ` (${agendamentoVinculado.clienteNome} • ${formatarDataAgenda(agendamentoVinculado.data)} ${agendamentoVinculado.horario || ''})` : ''}.\n\nAo excluir a receita, o atendimento voltará a aparecer como NÃO FINALIZADO na Agenda e poderá ser recebido novamente.\n\nDeseja continuar?`
+                : 'Tem certeza que deseja excluir este lançamento de entrada?';
+
+            if(!confirm(mensagem)) return;
+
             try {
                 if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
-                    const { error } = await CloudDB.from('atendimentos').delete().eq('id',id).eq('empresa_id',empresaAtual.id); if(error) throw error;
+                    const { error } = await CloudDB
+                        .from('atendimentos')
+                        .delete()
+                        .eq('id', id)
+                        .eq('empresa_id', empresaAtual.id);
+                    if(error) throw error;
                 }
-                entradas = entradas.filter(e => String(e.id) !== String(id)); salvarCacheFinanceiroCloud(); atualizarDadosFinanceiros(); atualizarTabelaClientes(); renderizarDashboard();
-            } catch(err) { console.error(err); alert(`Não foi possível excluir o atendimento: ${err?.message || 'erro desconhecido'}`); }
+
+                entradas = entradas.filter(e => String(e.id) !== String(id));
+                salvarCacheFinanceiroCloud();
+                salvarStorage();
+
+                atualizarDadosFinanceiros();
+                atualizarTabelaClientes();
+                renderizarDashboard();
+                renderizarAgenda();
+
+                if(clienteAtualHistoricoId && entrada.clienteId && String(clienteAtualHistoricoId) === String(entrada.clienteId)) {
+                    abrirHistoricoCliente(clienteAtualHistoricoId);
+                }
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_EXCLUIDO',id,{cliente:entrada.clienteNome,valor:entrada.total,data:entrada.data,agendamento_id:entrada.agendamentoId || null});
+                alert(vinculadaAgenda
+                    ? 'Receita excluída. O atendimento foi reaberto na Agenda.'
+                    : 'Lançamento excluído com sucesso.');
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível excluir o atendimento: ${err?.message || 'erro desconhecido'}`);
+            }
         }
 
         async function lancarSaida() {
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar despesas.')) return;
             const desc=document.getElementById('saida-descricao').value.trim(), valor=parseFloat(document.getElementById('saida-valor').value), data=document.getElementById('saida-data').value;
             if(!desc){alert('Informe a descrição da despesa!');return;} if(isNaN(valor)||valor<=0){alert('Informe um valor válido!');return;} if(!data){alert('Informe a data!');return;}
             try {
@@ -5056,16 +6590,17 @@
                 if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
                     const {data:row,error}=await CloudDB.from('despesas').insert({empresa_id:empresaAtual.id,tipo:'OUTRA',descricao:desc,valor,data}).select().single(); if(error)throw error; nova=saidaCloudParaLocal(row);
                 } else nova={id:Date.now(),descricao:desc,valor,data,tipo:'outra',quantidade:null};
-                saidas.push(nova); salvarCacheFinanceiroCloud(); document.getElementById('saida-descricao').value=''; document.getElementById('saida-valor').value=''; atualizarDadosFinanceiros(); renderizarDashboard(); alert('Saída registrada com sucesso!');
+                saidas.push(nova); salvarCacheFinanceiroCloud(); document.getElementById('saida-descricao').value=''; document.getElementById('saida-valor').value=''; atualizarDadosFinanceiros(); renderizarDashboard(); await registrarAuditoria('FINANCEIRO','DESPESA_REGISTRADA',nova?.id || null,{descricao:desc,valor,data}); alert('Saída registrada com sucesso!');
             } catch(err){console.error(err);alert(`Não foi possível registrar a saída: ${err?.message||'erro desconhecido'}`);}
         }
 
         async function cadastrarMaterial() {
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode cadastrar materiais.')) return;
             const campo=document.getElementById('material-nome'); const nome=(campo.value||'').trim().replace(/\s+/g,' ').toUpperCase();
             if(!nome){alert('Informe o nome do material.');return;} if(materiais.some(m=>m.nome.toUpperCase()===nome)){alert('Este material já está cadastrado.');return;}
             try { let novo;
                 if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {data,error}=await CloudDB.from('materiais').insert({empresa_id:empresaAtual.id,nome,ativo:true}).select().single();if(error)throw error;novo=materialCloudParaLocal(data);} else novo={id:Date.now(),nome};
-                materiais.push(novo); salvarCacheFinanceiroCloud(); campo.value=''; renderizarMateriais(); renderizarDashboard(); alert('Material cadastrado com sucesso!');
+                materiais.push(novo); salvarCacheFinanceiroCloud(); campo.value=''; renderizarMateriais(); renderizarDashboard(); await registrarAuditoria('FINANCEIRO','MATERIAL_CADASTRADO',novo?.id || null,{nome}); alert('Material cadastrado com sucesso!');
             } catch(err){console.error(err);alert(`Não foi possível cadastrar o material: ${err?.message||'erro desconhecido'}`);}
         }
 
@@ -5083,18 +6618,20 @@
         }
 
         async function lancarCompraMaterial() {
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar compras de materiais.')) return;
             const materialId=document.getElementById('saida-material').value, quantidade=parseFloat(document.getElementById('saida-material-quantidade').value), valor=parseFloat(document.getElementById('saida-material-valor').value), data=document.getElementById('saida-data-material').value;
             const material=materiais.find(m=>String(m.id)===String(materialId)); if(!material){alert('Selecione um material.');return;} if(isNaN(quantidade)||quantidade<=0){alert('Informe uma quantidade válida.');return;} if(isNaN(valor)||valor<=0){alert('Informe o valor total da compra.');return;} if(!data){alert('Informe a data da compra.');return;}
             try {let nova;if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {data:row,error}=await CloudDB.from('despesas').insert({empresa_id:empresaAtual.id,tipo:'MATERIAL',descricao:material.nome,material_id:material.id,quantidade,valor,data}).select().single();if(error)throw error;nova=saidaCloudParaLocal(row);}else nova={id:Date.now(),descricao:material.nome,valor,data,tipo:'material',materialId:material.id,materialNome:material.nome,quantidade};
-                saidas.push(nova);salvarCacheFinanceiroCloud();document.getElementById('saida-material').value='';document.getElementById('saida-material-quantidade').value='';document.getElementById('saida-material-valor').value='';atualizarDadosFinanceiros();renderizarDashboard();alert('Compra de material registrada com sucesso!');
+                saidas.push(nova);salvarCacheFinanceiroCloud();document.getElementById('saida-material').value='';document.getElementById('saida-material-quantidade').value='';document.getElementById('saida-material-valor').value='';atualizarDadosFinanceiros();renderizarDashboard();await registrarAuditoria('FINANCEIRO','COMPRA_MATERIAL_REGISTRADA',nova?.id || null,{descricao:material.nome,quantidade,valor,data});alert('Compra de material registrada com sucesso!');
             }catch(err){console.error(err);alert(`Não foi possível registrar a compra: ${err?.message||'erro desconhecido'}`);}
         }
 
         async function cadastrarGastoFixo() {
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode cadastrar gastos fixos.')) return;
             const descricao=document.getElementById('gasto-fixo-descricao').value.trim().replace(/\s+/g,' ').toUpperCase(),valor=parseFloat(document.getElementById('gasto-fixo-valor').value),dia=parseInt(document.getElementById('gasto-fixo-dia').value);
             if(!descricao){alert('Informe a descrição do gasto fixo.');return;}if(isNaN(valor)||valor<=0){alert('Informe um valor mensal válido.');return;}if(isNaN(dia)||dia<1||dia>31){alert('Informe um dia de pagamento entre 1 e 31.');return;}
             try{let novo;if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {data,error}=await CloudDB.from('gastos_fixos').insert({empresa_id:empresaAtual.id,descricao,valor,dia_vencimento:dia,ativo:true}).select().single();if(error)throw error;novo=gastoFixoCloudParaLocal(data);}else novo={id:Date.now(),descricao,valor,diaPagamento:dia,ativo:true};
-                gastosFixos.push(novo);salvarCacheFinanceiroCloud();document.getElementById('gasto-fixo-descricao').value='';document.getElementById('gasto-fixo-valor').value='';document.getElementById('gasto-fixo-dia').value='';renderizarGastosFixos();renderizarDashboard();alert('Gasto fixo cadastrado com sucesso!');
+                gastosFixos.push(novo);salvarCacheFinanceiroCloud();document.getElementById('gasto-fixo-descricao').value='';document.getElementById('gasto-fixo-valor').value='';document.getElementById('gasto-fixo-dia').value='';renderizarGastosFixos();renderizarDashboard();await registrarAuditoria('FINANCEIRO','GASTO_FIXO_CADASTRADO',novo?.id || null,{descricao,valor,dia_pagamento:dia});alert('Gasto fixo cadastrado com sucesso!');
             }catch(err){console.error(err);alert(`Não foi possível cadastrar o gasto fixo: ${err?.message||'erro desconhecido'}`);}
         }
 
@@ -5104,8 +6641,18 @@
         }
 
         async function removerGastoFixo(id) {
-            if(!validarPermissaoCancelamento('gastosFixos','excluir gastos fixos'))return;if(!confirm('Deseja excluir este gasto fixo?'))return;
-            try{if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {error}=await CloudDB.from('gastos_fixos').delete().eq('id',id).eq('empresa_id',empresaAtual.id);if(error)throw error;}gastosFixos=gastosFixos.filter(g=>String(g.id)!==String(id));salvarCacheFinanceiroCloud();renderizarGastosFixos();renderizarDashboard();}catch(err){console.error(err);alert(`Não foi possível excluir o gasto fixo: ${err?.message||'erro desconhecido'}`);}
+            if(!validarPermissaoCancelamento('gastosFixos','excluir gastos fixos')) return;
+            const removido=gastosFixos.find(g=>String(g.id)===String(id));
+            if(!confirm('Deseja excluir este gasto fixo?')) return;
+            try{
+                if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){
+                    const {error}=await CloudDB.from('gastos_fixos').delete().eq('id',id).eq('empresa_id',empresaAtual.id);
+                    if(error)throw error;
+                }
+                gastosFixos=gastosFixos.filter(g=>String(g.id)!==String(id));
+                salvarCacheFinanceiroCloud();renderizarGastosFixos();renderizarDashboard();
+                await registrarAuditoria('FINANCEIRO','GASTO_FIXO_EXCLUIDO',id,{descricao:removido?.descricao,valor:removido?.valor});
+            }catch(err){console.error(err);alert(`Não foi possível excluir o gasto fixo: ${err?.message||'erro desconhecido'}`);}
         }
 
         let edicaoFinanceiraPendente=null;
@@ -5118,9 +6665,25 @@
         function solicitarConfirmacaoEdicaoFinanceira(){const tipo=document.getElementById('fin-edicao-tipo').value,id=document.getElementById('fin-edicao-id').value;if(tipo==='material'){const material=materiais.find(m=>String(m.id)===String(document.getElementById('fin-edicao-material').value)),qtd=parseFloat(document.getElementById('fin-edicao-quantidade').value),valor=parseFloat(document.getElementById('fin-edicao-valor').value),data=document.getElementById('fin-edicao-data').value;if(!material||isNaN(qtd)||qtd<=0||isNaN(valor)||valor<=0||!data){alert('Preencha corretamente os dados da compra.');return;}edicaoFinanceiraPendente={tipo,id,materialId:material.id,materialNome:material.nome,quantidade:qtd,valor,data};document.getElementById('texto-confirmacao-modificacao').innerText=`Tem certeza de que deseja modificar esta compra de material para ${material.nome}, quantidade ${qtd} e valor de R$ ${valor.toFixed(2)}?`;}else if(tipo==='entrada'){const clienteNome=document.getElementById('fin-edicao-entrada-cliente').value.trim().replace(/\s+/g,' '),valor=parseFloat(document.getElementById('fin-edicao-entrada-valor').value),data=document.getElementById('fin-edicao-entrada-data').value;if(!clienteNome||isNaN(valor)||valor<=0||!data){alert('Preencha corretamente o nome do cliente, valor e data.');return;}edicaoFinanceiraPendente={tipo,id,clienteNome,valor,data};document.getElementById('texto-confirmacao-modificacao').innerText=`Tem certeza de que deseja modificar este lançamento para o cliente ${clienteNome}, no valor de R$ ${valor.toFixed(2)} e data ${new Date(data+'T00:00:00').toLocaleDateString('pt-BR')}?`;}else{const descricao=document.getElementById('fin-edicao-fixo-descricao').value.trim().replace(/\s+/g,' ').toUpperCase(),valor=parseFloat(document.getElementById('fin-edicao-fixo-valor').value),dia=parseInt(document.getElementById('fin-edicao-fixo-dia').value);if(!descricao||isNaN(valor)||valor<=0||isNaN(dia)||dia<1||dia>31){alert('Preencha corretamente os dados do gasto fixo.');return;}edicaoFinanceiraPendente={tipo,id,descricao,valor,diaPagamento:dia};document.getElementById('texto-confirmacao-modificacao').innerText=`Tem certeza de que deseja modificar o gasto fixo ${descricao} para R$ ${valor.toFixed(2)}, com pagamento no dia ${dia}?`;}document.getElementById('modal-confirmacao-modificacao').classList.add('active');}
         function fecharConfirmacaoModificacao(){document.getElementById('modal-confirmacao-modificacao').classList.remove('active');}
 
-        async function confirmarEdicaoFinanceira(){if(!edicaoFinanceiraPendente)return;const d=edicaoFinanceiraPendente;try{if(d.tipo==='material'){const s=saidas.find(x=>String(x.id)===String(d.id));if(!s)throw new Error('Compra não encontrada.');if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {error}=await CloudDB.from('despesas').update({material_id:d.materialId,descricao:d.materialNome,quantidade:d.quantidade,valor:d.valor,data:d.data,atualizado_em:new Date().toISOString()}).eq('id',d.id).eq('empresa_id',empresaAtual.id);if(error)throw error;}Object.assign(s,{materialId:d.materialId,materialNome:d.materialNome,descricao:d.materialNome,quantidade:d.quantidade,valor:d.valor,data:d.data});}else if(d.tipo==='entrada'){const e=entradas.find(x=>String(x.id)===String(d.id));if(!e)throw new Error('Lançamento não encontrado.');if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {error}=await CloudDB.from('atendimentos').update({cliente_nome:d.clienteNome,total:d.valor,data:d.data,atualizado_em:new Date().toISOString()}).eq('id',d.id).eq('empresa_id',empresaAtual.id);if(error)throw error;}Object.assign(e,{clienteNome:d.clienteNome,total:d.valor,data:d.data});}else{const g=gastosFixos.find(x=>String(x.id)===String(d.id));if(!g)throw new Error('Gasto fixo não encontrado.');if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {error}=await CloudDB.from('gastos_fixos').update({descricao:d.descricao,valor:d.valor,dia_vencimento:d.diaPagamento,atualizado_em:new Date().toISOString()}).eq('id',d.id).eq('empresa_id',empresaAtual.id);if(error)throw error;}Object.assign(g,{descricao:d.descricao,valor:d.valor,diaPagamento:d.diaPagamento});}salvarCacheFinanceiroCloud();fecharConfirmacaoModificacao();fecharEdicaoFinanceira();renderizarGastosFixos();atualizarDadosFinanceiros();renderizarDashboard();alert('Modificação salva com sucesso!');}catch(err){console.error(err);alert(`Não foi possível salvar a modificação: ${err?.message||'erro desconhecido'}`);}}
+        async function confirmarEdicaoFinanceira(){if(!edicaoFinanceiraPendente)return;const d=edicaoFinanceiraPendente;try{if(d.tipo==='material'){const s=saidas.find(x=>String(x.id)===String(d.id));if(!s)throw new Error('Compra não encontrada.');if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {error}=await CloudDB.from('despesas').update({material_id:d.materialId,descricao:d.materialNome,quantidade:d.quantidade,valor:d.valor,data:d.data,atualizado_em:new Date().toISOString()}).eq('id',d.id).eq('empresa_id',empresaAtual.id);if(error)throw error;}Object.assign(s,{materialId:d.materialId,materialNome:d.materialNome,descricao:d.materialNome,quantidade:d.quantidade,valor:d.valor,data:d.data});}else if(d.tipo==='entrada'){const e=entradas.find(x=>String(x.id)===String(d.id));if(!e)throw new Error('Lançamento não encontrado.');if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {error}=await CloudDB.from('atendimentos').update({cliente_nome:d.clienteNome,total:d.valor,data:d.data,atualizado_em:new Date().toISOString()}).eq('id',d.id).eq('empresa_id',empresaAtual.id);if(error)throw error;}Object.assign(e,{clienteNome:d.clienteNome,total:d.valor,data:d.data});}else{const g=gastosFixos.find(x=>String(x.id)===String(d.id));if(!g)throw new Error('Gasto fixo não encontrado.');if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {error}=await CloudDB.from('gastos_fixos').update({descricao:d.descricao,valor:d.valor,dia_vencimento:d.diaPagamento,atualizado_em:new Date().toISOString()}).eq('id',d.id).eq('empresa_id',empresaAtual.id);if(error)throw error;}Object.assign(g,{descricao:d.descricao,valor:d.valor,diaPagamento:d.diaPagamento});}if(d.tipo==='material') await registrarAuditoria('FINANCEIRO','COMPRA_MATERIAL_EDITADA',d.id,{descricao:d.materialNome,quantidade:d.quantidade,valor:d.valor,data:d.data});
+                else if(d.tipo==='entrada') await registrarAuditoria('FINANCEIRO','RECEBIMENTO_EDITADO',d.id,{cliente:d.clienteNome,valor:d.valor,data:d.data});
+                else await registrarAuditoria('FINANCEIRO','GASTO_FIXO_EDITADO',d.id,{descricao:d.descricao,valor:d.valor,dia_pagamento:d.diaPagamento});
+                salvarCacheFinanceiroCloud();fecharConfirmacaoModificacao();fecharEdicaoFinanceira();renderizarGastosFixos();atualizarDadosFinanceiros();renderizarDashboard();alert('Modificação salva com sucesso!');}catch(err){console.error(err);alert(`Não foi possível salvar a modificação: ${err?.message||'erro desconhecido'}`);}}
 
-        async function excluirSaida(id){if(!validarPermissaoCancelamento('saidas','excluir despesas/compras'))return;if(!confirm('Deseja excluir esta despesa?'))return;try{if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){const {error}=await CloudDB.from('despesas').delete().eq('id',id).eq('empresa_id',empresaAtual.id);if(error)throw error;}saidas=saidas.filter(s=>String(s.id)!==String(id));salvarCacheFinanceiroCloud();atualizarDadosFinanceiros();renderizarDashboard();}catch(err){console.error(err);alert(`Não foi possível excluir a despesa: ${err?.message||'erro desconhecido'}`);}}
+        async function excluirSaida(id){
+            if(!validarPermissaoCancelamento('saidas','excluir despesas/compras')) return;
+            const removida=saidas.find(s=>String(s.id)===String(id));
+            if(!confirm('Deseja excluir esta despesa?')) return;
+            try{
+                if(FINANCEIRO_CLOUD_ATIVO&&CloudDB&&empresaAtual?.cloud){
+                    const {error}=await CloudDB.from('despesas').delete().eq('id',id).eq('empresa_id',empresaAtual.id);
+                    if(error)throw error;
+                }
+                saidas=saidas.filter(s=>String(s.id)!==String(id));
+                salvarCacheFinanceiroCloud();atualizarDadosFinanceiros();renderizarDashboard();
+                await registrarAuditoria('FINANCEIRO','DESPESA_EXCLUIDA',id,{descricao:removida?.descricao,valor:removida?.valor,data:removida?.data});
+            }catch(err){console.error(err);alert(`Não foi possível excluir a despesa: ${err?.message||'erro desconhecido'}`);}
+        }
 
         function definirMesAtual() {
             const agora = new Date();
@@ -5221,6 +6784,221 @@
             renderizarGrafico(totEntradas, totSaidas);
         }
 
+
+        function obterPeriodoFinanceiroSelecionado() {
+            const inicio = document.getElementById('filtro-data-inicio')?.value || '';
+            const fim = document.getElementById('filtro-data-fim')?.value || '';
+            return { inicio, fim };
+        }
+
+        function obterDadosFinanceirosParaExportacao() {
+            if(!validarAcessoPerfil('financeiroExportar','Seu perfil não pode exportar documentos financeiros.')) return;
+            const { inicio, fim } = obterPeriodoFinanceiroSelecionado();
+
+            const dentroPeriodo = (data) => {
+                if(!data) return false;
+                if(inicio && data < inicio) return false;
+                if(fim && data > fim) return false;
+                return true;
+            };
+
+            const entradasPeriodo = entradas
+                .filter(e => dentroPeriodo(e.data))
+                .slice()
+                .sort((a,b) => new Date(a.data) - new Date(b.data));
+
+            const saidasPeriodo = saidas
+                .filter(s => dentroPeriodo(s.data))
+                .slice()
+                .sort((a,b) => new Date(a.data) - new Date(b.data));
+
+            const totalEntradas = entradasPeriodo.reduce((acc, e) => acc + Number(e.total || 0), 0);
+            const totalSaidas = saidasPeriodo.reduce((acc, s) => acc + Number(s.valor || 0), 0);
+            const lucroLiquido = totalEntradas - totalSaidas;
+
+            return {
+                inicio,
+                fim,
+                entradasPeriodo,
+                saidasPeriodo,
+                totalEntradas,
+                totalSaidas,
+                lucroLiquido
+            };
+        }
+
+        function formatarPeriodoFinanceiro(inicio, fim) {
+            const fmt = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '-';
+            if(inicio && fim) return `${fmt(inicio)} a ${fmt(fim)}`;
+            if(inicio) return `A partir de ${fmt(inicio)}`;
+            if(fim) return `Até ${fmt(fim)}`;
+            return 'Todo o período disponível';
+        }
+
+        function exportarFinanceiroExcel() {
+            if(!validarAcessoPerfil('financeiroExportar','Seu perfil não pode exportar documentos financeiros.')) return;
+            const dados = obterDadosFinanceirosParaExportacao();
+
+            if(!dados.entradasPeriodo.length && !dados.saidasPeriodo.length && !(gastosFixos || []).length) {
+                alert('Não há dados financeiros para exportar.');
+                return;
+            }
+
+            const wb = XLSX.utils.book_new();
+
+            const resumo = [
+                ['RELATÓRIO FINANCEIRO'],
+                ['Negócio', nomeBarbearia],
+                ['Período', formatarPeriodoFinanceiro(dados.inicio, dados.fim)],
+                [],
+                ['Total de Entradas', dados.totalEntradas],
+                ['Total de Saídas', dados.totalSaidas],
+                ['Lucro Líquido', dados.lucroLiquido],
+                ['Observação', 'Gastos fixos cadastrados são apresentados separadamente e não são somados ao lucro líquido deste relatório.']
+            ];
+            const wsResumo = XLSX.utils.aoa_to_sheet(resumo);
+            wsResumo['!cols'] = [{wch:26}, {wch:70}];
+            XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
+
+            const linhasEntradas = dados.entradasPeriodo.map(e => ({
+                'Data': e.data ? new Date(e.data + 'T00:00:00').toLocaleDateString('pt-BR') : '',
+                'Cliente': e.clienteNome || '',
+                'Origem': e.agendamentoId ? 'AGENDA' : 'LANÇAMENTO MANUAL',
+                'Itens': Array.isArray(e.itens) ? e.itens.map(i => i.nome).join(', ') : '',
+                'Forma de Pagamento': e.pagamento || '',
+                'Valor (R$)': Number(e.total || 0)
+            }));
+            const wsEntradas = XLSX.utils.json_to_sheet(linhasEntradas.length ? linhasEntradas : [{'Sem registros':'Nenhuma entrada no período.'}]);
+            wsEntradas['!cols'] = [{wch:12},{wch:28},{wch:20},{wch:45},{wch:22},{wch:16}];
+            XLSX.utils.book_append_sheet(wb, wsEntradas, 'Entradas');
+
+            const linhasSaidas = dados.saidasPeriodo.map(s => ({
+                'Data': s.data ? new Date(s.data + 'T00:00:00').toLocaleDateString('pt-BR') : '',
+                'Descrição': s.descricao || s.materialNome || '',
+                'Tipo': s.tipo || '',
+                'Quantidade': s.quantidade ?? '',
+                'Valor (R$)': Number(s.valor || 0)
+            }));
+            const wsSaidas = XLSX.utils.json_to_sheet(linhasSaidas.length ? linhasSaidas : [{'Sem registros':'Nenhuma saída no período.'}]);
+            wsSaidas['!cols'] = [{wch:12},{wch:38},{wch:18},{wch:14},{wch:16}];
+            XLSX.utils.book_append_sheet(wb, wsSaidas, 'Saídas');
+
+            const linhasFixos = (gastosFixos || []).map(g => ({
+                'Descrição': g.descricao || '',
+                'Valor Mensal (R$)': Number(g.valor || 0),
+                'Dia de Vencimento': Number(g.diaPagamento || g.dia_vencimento || 1),
+                'Status': g.ativo === false ? 'INATIVO' : 'ATIVO'
+            }));
+            const wsFixos = XLSX.utils.json_to_sheet(linhasFixos.length ? linhasFixos : [{'Sem registros':'Nenhum gasto fixo cadastrado.'}]);
+            wsFixos['!cols'] = [{wch:38},{wch:20},{wch:20},{wch:14}];
+            XLSX.utils.book_append_sheet(wb, wsFixos, 'Gastos Fixos');
+
+            const nomeInicio = dados.inicio || 'inicio';
+            const nomeFim = dados.fim || 'fim';
+            XLSX.writeFile(wb, `financeiro_${nomeInicio}_a_${nomeFim}.xlsx`);
+        }
+
+        function exportarFinanceiroPDF() {
+            if(!validarAcessoPerfil('financeiroExportar','Seu perfil não pode exportar documentos financeiros.')) return;
+            const dados = obterDadosFinanceirosParaExportacao();
+
+            if(!dados.entradasPeriodo.length && !dados.saidasPeriodo.length && !(gastosFixos || []).length) {
+                alert('Não há dados financeiros para exportar.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf || {};
+            if(!jsPDF) {
+                alert('Não foi possível carregar o exportador de PDF.');
+                return;
+            }
+
+            const doc = new jsPDF();
+            const margemX = 14;
+            let y = 18;
+
+            const garantirEspaco = (altura=10) => {
+                if(y + altura > 280) {
+                    doc.addPage();
+                    y = 18;
+                }
+            };
+
+            const linha = (texto, tamanho=9, negrito=false) => {
+                garantirEspaco(7);
+                doc.setFontSize(tamanho);
+                doc.setFont(undefined, negrito ? 'bold' : 'normal');
+                const quebradas = doc.splitTextToSize(String(texto), 180);
+                doc.text(quebradas, margemX, y);
+                y += 5 * quebradas.length;
+            };
+
+            doc.setFontSize(16);
+            doc.setFont(undefined, 'bold');
+            doc.text(`${nomeBarbearia} - Relatório Financeiro`, margemX, y);
+            y += 8;
+
+            linha(`Período: ${formatarPeriodoFinanceiro(dados.inicio, dados.fim)}`, 10);
+            y += 2;
+
+            linha(`Total de entradas: R$ ${dados.totalEntradas.toFixed(2)}`, 11, true);
+            linha(`Total de saídas: R$ ${dados.totalSaidas.toFixed(2)}`, 11, true);
+            linha(`Lucro líquido: R$ ${dados.lucroLiquido.toFixed(2)}`, 11, true);
+
+            y += 5;
+            doc.setDrawColor(180);
+            doc.line(margemX, y, 196, y);
+            y += 8;
+
+            linha('ENTRADAS', 12, true);
+            if(!dados.entradasPeriodo.length) {
+                linha('Nenhuma entrada registrada no período.');
+            } else {
+                dados.entradasPeriodo.forEach((e, idx) => {
+                    garantirEspaco(30);
+                    const itens = Array.isArray(e.itens) && e.itens.length ? e.itens.map(i => i.nome).join(', ') : '-';
+                    linha(`${e.data ? new Date(e.data + 'T00:00:00').toLocaleDateString('pt-BR') : '-'} | ${e.clienteNome || 'Cliente não informado'}`, 10, true);
+                    linha(`Origem: ${e.agendamentoId ? 'Agenda' : 'Lançamento manual'}`);
+                    linha(`Itens: ${itens}`);
+                    linha(`Pagamento: ${e.pagamento || '-'} | Valor: R$ ${Number(e.total || 0).toFixed(2)}`);
+                    if(idx < dados.entradasPeriodo.length - 1) y += 3;
+                });
+            }
+
+            y += 6;
+            linha('SAÍDAS', 12, true);
+            if(!dados.saidasPeriodo.length) {
+                linha('Nenhuma saída registrada no período.');
+            } else {
+                dados.saidasPeriodo.forEach((s, idx) => {
+                    garantirEspaco(24);
+                    linha(`${s.data ? new Date(s.data + 'T00:00:00').toLocaleDateString('pt-BR') : '-'} | ${s.descricao || s.materialNome || 'Despesa'}`, 10, true);
+                    linha(`Tipo: ${s.tipo || '-'} | Valor: R$ ${Number(s.valor || 0).toFixed(2)}`);
+                    if(s.quantidade != null) linha(`Quantidade: ${s.quantidade}`);
+                    if(idx < dados.saidasPeriodo.length - 1) y += 3;
+                });
+            }
+
+            y += 6;
+            linha('GASTOS FIXOS CADASTRADOS', 12, true);
+            linha('Estes compromissos são apresentados separadamente e não integram o lucro líquido acima.', 8);
+
+            const fixosAtivos = (gastosFixos || []).filter(g => g.ativo !== false);
+            if(!fixosAtivos.length) {
+                linha('Nenhum gasto fixo ativo cadastrado.');
+            } else {
+                fixosAtivos.forEach(g => {
+                    garantirEspaco(18);
+                    linha(`${g.descricao || 'Gasto fixo'} | R$ ${Number(g.valor || 0).toFixed(2)} | dia ${Number(g.diaPagamento || g.dia_vencimento || 1)}`, 9);
+                });
+            }
+
+            const nomeInicio = dados.inicio || 'inicio';
+            const nomeFim = dados.fim || 'fim';
+            doc.save(`financeiro_${nomeInicio}_a_${nomeFim}.pdf`);
+        }
+
+
         function renderizarGrafico(entradasVal, saidasVal) {
             const ctx = document.getElementById('graficoPizza1');
             if(!ctx) return;
@@ -5250,6 +7028,7 @@
 
         /* --- TEMA E CONFIGURAÇÕES GERAIS --- */
         function salvarConfigTema() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
             const temaEl = document.getElementById('cfg-tema');
             const tema = temaEl ? temaEl.value : 'padrao';
             mudarTema(tema);
@@ -5270,6 +7049,7 @@
         }
 
         function exportarBackup() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem exportar o backup completo do sistema.')) return;
             const dadosBackup = DataStore.snapshot();
             const jsonStr = JSON.stringify(dadosBackup, null, 2);
             const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -5282,6 +7062,7 @@
         }
 
         function limparDadosSistema() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem apagar os dados do sistema.')) return;
             if(confirm('ATENÇÃO: Esta ação apagar todos os clientes, agendamentos e registros do sistema! Deseja continuar?')) {
                 if(confirm('Tem certeza absoluta? Esta ação é irreversível!')) {
                     DataStore.clearLocal();
