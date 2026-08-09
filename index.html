@@ -285,6 +285,484 @@
             .header h1 { font-size:20px; }
             .dash-chip { max-width:100%; white-space:normal; }
         }
+        /* ===== RESPONSIVIDADE MOBILE V2: CLIENTES + FINANCEIRO ===== */
+        @media (max-width: 768px) {
+            /* Evita que qualquer bloco interno force a página para fora da viewport */
+            .screen, .screen > *, .fin-main, .aba-content, .entradas-layout, .entradas-form-area, .fin-sidebar { min-width:0 !important; max-width:100% !important; }
+
+            /* Financeiro: filtros e abas realmente mobile */
+            #financeiro .filtros-bar { display:grid !important; grid-template-columns:1fr; }
+            #financeiro .filtros-bar > div { width:100%; margin-left:0 !important; display:grid !important; grid-template-columns:52px minmax(0,1fr); align-items:center; }
+            #financeiro .filtros-bar > div:last-child { grid-template-columns:1fr 1fr; }
+            #financeiro .filtros-bar input, #financeiro .filtros-bar button { width:100%; min-height:44px; }
+            #financeiro .tabs { display:grid; grid-template-columns:1fr 1fr; overflow:hidden; }
+            #financeiro .tab { min-width:0; width:100%; padding:13px 8px; font-size:12px; line-height:1.25; white-space:normal; }
+            #financeiro .aba-content { padding:14px 12px; overflow:hidden; }
+            #financeiro .entradas-layout { display:flex; flex-direction:column; width:100%; }
+            #financeiro .entradas-form-area, #financeiro .fin-sidebar { width:100% !important; }
+            #financeiro .form-group label { line-height:1.3; }
+            #financeiro input, #financeiro select, #financeiro textarea { width:100% !important; min-width:0 !important; font-size:16px; }
+            #financeiro #financeiro-cliente-espelho span { display:block; margin-left:0 !important; margin-top:3px; }
+            #financeiro #lista-carrinho + div { display:flex !important; flex-direction:column; align-items:stretch !important; gap:12px; }
+            #financeiro #lista-carrinho + div > div { width:100%; }
+            #financeiro #lista-carrinho + div label { display:block !important; margin:0 0 7px !important; }
+            #financeiro #pag-entrada { min-height:44px; }
+            #financeiro #total-carrinho { display:inline-block; margin-top:4px; }
+            #financeiro .btn-salvar { min-height:48px; white-space:normal; line-height:1.25; }
+            #financeiro .combo-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            #financeiro .combo-item { min-width:0; padding:14px 7px; }
+            #financeiro .combo-info { overflow-wrap:anywhere; }
+            #financeiro .chart-box { padding:14px; }
+
+            /* Tabelas financeiras continuam completas, mas rolam dentro do próprio painel */
+            #financeiro .entradas-form-area > table, #financeiro #aba-saidas table { display:block; width:100%; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+            /* Clientes: aniversários deixam de estourar a largura do celular */
+            #clientes #sec-cli-aniversariantes, #clientes #sec-cli-aniversariantes-mes, #clientes #sec-cli-tabela { overflow:hidden; }
+            #clientes #sec-cli-aniversariantes table, #clientes #sec-cli-aniversariantes-mes table { min-width:0 !important; width:100%; table-layout:fixed; }
+            #clientes #sec-cli-aniversariantes th, #clientes #sec-cli-aniversariantes td,
+            #clientes #sec-cli-aniversariantes-mes th, #clientes #sec-cli-aniversariantes-mes td { padding:10px 6px; font-size:12px; overflow-wrap:anywhere; }
+            #clientes #sec-cli-aniversariantes th:last-child, #clientes #sec-cli-aniversariantes td:last-child { width:38%; text-align:center; }
+            #clientes #sec-cli-aniversariantes-mes th:first-child, #clientes #sec-cli-aniversariantes-mes td:first-child { width:18%; }
+            #clientes #sec-cli-aniversariantes-mes th:last-child, #clientes #sec-cli-aniversariantes-mes td:last-child { width:34%; text-align:center; }
+            #clientes #sec-cli-aniversariantes-mes > div:first-child { align-items:stretch !important; }
+            #clientes #sec-cli-aniversariantes-mes > div:first-child .btn-salvar { width:100%; margin-top:8px; min-height:44px; white-space:normal; }
+            #clientes #sec-cli-tabela { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+            #clientes #sec-cli-tabela > div:first-child { align-items:stretch !important; }
+            #clientes #filtro-cliente-input { width:100% !important; min-height:44px; font-size:16px !important; }
+            #clientes #sec-cli-tabela table { min-width:720px; }
+
+            /* Formulário de endereço do cliente */
+            #clientes #group-cli-endereco > div[style*="display: flex"] { flex-direction:column; }
+        }
+        @media (max-width: 430px) {
+            #financeiro .combo-grid { grid-template-columns:1fr; }
+            #financeiro .fin-summary-card { padding:14px; }
+            #financeiro .fin-summary-card span { font-size:20px; }
+            #clientes #sec-cli-aniversariantes-mes h3, #clientes #sec-cli-aniversariantes h3 { font-size:15px !important; }
+        }
+    
+        /* ===== RESPONSIVIDADE MOBILE FINAL ===== */
+        @media (max-width: 768px) {
+            /* Base */
+            html { -webkit-text-size-adjust: 100%; }
+            html, body { max-width:100%; overflow-x:hidden !important; }
+            body { font-size:14px; }
+            .main-content {
+                width:100% !important;
+                max-width:100vw !important;
+                padding:16px 14px calc(34px + env(safe-area-inset-bottom)) !important;
+                overflow-x:hidden !important;
+            }
+            .screen, .screen.active { width:100%; max-width:100%; min-width:0 !important; }
+            .screen > * { max-width:100%; min-width:0; }
+
+            /* Cabeçalhos */
+            .header {
+                width:100%;
+                margin:0 0 16px !important;
+                padding:0 !important;
+            }
+            .header h1 {
+                font-size:22px !important;
+                line-height:1.18 !important;
+                letter-spacing:0 !important;
+                word-break:normal !important;
+                overflow-wrap:break-word !important;
+            }
+            h2 { font-size:20px !important; line-height:1.25; }
+            h3 { font-size:18px !important; line-height:1.28 !important; overflow-wrap:break-word; }
+            h4 { font-size:15px !important; line-height:1.3 !important; }
+            p, small { line-height:1.45; }
+
+            /* Componentes genéricos */
+            .form-container, .fin-main, .chart-box, .dash-card, .section-box-cfg {
+                width:100% !important;
+                max-width:100% !important;
+                min-width:0 !important;
+                box-sizing:border-box !important;
+            }
+            .form-container { padding:16px !important; }
+            .section-box-cfg { padding:14px !important; }
+            .chart-box { padding:14px !important; }
+
+            .form-group { width:100%; min-width:0 !important; }
+            .form-group label {
+                font-size:13px !important;
+                line-height:1.3;
+                overflow-wrap:break-word;
+            }
+            input, select, textarea {
+                max-width:100% !important;
+                min-width:0 !important;
+                font-size:16px !important;
+            }
+            input[type="text"], input[type="email"], input[type="tel"],
+            input[type="number"], input[type="date"], input[type="time"],
+            select, textarea {
+                width:100% !important;
+                min-height:44px;
+            }
+            textarea { min-height:100px; resize:vertical; }
+
+            .btn-salvar, .btn-confirmar-modal, .btn-cancelar-modal {
+                max-width:100% !important;
+                min-height:46px;
+                white-space:normal !important;
+                line-height:1.25 !important;
+                font-size:14px !important;
+                text-align:center;
+            }
+            .form-container > .btn-salvar,
+            #configuracoes > .btn-salvar,
+            #configuracoes .form-container > .btn-salvar {
+                width:100% !important;
+            }
+
+            /* Tabelas: nunca empurram a página inteira */
+            table {
+                display:block;
+                width:100% !important;
+                max-width:100% !important;
+                overflow-x:auto !important;
+                -webkit-overflow-scrolling:touch;
+                min-width:0 !important;
+            }
+            thead, tbody { width:max-content; min-width:100%; }
+            th, td {
+                font-size:12px !important;
+                padding:9px 8px !important;
+                white-space:normal;
+                vertical-align:middle;
+            }
+
+            /* Dashboard */
+            #dashboard .header {
+                display:flex !important;
+                flex-direction:column;
+                align-items:flex-start !important;
+                gap:10px !important;
+            }
+            #dashboard .dash-chip {
+                width:auto !important;
+                max-width:100%;
+                font-size:10px !important;
+            }
+            #dashboard .dash-toolbar {
+                display:grid !important;
+                grid-template-columns:1fr !important;
+                padding:14px !important;
+                gap:9px !important;
+            }
+            #dashboard .dash-toolbar > * { width:100% !important; }
+            #dashboard .dash-grid-kpis { grid-template-columns:1fr !important; }
+            #dashboard .dash-kpi .rotulo { font-size:11px !important; }
+            #dashboard .dash-kpi .valor { font-size:22px !important; }
+            #dashboard .dash-kpi .sub { font-size:11px !important; }
+            #dashboard .dash-row { grid-template-columns:1fr !important; }
+            #dashboard .dash-card { overflow:hidden; }
+            #dashboard canvas { width:100% !important; max-width:100% !important; }
+
+            /* Clientes */
+            #clientes > div[style*="display: flex"],
+            #clientes > div[style*="display:flex"] {
+                display:flex !important;
+                flex-direction:column !important;
+                width:100% !important;
+            }
+            #clientes div[style*="width: 340px"],
+            #clientes div[style*="min-width: 300px"],
+            #clientes div[style*="min-width: 360px"] {
+                width:100% !important;
+                min-width:0 !important;
+            }
+            #clientes #sec-cli-cadastro,
+            #clientes #sec-cli-aniversariantes,
+            #clientes #sec-cli-aniversariantes-mes,
+            #clientes #sec-cli-tabela {
+                width:100% !important;
+                max-width:100% !important;
+                min-width:0 !important;
+            }
+            #clientes #sec-cli-aniversariantes table,
+            #clientes #sec-cli-aniversariantes-mes table {
+                display:table;
+                table-layout:fixed;
+                overflow:visible !important;
+            }
+            #clientes #sec-cli-aniversariantes thead,
+            #clientes #sec-cli-aniversariantes tbody,
+            #clientes #sec-cli-aniversariantes-mes thead,
+            #clientes #sec-cli-aniversariantes-mes tbody {
+                width:auto;
+                min-width:0;
+            }
+            #clientes #sec-cli-aniversariantes th,
+            #clientes #sec-cli-aniversariantes td,
+            #clientes #sec-cli-aniversariantes-mes th,
+            #clientes #sec-cli-aniversariantes-mes td {
+                overflow-wrap:anywhere;
+            }
+            #clientes #sec-cli-aniversariantes-mes > div:first-child {
+                display:flex !important;
+                flex-direction:column !important;
+                align-items:stretch !important;
+            }
+            #clientes #sec-cli-aniversariantes-mes .btn-salvar {
+                width:100% !important;
+                margin-top:8px;
+            }
+            #clientes #sec-cli-tabela { overflow:hidden !important; }
+            #clientes #sec-cli-tabela table {
+                min-width:700px !important;
+                display:block;
+                overflow-x:auto !important;
+            }
+            #clientes #group-cli-endereco > div[style*="display: flex"] {
+                flex-direction:column !important;
+            }
+
+            /* Financeiro */
+            #financeiro .fin-summary-grid { grid-template-columns:1fr !important; }
+            #financeiro .filtros-bar {
+                display:grid !important;
+                grid-template-columns:1fr !important;
+                padding:14px !important;
+            }
+            #financeiro .filtros-bar > * { width:100% !important; min-width:0 !important; }
+            #financeiro .filtros-bar > div {
+                width:100% !important;
+                display:grid !important;
+                grid-template-columns:1fr !important;
+                gap:7px;
+                margin:0 !important;
+            }
+            #financeiro .filtros-bar > div:last-child {
+                grid-template-columns:1fr 1fr !important;
+            }
+            #financeiro .tabs {
+                display:grid !important;
+                grid-template-columns:1fr 1fr !important;
+                overflow:hidden !important;
+            }
+            #financeiro .tab {
+                min-width:0 !important;
+                width:100% !important;
+                padding:12px 7px !important;
+                font-size:12px !important;
+                white-space:normal !important;
+                overflow-wrap:anywhere;
+            }
+            #financeiro .aba-content {
+                width:100% !important;
+                padding:14px !important;
+                overflow:hidden !important;
+            }
+            #financeiro .entradas-layout {
+                display:flex !important;
+                flex-direction:column !important;
+                width:100% !important;
+            }
+            #financeiro .entradas-form-area,
+            #financeiro .fin-sidebar {
+                width:100% !important;
+                min-width:0 !important;
+            }
+            #financeiro .combo-grid { grid-template-columns:1fr !important; }
+            #financeiro .combo-item { width:100%; }
+            #financeiro .btn-salvar { width:100%; }
+            #financeiro #lista-carrinho + div {
+                display:flex !important;
+                flex-direction:column !important;
+                align-items:stretch !important;
+                gap:10px !important;
+            }
+            #financeiro #lista-carrinho + div > * { width:100% !important; }
+            #financeiro #lista-carrinho + div label {
+                display:block !important;
+                margin:0 0 6px !important;
+            }
+            #financeiro .entradas-form-area > table,
+            #financeiro #aba-saidas table {
+                min-width:620px !important;
+                overflow-x:auto !important;
+            }
+
+            /* Agenda */
+            #agenda { width:100% !important; }
+            #agenda .agenda-grid { grid-template-columns:1fr !important; }
+            #agenda .agenda-scroll-area {
+                width:100%;
+                max-height:none !important;
+                overflow:visible !important;
+            }
+            #agenda .slot-card { width:100%; }
+            #agenda .slot-card .btn-salvar,
+            #agenda .slot-card .btn-confirmar-modal {
+                font-size:12px !important;
+            }
+            #agenda .header + div,
+            #agenda .form-container { max-width:100%; }
+            #agenda div[style*="display: flex"] {
+                max-width:100%;
+                flex-wrap:wrap !important;
+            }
+
+            /* CONFIGURAÇÕES: estrutura inteiramente mobile */
+            #configuracoes {
+                width:100% !important;
+                max-width:100% !important;
+            }
+            #configuracoes > .header h1 {
+                font-size:21px !important;
+                margin:0;
+            }
+            #configuracoes #sec-config-geral {
+                max-width:100% !important;
+                width:100% !important;
+                padding:16px !important;
+            }
+            #configuracoes h3 {
+                font-size:18px !important;
+                line-height:1.25 !important;
+                margin-bottom:6px;
+            }
+            #configuracoes h3[style*="color: var(--cor-accent)"] {
+                font-size:18px !important;
+            }
+            #configuracoes p {
+                font-size:12px !important;
+                line-height:1.45 !important;
+                overflow-wrap:break-word;
+            }
+
+            /* Horários e qualquer flex/grid inline dentro de configurações */
+            #configuracoes #sec-config-geral > div[style*="display: flex"],
+            #configuracoes #sec-config-geral > div[style*="display:flex"] {
+                display:grid !important;
+                grid-template-columns:1fr !important;
+                gap:10px !important;
+                width:100% !important;
+            }
+            #configuracoes #sec-config-geral div[style*="grid-template-columns: 1fr 1fr"],
+            #configuracoes #sec-config-geral div[style*="grid-template-columns:1fr 1fr"] {
+                display:grid !important;
+                grid-template-columns:1fr !important;
+                gap:10px !important;
+                width:100% !important;
+            }
+
+            #configuracoes .section-box-cfg {
+                width:100% !important;
+                padding:14px !important;
+                overflow:hidden;
+            }
+            #configuracoes .section-box-cfg h4 {
+                font-size:15px !important;
+                padding-bottom:8px;
+                margin-bottom:12px;
+            }
+            #configuracoes .section-box-cfg label,
+            #configuracoes #sec-config-geral > div[style*="grid"] label {
+                display:grid !important;
+                grid-template-columns:24px minmax(0,1fr) !important;
+                align-items:start !important;
+                gap:8px !important;
+                width:100% !important;
+                min-width:0 !important;
+                font-size:13px !important;
+                line-height:1.35 !important;
+                overflow-wrap:break-word !important;
+            }
+            #configuracoes input[type="checkbox"] {
+                width:21px !important;
+                height:21px !important;
+                min-height:0 !important;
+                margin-top:0 !important;
+                flex:none;
+            }
+            #configuracoes .btn-salvar {
+                width:100% !important;
+                display:block;
+                margin-left:0 !important;
+                margin-right:0 !important;
+                padding:13px 12px !important;
+                font-size:14px !important;
+            }
+            #configuracoes textarea {
+                width:100% !important;
+                min-height:130px;
+                font-size:15px !important;
+                line-height:1.45;
+            }
+            #configuracoes #cfg-tema {
+                width:100% !important;
+                max-width:100% !important;
+                margin-bottom:8px;
+            }
+            #configuracoes hr {
+                margin:22px 0 !important;
+            }
+
+            /* Nuvem / identidade */
+            #configuracoes input[disabled],
+            #configuracoes select[disabled] {
+                width:100% !important;
+                max-width:100% !important;
+            }
+
+            /* Modais */
+            .modal-overlay {
+                padding:12px !important;
+                align-items:center !important;
+            }
+            .modal-balao,
+            #modal-agendamento .modal-balao {
+                width:100% !important;
+                max-width:100% !important;
+                max-height:86dvh !important;
+                padding:16px !important;
+                overflow-y:auto !important;
+            }
+            .modal-botoes {
+                display:grid !important;
+                grid-template-columns:1fr !important;
+                gap:9px !important;
+            }
+            .modal-botoes button {
+                width:100% !important;
+                min-width:0 !important;
+            }
+
+            /* Login / recuperação */
+            .cloud-auth-overlay {
+                padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom)) !important;
+            }
+            .cloud-auth-card { width:100% !important; max-width:430px !important; }
+            .cloud-auth-body { padding:20px 18px 22px !important; }
+            .cloud-auth-brand { padding:22px 18px 18px !important; }
+            .cloud-auth-brand strong { font-size:21px !important; }
+
+            /* Mantém tudo dentro da viewport */
+            [style*="min-width: 360px"],
+            [style*="min-width:360px"],
+            [style*="min-width: 300px"],
+            [style*="min-width:300px"] {
+                min-width:0 !important;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .main-content { padding-left:12px !important; padding-right:12px !important; }
+            .mobile-brand { font-size:14px !important; }
+            #configuracoes > .header h1,
+            .header h1 { font-size:20px !important; }
+            #configuracoes h3 { font-size:17px !important; }
+            #configuracoes .section-box-cfg label { font-size:12px !important; }
+            #financeiro .tabs { grid-template-columns:1fr 1fr !important; }
+            .btn-salvar { font-size:13px !important; }
+        }
+
     </style>
 </head>
 <body class="auth-pending">
