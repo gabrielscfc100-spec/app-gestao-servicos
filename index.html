@@ -250,6 +250,9 @@
                     <p class="cloud-auth-help">Entre com o e-mail e a senha cadastrados no sistema.</p>
                     <div class="cloud-auth-field"><label>E-mail</label><input id="cloud-login-email" type="email" autocomplete="email" placeholder="voce@exemplo.com"></div>
                     <div class="cloud-auth-field"><label>Senha</label><div class="cloud-password-wrap"><input id="cloud-login-senha" type="password" autocomplete="current-password" placeholder="Sua senha"><button type="button" class="cloud-password-toggle" onclick="alternarVisibilidadeSenha('cloud-login-senha', this)" aria-label="Mostrar senha" title="Mostrar senha">👁</button></div></div>
+                    <div style="text-align:right;margin:-2px 0 12px;">
+                        <button type="button" onclick="mostrarRecuperarSenhaCloud()" style="border:0;background:none;color:#2b6cb0;cursor:pointer;font-size:12px;padding:0;text-transform:none;">Esqueci minha senha</button>
+                    </div>
                     <button id="cloud-btn-login" class="cloud-auth-submit" type="button" onclick="entrarCloud()">Entrar</button>
                 </div>
                 <div id="cloud-panel-cadastro" class="cloud-auth-panel">
@@ -260,6 +263,20 @@
                     <div class="cloud-auth-field"><label>Senha</label><div class="cloud-password-wrap"><input id="cloud-cadastro-senha" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres"><button type="button" class="cloud-password-toggle" onclick="alternarVisibilidadeSenha('cloud-cadastro-senha', this)" aria-label="Mostrar senha" title="Mostrar senha">👁</button></div></div>
                     <div class="cloud-auth-field"><label>Confirmar senha</label><div class="cloud-password-wrap"><input id="cloud-cadastro-senha2" type="password" autocomplete="new-password" minlength="8" placeholder="Digite a senha novamente"><button type="button" class="cloud-password-toggle" onclick="alternarVisibilidadeSenha('cloud-cadastro-senha2', this)" aria-label="Mostrar senha" title="Mostrar senha">👁</button></div></div>
                     <button id="cloud-btn-cadastro" class="cloud-auth-submit" type="button" onclick="criarContaCloud()">Criar conta</button>
+                </div>
+                <div id="cloud-panel-recuperar" class="cloud-auth-panel">
+                    <h2 class="cloud-auth-title">Recuperar senha</h2>
+                    <p class="cloud-auth-help">Informe o e-mail da sua conta. Você receberá um link para criar uma nova senha.</p>
+                    <div class="cloud-auth-field"><label>E-mail</label><input id="cloud-recuperar-email" type="email" autocomplete="email" placeholder="voce@exemplo.com"></div>
+                    <button id="cloud-btn-recuperar" class="cloud-auth-submit" type="button" onclick="enviarRecuperacaoSenhaCloud()">Enviar link de recuperação</button>
+                    <button type="button" style="margin-top:10px;width:100%;border:0;background:none;color:#718096;cursor:pointer;padding:7px;text-transform:none;" onclick="trocarAbaAuth('login')">Voltar para o login</button>
+                </div>
+                <div id="cloud-panel-nova-senha" class="cloud-auth-panel">
+                    <h2 class="cloud-auth-title">Criar nova senha</h2>
+                    <p class="cloud-auth-help">Defina uma nova senha para concluir a recuperação da sua conta.</p>
+                    <div class="cloud-auth-field"><label>Nova senha</label><div class="cloud-password-wrap"><input id="cloud-nova-senha" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres"><button type="button" class="cloud-password-toggle" onclick="alternarVisibilidadeSenha('cloud-nova-senha', this)" aria-label="Mostrar senha" title="Mostrar senha">👁</button></div></div>
+                    <div class="cloud-auth-field"><label>Confirmar nova senha</label><div class="cloud-password-wrap"><input id="cloud-nova-senha2" type="password" autocomplete="new-password" minlength="8" placeholder="Digite a nova senha novamente"><button type="button" class="cloud-password-toggle" onclick="alternarVisibilidadeSenha('cloud-nova-senha2', this)" aria-label="Mostrar senha" title="Mostrar senha">👁</button></div></div>
+                    <button id="cloud-btn-nova-senha" class="cloud-auth-submit" type="button" onclick="salvarNovaSenhaCloud()">Salvar nova senha</button>
                 </div>
                 <div class="cloud-auth-foot">A autenticação é processada pelo Supabase. A senha não é armazenada pelo aplicativo.</div>
             </div>
@@ -1239,12 +1256,30 @@
            ============================================================ */
         const SUPABASE_URL = 'https://syvfhoglbhdairkcafts.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_OX4MzYwlV6asW9_3GooxPA_SP0uHrcu';
+        const URL_INDICA_RECUPERACAO_CLOUD = /(?:^|[?#&])type=recovery(?:&|$)/i.test(window.location.href);
         const CloudDB = (window.supabase && window.supabase.createClient)
             ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
                 auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
               })
             : null;
         let sessaoCloud = null;
+        let modoRecuperacaoSenhaCloud = URL_INDICA_RECUPERACAO_CLOUD;
+        let eventoRecuperacaoPendenteCloud = false;
+
+        if(CloudDB) {
+            CloudDB.auth.onAuthStateChange((event, session) => {
+                if(event === 'PASSWORD_RECOVERY') {
+                    eventoRecuperacaoPendenteCloud = true;
+                    modoRecuperacaoSenhaCloud = true;
+                    sessaoCloud = session;
+                    if(document.readyState !== 'loading') mostrarTelaNovaSenhaCloud();
+                    return;
+                }
+                if(event === 'SIGNED_OUT') {
+                    sessaoCloud = null;
+                }
+            });
+        }
 
         const APP_VERSION = '2.5-financeiro-cloud';
         const DATA_MODE = 'hybrid-financeiro-cloud';
@@ -1818,11 +1853,89 @@
 
         function trocarAbaAuth(aba) {
             const login = aba === 'login';
+            const cadastro = aba === 'cadastro';
             document.getElementById('cloud-tab-login')?.classList.toggle('active', login);
-            document.getElementById('cloud-tab-cadastro')?.classList.toggle('active', !login);
+            document.getElementById('cloud-tab-cadastro')?.classList.toggle('active', cadastro);
             document.getElementById('cloud-panel-login')?.classList.toggle('active', login);
-            document.getElementById('cloud-panel-cadastro')?.classList.toggle('active', !login);
+            document.getElementById('cloud-panel-cadastro')?.classList.toggle('active', cadastro);
+            document.getElementById('cloud-panel-recuperar')?.classList.remove('active');
+            if(!modoRecuperacaoSenhaCloud) document.getElementById('cloud-panel-nova-senha')?.classList.remove('active');
+            document.querySelector('.cloud-auth-tabs')?.style.setProperty('display','flex');
             exibirMensagemCloud('cloud-auth-message', '');
+        }
+
+        function mostrarRecuperarSenhaCloud() {
+            modoRecuperacaoSenhaCloud = false;
+            const loginEmail = document.getElementById('cloud-login-email')?.value.trim() || '';
+            document.getElementById('cloud-panel-login')?.classList.remove('active');
+            document.getElementById('cloud-panel-cadastro')?.classList.remove('active');
+            document.getElementById('cloud-panel-nova-senha')?.classList.remove('active');
+            document.getElementById('cloud-panel-recuperar')?.classList.add('active');
+            document.querySelector('.cloud-auth-tabs')?.style.setProperty('display','none');
+            const campo = document.getElementById('cloud-recuperar-email');
+            if(campo && loginEmail) campo.value = loginEmail;
+            exibirMensagemCloud('cloud-auth-message', '');
+        }
+
+        function mostrarTelaNovaSenhaCloud() {
+            modoRecuperacaoSenhaCloud = true;
+            document.body.classList.add('auth-pending');
+            document.getElementById('cloud-auth-overlay')?.classList.remove('hidden');
+            document.getElementById('cloud-empresa-overlay')?.classList.add('hidden');
+            document.getElementById('cloud-panel-login')?.classList.remove('active');
+            document.getElementById('cloud-panel-cadastro')?.classList.remove('active');
+            document.getElementById('cloud-panel-recuperar')?.classList.remove('active');
+            document.getElementById('cloud-panel-nova-senha')?.classList.add('active');
+            document.querySelector('.cloud-auth-tabs')?.style.setProperty('display','none');
+            const userBox = document.getElementById('cloud-user-box');
+            if(userBox) userBox.style.display = 'none';
+            exibirMensagemCloud('cloud-auth-message','Link de recuperação validado. Crie sua nova senha para continuar.','info');
+        }
+
+        async function enviarRecuperacaoSenhaCloud() {
+            if(!CloudDB) { exibirMensagemCloud('cloud-auth-message','Não foi possível carregar o Supabase.','error'); return; }
+            const email = document.getElementById('cloud-recuperar-email')?.value.trim();
+            if(!email) { exibirMensagemCloud('cloud-auth-message','Informe o e-mail da sua conta.','error'); return; }
+            definirCarregandoCloud('cloud-btn-recuperar', true, 'Enviar link de recuperação');
+            try {
+                const { error } = await CloudDB.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin
+                });
+                if(error) throw error;
+                exibirMensagemCloud('cloud-auth-message','Se esse e-mail estiver cadastrado, enviaremos um link de recuperação. Verifique também a pasta de spam.','ok');
+            } catch(err) {
+                console.error(err);
+                exibirMensagemCloud('cloud-auth-message','Não foi possível enviar o link de recuperação. Tente novamente em alguns instantes.','error');
+            } finally {
+                definirCarregandoCloud('cloud-btn-recuperar', false, 'Enviar link de recuperação');
+            }
+        }
+
+        async function salvarNovaSenhaCloud() {
+            if(!CloudDB) { exibirMensagemCloud('cloud-auth-message','Não foi possível carregar o Supabase.','error'); return; }
+            const senha = document.getElementById('cloud-nova-senha')?.value || '';
+            const senha2 = document.getElementById('cloud-nova-senha2')?.value || '';
+            if(senha.length < 8) { exibirMensagemCloud('cloud-auth-message','Use uma senha com pelo menos 8 caracteres.','error'); return; }
+            if(senha !== senha2) { exibirMensagemCloud('cloud-auth-message','As senhas informadas são diferentes.','error'); return; }
+            definirCarregandoCloud('cloud-btn-nova-senha', true, 'Salvar nova senha');
+            try {
+                const { error } = await CloudDB.auth.updateUser({ password: senha });
+                if(error) throw error;
+                modoRecuperacaoSenhaCloud = false;
+                eventoRecuperacaoPendenteCloud = false;
+                try { history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+                await CloudDB.auth.signOut();
+                sessaoCloud = null;
+                mostrarTelaLoginCloud();
+                exibirMensagemCloud('cloud-auth-message','Senha alterada com sucesso. Entre novamente usando sua nova senha.','ok');
+                const campo = document.getElementById('cloud-login-senha');
+                if(campo) campo.value = '';
+            } catch(err) {
+                console.error(err);
+                exibirMensagemCloud('cloud-auth-message','Não foi possível alterar a senha. O link pode ter expirado; solicite uma nova recuperação.','error');
+            } finally {
+                definirCarregandoCloud('cloud-btn-nova-senha', false, 'Salvar nova senha');
+            }
         }
 
         function definirCarregandoCloud(botaoId, carregando, textoNormal) {
@@ -1902,6 +2015,10 @@
         }
 
         async function processarUsuarioCloud(user) {
+            if(modoRecuperacaoSenhaCloud || eventoRecuperacaoPendenteCloud) {
+                mostrarTelaNovaSenhaCloud();
+                return;
+            }
             if(!user) { mostrarTelaLoginCloud(); return; }
             usuarioAtual = {
                 id: user.id,
@@ -2076,6 +2193,8 @@
             document.body.classList.add('auth-pending');
             document.getElementById('cloud-auth-overlay')?.classList.remove('hidden');
             document.getElementById('cloud-empresa-overlay')?.classList.add('hidden');
+            document.getElementById('cloud-panel-recuperar')?.classList.remove('active');
+            document.getElementById('cloud-panel-nova-senha')?.classList.remove('active');
             const userBox = document.getElementById('cloud-user-box');
             if(userBox) userBox.style.display = 'none';
             trocarAbaAuth('login');
@@ -2103,12 +2222,21 @@
                 const { data, error } = await CloudDB.auth.getSession();
                 if(error) throw error;
                 sessaoCloud = data.session;
+                if(modoRecuperacaoSenhaCloud || eventoRecuperacaoPendenteCloud) {
+                    mostrarTelaNovaSenhaCloud();
+                    return;
+                }
                 if(sessaoCloud?.user) await processarUsuarioCloud(sessaoCloud.user);
                 else mostrarTelaLoginCloud();
             } catch(err) {
                 console.error(err);
-                mostrarTelaLoginCloud();
-                exibirMensagemCloud('cloud-auth-message','Não foi possível verificar sua sessão. Tente entrar novamente.','error');
+                if(modoRecuperacaoSenhaCloud) {
+                    mostrarTelaNovaSenhaCloud();
+                    exibirMensagemCloud('cloud-auth-message','Não foi possível validar o link de recuperação. Solicite um novo link.','error');
+                } else {
+                    mostrarTelaLoginCloud();
+                    exibirMensagemCloud('cloud-auth-message','Não foi possível verificar sua sessão. Tente entrar novamente.','error');
+                }
             }
         }
 
