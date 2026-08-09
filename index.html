@@ -1256,27 +1256,41 @@
            ============================================================ */
         const SUPABASE_URL = 'https://syvfhoglbhdairkcafts.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_OX4MzYwlV6asW9_3GooxPA_SP0uHrcu';
-        const URL_INDICA_RECUPERACAO_CLOUD = /(?:^|[?#&])type=recovery(?:&|$)/i.test(window.location.href);
+        const URL_INDICA_RECUPERACAO_CLOUD = /(?:^|[?#&])type=recovery(?:&|$)/i.test(window.location.href)
+            || new URLSearchParams(window.location.search).has('code');
+
         const CloudDB = (window.supabase && window.supabase.createClient)
             ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
                 auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
               })
             : null;
+
         let sessaoCloud = null;
         let modoRecuperacaoSenhaCloud = URL_INDICA_RECUPERACAO_CLOUD;
         let eventoRecuperacaoPendenteCloud = false;
+        let recoveryResolvidaCloud = false;
 
         if(CloudDB) {
             CloudDB.auth.onAuthStateChange((event, session) => {
                 if(event === 'PASSWORD_RECOVERY') {
                     eventoRecuperacaoPendenteCloud = true;
                     modoRecuperacaoSenhaCloud = true;
+                    recoveryResolvidaCloud = !!session;
                     sessaoCloud = session;
                     if(document.readyState !== 'loading') mostrarTelaNovaSenhaCloud();
                     return;
                 }
+
+                if((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && modoRecuperacaoSenhaCloud && session) {
+                    recoveryResolvidaCloud = true;
+                    sessaoCloud = session;
+                    if(document.readyState !== 'loading') mostrarTelaNovaSenhaCloud();
+                    return;
+                }
+
                 if(event === 'SIGNED_OUT') {
                     sessaoCloud = null;
+                    recoveryResolvidaCloud = false;
                 }
             });
         }
@@ -1912,27 +1926,70 @@
         }
 
         async function salvarNovaSenhaCloud() {
-            if(!CloudDB) { exibirMensagemCloud('cloud-auth-message','Não foi possível carregar o Supabase.','error'); return; }
+            if(!CloudDB) {
+                exibirMensagemCloud('cloud-auth-message','Não foi possível carregar o Supabase.','error');
+                return;
+            }
+
             const senha = document.getElementById('cloud-nova-senha')?.value || '';
             const senha2 = document.getElementById('cloud-nova-senha2')?.value || '';
-            if(senha.length < 8) { exibirMensagemCloud('cloud-auth-message','Use uma senha com pelo menos 8 caracteres.','error'); return; }
-            if(senha !== senha2) { exibirMensagemCloud('cloud-auth-message','As senhas informadas são diferentes.','error'); return; }
+
+            if(senha.length < 8) {
+                exibirMensagemCloud('cloud-auth-message','Use uma senha com pelo menos 8 caracteres.','error');
+                return;
+            }
+            if(senha !== senha2) {
+                exibirMensagemCloud('cloud-auth-message','As senhas informadas são diferentes.','error');
+                return;
+            }
+
             definirCarregandoCloud('cloud-btn-nova-senha', true, 'Salvar nova senha');
+
             try {
-                const { error } = await CloudDB.auth.updateUser({ password: senha });
+                const { data: sessaoAtualData, error: sessaoAtualErro } = await CloudDB.auth.getSession();
+                if(sessaoAtualErro) throw sessaoAtualErro;
+
+                sessaoCloud = sessaoAtualData?.session || sessaoCloud;
+                if(!sessaoCloud?.user) {
+                    throw new Error('Sessão de recuperação não está ativa. Solicite um novo link de recuperação.');
+                }
+
+                const { data, error } = await CloudDB.auth.updateUser({ password: senha });
                 if(error) throw error;
+
+                if(!data?.user) {
+                    throw new Error('O Supabase não confirmou a atualização da senha.');
+                }
+
                 modoRecuperacaoSenhaCloud = false;
                 eventoRecuperacaoPendenteCloud = false;
-                try { history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+                recoveryResolvidaCloud = false;
+
+                try {
+                    history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+                } catch(e) {}
+
                 await CloudDB.auth.signOut();
                 sessaoCloud = null;
+
                 mostrarTelaLoginCloud();
-                exibirMensagemCloud('cloud-auth-message','Senha alterada com sucesso. Entre novamente usando sua nova senha.','ok');
+                exibirMensagemCloud(
+                    'cloud-auth-message',
+                    'Senha alterada com sucesso. Entre novamente usando sua nova senha.',
+                    'ok'
+                );
+
                 const campo = document.getElementById('cloud-login-senha');
                 if(campo) campo.value = '';
+
             } catch(err) {
-                console.error(err);
-                exibirMensagemCloud('cloud-auth-message','Não foi possível alterar a senha. O link pode ter expirado; solicite uma nova recuperação.','error');
+                console.error('Erro ao alterar senha:', err);
+                const detalhe = String(err?.message || 'Erro desconhecido');
+                exibirMensagemCloud(
+                    'cloud-auth-message',
+                    'Não foi possível alterar a senha. Motivo: ' + detalhe,
+                    'error'
+                );
             } finally {
                 definirCarregandoCloud('cloud-btn-nova-senha', false, 'Salvar nova senha');
             }
@@ -2217,25 +2274,60 @@
                 exibirMensagemCloud('cloud-auth-message','Não foi possível iniciar o Supabase. Verifique se há acesso à internet.','error');
                 return;
             }
+
             exibirMensagemCloud('cloud-auth-message','Verificando sessão...','info');
+
             try {
+                // Dá tempo para o detectSessionInUrl consumir o hash/código do link de recuperação.
+                if(URL_INDICA_RECUPERACAO_CLOUD) {
+                    await new Promise(resolve => setTimeout(resolve, 700));
+                }
+
                 const { data, error } = await CloudDB.auth.getSession();
                 if(error) throw error;
-                sessaoCloud = data.session;
-                if(modoRecuperacaoSenhaCloud || eventoRecuperacaoPendenteCloud) {
+
+                sessaoCloud = data?.session || null;
+
+                if(modoRecuperacaoSenhaCloud) {
+                    if(sessaoCloud?.user) {
+                        recoveryResolvidaCloud = true;
+                        mostrarTelaNovaSenhaCloud();
+                        return;
+                    }
+
+                    // Se a URL indicava recovery, mas não houve sessão, o link já foi usado/expirou.
                     mostrarTelaNovaSenhaCloud();
+                    exibirMensagemCloud(
+                        'cloud-auth-message',
+                        'Não foi possível validar este link de recuperação. Solicite um novo link em “Esqueci minha senha”.',
+                        'error'
+                    );
                     return;
                 }
-                if(sessaoCloud?.user) await processarUsuarioCloud(sessaoCloud.user);
-                else mostrarTelaLoginCloud();
-            } catch(err) {
-                console.error(err);
-                if(modoRecuperacaoSenhaCloud) {
-                    mostrarTelaNovaSenhaCloud();
-                    exibirMensagemCloud('cloud-auth-message','Não foi possível validar o link de recuperação. Solicite um novo link.','error');
+
+                if(sessaoCloud?.user) {
+                    await processarUsuarioCloud(sessaoCloud.user);
                 } else {
                     mostrarTelaLoginCloud();
-                    exibirMensagemCloud('cloud-auth-message','Não foi possível verificar sua sessão. Tente entrar novamente.','error');
+                }
+
+            } catch(err) {
+                console.error('Erro ao iniciar autenticação:', err);
+
+                if(modoRecuperacaoSenhaCloud) {
+                    mostrarTelaNovaSenhaCloud();
+                    exibirMensagemCloud(
+                        'cloud-auth-message',
+                        'Não foi possível validar o link de recuperação. Motivo: ' + String(err?.message || 'erro desconhecido'),
+                        'error'
+                    );
+                } else {
+                    mostrarTelaLoginCloud();
+                    exibirMensagemCloud(
+                        'cloud-auth-message',
+                        'Não foi possível verificar sua sessão. Tente entrar novamente.',
+                        'error'
+                    );
                 }
             }
         }
