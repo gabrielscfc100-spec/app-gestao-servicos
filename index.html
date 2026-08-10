@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- SIMPLA | FRONT-END CONSOLIDADO v4 | Perfis + RLS + Auditoria -->
+    <!-- SIMPLA | FRONT-END CONSOLIDADO v5 | Perfis + RLS + Auditoria + Busca de Clientes -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarberManager - Gestão Simples</title>
@@ -1373,6 +1373,75 @@
             .auditoria-table{min-width:900px !important;}
         }
 
+    
+        .cliente-autocomplete-wrap {
+            position: relative;
+            width: 100%;
+        }
+        .cliente-sugestoes {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 4px);
+            z-index: 1600;
+            max-height: 260px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #cbd5e0;
+            border-radius: 7px;
+            box-shadow: 0 10px 24px rgba(0,0,0,.14);
+            text-transform: none;
+        }
+        .cliente-sugestoes.aberta { display:block; }
+        .cliente-sugestao-item {
+            width: 100%;
+            border: 0;
+            border-bottom: 1px solid #edf2f7;
+            background: #fff;
+            padding: 11px 12px;
+            text-align: left;
+            cursor: pointer;
+            display: block;
+            text-transform: none;
+        }
+        .cliente-sugestao-item:last-child { border-bottom:0; }
+        .cliente-sugestao-item:hover,
+        .cliente-sugestao-item:focus { background:#f7fafc; outline:none; }
+        .cliente-sugestao-nome {
+            display:block;
+            font-size:13px;
+            font-weight:800;
+            color:#1a202c;
+            text-transform:none;
+        }
+        .cliente-sugestao-meta {
+            display:block;
+            margin-top:3px;
+            font-size:11px;
+            color:#718096;
+            text-transform:none;
+        }
+        .cliente-sugestoes-vazio {
+            padding:12px;
+            color:#718096;
+            font-size:12px;
+            text-transform:none;
+        }
+        @media(max-width:768px) {
+            .cliente-sugestoes {
+                position: static;
+                margin-top:6px;
+                max-height:240px;
+                box-shadow:none;
+                border-radius:6px;
+            }
+            .cliente-sugestao-item {
+                min-height:52px;
+                padding:12px;
+            }
+        }
+
     </style>
 </head>
 <body class="auth-pending">
@@ -1526,8 +1595,13 @@
             </div>
             <div class="form-group">
                 <label id="agenda-cliente-label">Cliente Cadastrado *</label>
-                <input type="text" id="agenda-cliente-busca" list="lista-clientes-opcoes" placeholder="Digite o nome ou código..." oninput="this.value = this.value.toUpperCase(); atualizarTelefoneAgendamento();" onchange="atualizarTelefoneAgendamento();">
-                <small id="agenda-cliente-ajuda" style="display:block;margin-top:5px;color:#718096;">Selecione um cliente da lista. Para alguém sem cadastro, escolha “Cliente avulso”.</small>
+                <div class="cliente-autocomplete-wrap">
+                    <input type="text" id="agenda-cliente-busca" placeholder="Digite o nome ou código..." autocomplete="off"
+                        oninput="this.value = this.value.toUpperCase(); limparSelecaoCliente('agenda'); atualizarSugestoesCliente('agenda');"
+                        onfocus="atualizarSugestoesCliente('agenda');">
+                    <div id="agenda-cliente-sugestoes" class="cliente-sugestoes"></div>
+                </div>
+                <small id="agenda-cliente-ajuda" style="display:block;margin-top:5px;color:#718096;">Digite normalmente e escolha o cliente na lista de resultados. Nenhum cliente será selecionado automaticamente.</small>
             </div>
             <div class="form-group">
                 <label>WhatsApp / Telefone para Confirmação</label>
@@ -1977,8 +2051,12 @@
                         <div class="entradas-form-area">
                             <div class="form-group">
                                 <label>Cliente (Busque pelo nome ou código)</label>
-                                <input type="text" id="busca-cliente" list="lista-clientes-opcoes" placeholder="Comece a digitar o nome ou #001..." oninput="this.value = this.value.toUpperCase()">
-                                <datalist id="lista-clientes-opcoes"></datalist>
+                                <div class="cliente-autocomplete-wrap">
+                                    <input type="text" id="busca-cliente" placeholder="Comece a digitar o nome ou #001..." autocomplete="off"
+                                        oninput="this.value = this.value.toUpperCase(); limparSelecaoCliente('financeiro'); atualizarSugestoesCliente('financeiro'); atualizarEspelhoClienteFinanceiro();"
+                                        onfocus="atualizarSugestoesCliente('financeiro');">
+                                    <div id="financeiro-cliente-sugestoes" class="cliente-sugestoes"></div>
+                                </div>
                                 <div id="financeiro-cliente-espelho" style="display:none; margin-top:8px; padding:10px 12px; background:#f0fff4; border:1px solid #c6f6d5; border-radius:6px; font-size:13px; color:#276749;">
                                     <b>Cliente localizado:</b>
                                     <span id="financeiro-cliente-nome"></span>
@@ -4234,10 +4312,24 @@
             }
 
             const campoAgendaCliente = document.getElementById('agenda-cliente-busca');
-            if (campoAgendaCliente) {
-                campoAgendaCliente.addEventListener('change', atualizarTelefoneAgendamento);
-                campoAgendaCliente.addEventListener('blur', atualizarTelefoneAgendamento);
+            if(campoAgendaCliente) {
+                campoAgendaCliente.addEventListener('keydown', (e) => {
+                    if(e.key === 'Escape') fecharSugestoesCliente('agenda');
+                });
             }
+
+            if(campoFinanceiroCliente) {
+                campoFinanceiroCliente.addEventListener('keydown', (e) => {
+                    if(e.key === 'Escape') fecharSugestoesCliente('financeiro');
+                });
+            }
+
+            document.addEventListener('click', (e) => {
+                if(!e.target.closest('.cliente-autocomplete-wrap')) {
+                    fecharSugestoesCliente('agenda');
+                    fecharSugestoesCliente('financeiro');
+                }
+            });
 
             sincronizarDadosClientesTodasAsTelas();
         });
@@ -5209,6 +5301,7 @@
             document.getElementById('titulo-modal-agendamento').innerText = 'Novo Agendamento';
             document.getElementById('modal-agenda-horario-txt').innerText = `Agendamento para ${dataFmt}`;
             document.getElementById('agenda-cliente-busca').value = '';
+            delete document.getElementById('agenda-cliente-busca').dataset.clienteId;
             document.getElementById('agenda-telefone').value = '';
             document.getElementById('agenda-obs').value = '';
             preencherSelectServicosAgenda();
@@ -5292,9 +5385,10 @@
             const label = document.getElementById('agenda-cliente-label');
             const ajuda = document.getElementById('agenda-cliente-ajuda');
             if (!campoCliente || !campoTelefone) return;
+            fecharSugestoesCliente('agenda');
+            delete campoCliente.dataset.clienteId;
 
             if (tipo === 'avulso') {
-                campoCliente.removeAttribute('list');
                 campoCliente.placeholder = 'Digite o nome do cliente avulso...';
                 if (label) label.textContent = 'Nome do Cliente Avulso *';
                 if (ajuda) ajuda.textContent = 'O cliente não será criado no cadastro geral. Informe também o WhatsApp manualmente.';
@@ -5303,7 +5397,6 @@
                     campoTelefone.value = '';
                 }
             } else {
-                campoCliente.setAttribute('list', 'lista-clientes-opcoes');
                 campoCliente.placeholder = 'Digite o nome ou código...';
                 if (label) label.textContent = 'Cliente Cadastrado *';
                 if (ajuda) ajuda.textContent = 'Selecione um cliente da lista. Para alguém sem cadastro, escolha “Cliente avulso”.';
@@ -5315,20 +5408,12 @@
         }
 
         function atualizarTelefoneAgendamento() {
-            const campoCliente = document.getElementById('agenda-cliente-busca');
             const campoTelefone = document.getElementById('agenda-telefone');
             const tipo = document.getElementById('agenda-tipo-cliente')?.value || 'cadastrado';
-            if (!campoCliente || !campoTelefone) return;
+            if(!campoTelefone || tipo === 'avulso') return;
 
-            // Cliente avulso: nunca tenta vincular automaticamente ao cadastro mestre.
-            if (tipo === 'avulso') return;
-
-            const cliente = localizarClienteUniversal(campoCliente.value) || localizarClienteAgendamento(campoCliente.value);
-            if (cliente) {
-                campoTelefone.value = cliente.telefone || '';
-                // Mantém o nome do cliente exatamente como está no cadastro mestre.
-                campoCliente.value = `${cliente.codigo} - ${formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)}`;
-            }
+            const cliente = obterClienteSelecionado('agenda');
+            campoTelefone.value = cliente?.telefone || '';
         }
 
         function gerarLinkWhatsAppAgendamento(agendamento) {
@@ -5492,7 +5577,7 @@
 
             const tipoCliente = document.getElementById('agenda-tipo-cliente')?.value || 'cadastrado';
             const cliEncontrado = tipoCliente === 'cadastrado'
-                ? (localizarClienteUniversal(buscaVal) || localizarClienteAgendamento(buscaVal))
+                ? obterClienteSelecionado('agenda')
                 : null;
 
             if (tipoCliente === 'cadastrado' && !cliEncontrado) {
@@ -5737,14 +5822,128 @@
         }
 
         function atualizarListaClientesDatalist() {
-            const datalist = document.getElementById('lista-clientes-opcoes');
-            if(!datalist) return;
-            datalist.innerHTML = '';
-            clientes.forEach(c => {
-                let opt = document.createElement('option');
-                opt.value = `${c.codigo} - ${c.nome} ${c.sobrenome || ''} (${c.telefone || 'Sem Tel'})`;
-                datalist.appendChild(opt);
-            });
+            // Mantida por compatibilidade com chamadas antigas.
+            // A seleção agora usa dropdown controlado pelo app.
+            atualizarSugestoesCliente('financeiro', false);
+            atualizarSugestoesCliente('agenda', false);
+        }
+
+        function normalizarBuscaCliente(valor) {
+            return String(valor || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toUpperCase()
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function obterCampoClientePorContexto(contexto) {
+            return contexto === 'agenda'
+                ? document.getElementById('agenda-cliente-busca')
+                : document.getElementById('busca-cliente');
+        }
+
+        function obterListaClientePorContexto(contexto) {
+            return contexto === 'agenda'
+                ? document.getElementById('agenda-cliente-sugestoes')
+                : document.getElementById('financeiro-cliente-sugestoes');
+        }
+
+        function limparSelecaoCliente(contexto) {
+            const campo = obterCampoClientePorContexto(contexto);
+            if(!campo) return;
+            delete campo.dataset.clienteId;
+            if(contexto === 'agenda') {
+                const telefone = document.getElementById('agenda-telefone');
+                if(telefone && (document.getElementById('agenda-tipo-cliente')?.value || 'cadastrado') === 'cadastrado') {
+                    telefone.value = '';
+                }
+            }
+        }
+
+        function filtrarClientesBusca(termo) {
+            const busca = normalizarBuscaCliente(termo);
+            if(!busca) return clientes.slice(0, 12);
+
+            return clientes.filter(c => {
+                const codigo = normalizarBuscaCliente(c.codigo || '');
+                const nomeCompleto = normalizarBuscaCliente(`${c.nome || ''} ${c.sobrenome || ''}`);
+                const telefone = normalizarBuscaCliente(c.telefone || '');
+                return codigo.includes(busca) || nomeCompleto.includes(busca) || telefone.includes(busca);
+            }).slice(0, 20);
+        }
+
+        function atualizarSugestoesCliente(contexto, abrir = true) {
+            const campo = obterCampoClientePorContexto(contexto);
+            const lista = obterListaClientePorContexto(contexto);
+            if(!campo || !lista) return;
+
+            if(contexto === 'agenda' && (document.getElementById('agenda-tipo-cliente')?.value || 'cadastrado') === 'avulso') {
+                lista.classList.remove('aberta');
+                lista.innerHTML = '';
+                return;
+            }
+
+            const termo = campo.value || '';
+            const resultados = filtrarClientesBusca(termo);
+
+            if(!resultados.length) {
+                lista.innerHTML = '<div class="cliente-sugestoes-vazio">Nenhum cliente encontrado.</div>';
+            } else {
+                lista.innerHTML = resultados.map(c => {
+                    const nome = formatarNomeCompletoCliente(c.nome, c.sobrenome);
+                    const tel = c.telefone || 'Telefone não cadastrado';
+                    return `<button type="button" class="cliente-sugestao-item"
+                        onclick="selecionarClienteBusca('${contexto}','${c.id}')">
+                        <span class="cliente-sugestao-nome">${c.codigo || ''} — ${nome}</span>
+                        <span class="cliente-sugestao-meta">${tel}</span>
+                    </button>`;
+                }).join('');
+            }
+
+            if(abrir) lista.classList.add('aberta');
+        }
+
+        function fecharSugestoesCliente(contexto) {
+            const lista = obterListaClientePorContexto(contexto);
+            if(lista) lista.classList.remove('aberta');
+        }
+
+        function selecionarClienteBusca(contexto, clienteId) {
+            const campo = obterCampoClientePorContexto(contexto);
+            const cliente = clientes.find(c => String(c.id) === String(clienteId));
+            if(!campo || !cliente) return;
+
+            const nome = formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome);
+            campo.value = `${cliente.codigo || ''} - ${nome}`.trim();
+            campo.dataset.clienteId = String(cliente.id);
+            fecharSugestoesCliente(contexto);
+
+            if(contexto === 'agenda') {
+                const telefone = document.getElementById('agenda-telefone');
+                if(telefone) telefone.value = cliente.telefone || '';
+            } else {
+                atualizarEspelhoClienteFinanceiro();
+            }
+        }
+
+        function obterClienteSelecionado(contexto) {
+            const campo = obterCampoClientePorContexto(contexto);
+            if(!campo) return null;
+            const id = campo.dataset.clienteId;
+            if(id) {
+                return clientes.find(c => String(c.id) === String(id)) || null;
+            }
+
+            // Permite nomes/códigos digitados exatamente, mas nunca correspondência parcial.
+            const busca = normalizarBuscaCliente(campo.value);
+            if(!busca) return null;
+            return clientes.find(c => {
+                const codigo = normalizarBuscaCliente(c.codigo || '');
+                const nome = normalizarBuscaCliente(formatarNomeCompletoCliente(c.nome, c.sobrenome));
+                const valorCompleto = normalizarBuscaCliente(`${c.codigo || ''} - ${formatarNomeCompletoCliente(c.nome, c.sobrenome)}`);
+                return busca === codigo || busca === nome || busca === valorCompleto;
+            }) || null;
         }
 
         function atualizarAniversariantesDia() {
@@ -6384,7 +6583,7 @@
             const telefoneEl = document.getElementById('financeiro-cliente-telefone');
             if (!campo || !painel) return;
 
-            const cliente = localizarClienteUniversal(campo.value);
+            const cliente = obterClienteSelecionado('financeiro');
             if (!cliente) {
                 painel.style.display = 'none';
                 if (nomeEl) nomeEl.textContent = '';
@@ -6442,7 +6641,7 @@
                 }
             }
 
-            const cliEncontrado = localizarClienteUniversal(buscaVal);
+            const cliEncontrado = obterClienteSelecionado('financeiro');
             const clienteId = cliEncontrado ? cliEncontrado.id : null;
             const clienteNome = cliEncontrado ? formatarNomeCompletoCliente(cliEncontrado.nome, cliEncontrado.sobrenome) : formatarNomeCliente(buscaVal);
             const totalVal = carrinho.reduce((acc, i) => acc + Number(i.preco || 0), 0);
@@ -6509,6 +6708,7 @@
                 carrinho = [];
                 agendamentoEmRecebimentoId = null;
                 document.getElementById('busca-cliente').value = '';
+                delete document.getElementById('busca-cliente').dataset.clienteId;
                 document.getElementById('aviso-recebimento-agenda')?.remove();
 
                 atualizarEspelhoClienteFinanceiro?.();
