@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- SIMPLA | FRONT-END CONSOLIDADO v5 | Perfis + RLS + Auditoria + Busca de Clientes -->
+    <!-- SIMPLA | FRONT-END CONSOLIDADO v6.3 | Agenda por Profissional + Horários Passados Bloqueados -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarberManager - Gestão Simples</title>
@@ -1442,6 +1442,31 @@
             }
         }
 
+    
+        .profissional-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:14px;}
+        .profissional-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+        .profissional-card h4{margin:0;color:#1a202c;font-size:15px;}
+        .profissional-meta{font-size:11px;color:#718096;margin-top:4px;text-transform:none;}
+        .profissional-servicos-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px;}
+        .profissional-servico-item{display:grid;grid-template-columns:24px minmax(0,1fr) 105px;gap:8px;align-items:center;background:#f8fafc;border:1px solid #edf2f7;border-radius:6px;padding:9px;}
+        .profissional-servico-item input[type=checkbox]{width:18px;height:18px;}
+        .profissional-servico-item input[type=number]{width:100%;padding:7px;border:1px solid #cbd5e0;border-radius:4px;}
+        .profissional-servico-item span{font-size:12px;text-transform:none;}
+        @media(max-width:768px){
+            #box-cfg-profissionais > div[style*="grid-template-columns"]{grid-template-columns:1fr !important;}
+            .profissional-servicos-grid{grid-template-columns:1fr;}
+            .profissional-servico-item{grid-template-columns:24px minmax(0,1fr) 92px;}
+        }
+
+
+        @media(max-width:520px){
+            #modal-cliente-agendamento .modal-balao{
+                width:calc(100vw - 20px) !important;
+                max-height:90vh;
+                overflow:auto;
+            }
+        }
+
     </style>
 </head>
 <body class="auth-pending">
@@ -1609,9 +1634,15 @@
                 <small style="display:block; margin-top:5px; color:#718096;">Ao selecionar um cliente cadastrado, o número será preenchido automaticamente. Para cliente sem cadastro, informe manualmente.</small>
             </div>
             <div class="form-group">
-                <label>Serviço (Espelhado do Financeiro) *</label>
-                <select id="agenda-servico" style="padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; width: 100%;">
-                    <!-- Preenchido via JS com serviços do Financeiro -->
+                <label>Profissional *</label>
+                <select id="agenda-profissional" onchange="preencherSelectServicosAgenda(); preencherDuracaoPorServicoProfissional();" style="padding:10px;border:1px solid #cbd5e0;border-radius:4px;width:100%;">
+                    <option value="">Selecione o profissional</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Serviço *</label>
+                <select id="agenda-servico" onchange="preencherDuracaoPorServicoProfissional()" style="padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; width: 100%;">
+                    <!-- Preenchido via JS conforme o profissional -->
                 </select>
             </div>
             <div class="form-group">
@@ -1622,6 +1653,44 @@
             <div class="modal-botoes" style="margin-top: 16px;">
                 <button class="btn-cancelar-modal" onclick="fecharModalAgendamento()">Cancelar</button>
                 <button id="btn-salvar-agendamento" class="btn-salvar" onclick="salvarAgendamento()" style="padding: 10px; font-size: 14px;">Confirmar Reserva</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal: cadastrar cliente a partir de agendamento externo -->
+    <div id="modal-cliente-agendamento" class="modal-overlay">
+        <div class="modal-balao" style="text-align:left;width:460px;max-width:calc(100vw - 24px);">
+            <h3 style="text-align:center;">👤 Cadastrar Cliente</h3>
+            <p style="font-size:12px;color:#718096;line-height:1.5;text-transform:none;margin-bottom:16px;">
+                Os dados abaixo foram coletados no agendamento externo. Você pode editá-los antes de criar o cadastro.
+            </p>
+
+            <input type="hidden" id="cad-agenda-id">
+
+            <div class="form-group">
+                <label>Nome *</label>
+                <input type="text" id="cad-agenda-nome" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label>Telefone / WhatsApp *</label>
+                <input type="tel" id="cad-agenda-telefone" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="cad-agenda-email" autocomplete="off">
+                <small style="display:block;margin-top:5px;color:#718096;text-transform:none;">
+                    O e-mail será armazenado no cadastro mesmo que esse campo esteja oculto na tela padrão de Clientes.
+                </small>
+            </div>
+
+            <div class="modal-botoes" style="margin-top:16px;">
+                <button class="btn-cancelar-modal" onclick="fecharCadastroClienteAgendamento()">Cancelar</button>
+                <button id="btn-cadastrar-cliente-agendamento" class="btn-salvar"
+                    style="background:#3182ce;color:white;"
+                    onclick="salvarClienteDoAgendamento()">Criar cadastro e vincular</button>
             </div>
         </div>
     </div>
@@ -2237,6 +2306,12 @@
             <div class="header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <h1 style="margin: 0;">Agenda Interna</h1>
                 <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <label style="font-size:14px;font-weight:500;">👤 Agenda:</label>
+                        <select id="agenda-profissional-filtro" onchange="renderizarAgenda()" style="padding:8px;border:1px solid #cbd5e0;border-radius:4px;background:white;min-width:180px;">
+                            <option value="">Agenda Geral</option>
+                        </select>
+                    </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <label style="font-size: 14px; font-weight: 500;">📅 Data:</label>
                         <input type="date" id="agenda-data-filtro" onchange="validarDataAgendaFiltro(); atualizarAgendaCloudERender()" style="padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px; background: white;">
@@ -2285,6 +2360,32 @@
                     </div>
                 </div>
                 <button class="btn-salvar" style="margin-bottom: 24px;" onclick="salvarConfigExpediente()">💾 Salvar Horário de Funcionamento</button>
+
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                <h3 style="color: var(--cor-accent);">👤 Profissionais e Serviços</h3>
+                <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">
+                    Cadastre os profissionais da empresa e defina quais serviços cada um realiza.
+                    A duração específica do profissional terá prioridade sobre a duração padrão do serviço.
+                </p>
+
+                <div class="section-box-cfg" id="box-cfg-profissionais">
+                    <h4>Novo profissional</h4>
+                    <div style="display:grid;grid-template-columns:1fr 180px auto;gap:10px;align-items:end;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Nome do profissional</label>
+                            <input type="text" id="cfg-profissional-nome" placeholder="EX: JOÃO SILVA" oninput="this.value=this.value.toUpperCase()">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Telefone</label>
+                            <input type="tel" id="cfg-profissional-telefone" placeholder="00 9 9999-9999">
+                        </div>
+                        <button class="btn-salvar" id="btn-cadastrar-profissional" onclick="cadastrarProfissional()" style="margin:0;">➕ Cadastrar</button>
+                    </div>
+                    <div id="profissionais-config-status" style="font-size:11px;color:#718096;margin-top:10px;text-transform:none;"></div>
+                </div>
+
+                <div id="lista-profissionais-config"></div>
 
                 <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
 
@@ -2778,6 +2879,11 @@
             { id: 2, nome: 'ÓLEO PARA BARBA', preco: 30.00 }
         ]);
 
+        // Profissionais e relação profissional x serviço
+        let profissionais = [];
+        let profissionaisServicos = [];
+
+
         let mensagemAniversario = DataStore.getText('barber_msg_aniversario', 'OLÁ [NOME]! PARABÉNS PELO SEU ANIVERSÁRIO! A BARBERMANAGER TE DESEJA MUITA SAÚDE E SUCESSO!');
         let mensagemConfirmacaoAgendamento = DataStore.getText('barber_msg_confirmacao_agendamento', 'Olá [NOME]! Passando para confirmar seu agendamento para o dia [DATA], às [HORA].\n\nPedimos que chegue com 10 minutos de antecedência. O tempo de tolerância é de até 10 minutos.\n\nPodemos confirmar?');
         let mensagemAniversarioMes = DataStore.getText('barber_msg_aniversario_mes', 'Olá [NOME]! 🎉 Seu aniversário está chegando no dia [DATA]! Para comemorar, preparamos um possível desconto especial para você na [BARBEARIA]. Entre em contato conosco para saber mais. Esperamos você!');
@@ -2869,6 +2975,19 @@
         function obterHojeLocal() {
             const agora = new Date();
             return `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`;
+        }
+
+        function obterMinutosAgoraLocal() {
+            const agora = new Date();
+            return agora.getHours() * 60 + agora.getMinutes();
+        }
+
+        function horarioJaUltrapassado(dataStr, horarioStr) {
+            if(!dataStr || !horarioStr) return false;
+            const hoje = obterHojeLocal();
+            if(dataStr < hoje) return true;
+            if(dataStr > hoje) return false;
+            return timeToMin(horarioStr) < obterMinutosAgoraLocal();
         }
 
         function formatarNomeCliente(nome) {
@@ -3072,9 +3191,276 @@
             salvarCacheCatalogoCloud();
             renderizarCombos();
             preencherSelectServicosAgenda();
+            renderizarProfissionaisConfig();
             renderizarDashboard();
         }
 
+
+
+        function profissionalCloudParaLocal(row) {
+            return {
+                id: row.id,
+                empresaId: row.empresa_id,
+                usuarioId: row.usuario_id || null,
+                nome: row.nome || '',
+                telefone: row.telefone || '',
+                ativo: row.ativo !== false,
+                criadoEm: row.criado_em || '',
+                cloud: true
+            };
+        }
+
+        function profissionalServicoCloudParaLocal(row) {
+            return {
+                profissionalId: row.profissional_id,
+                servicoId: row.servico_id,
+                duracao: row.duracao_min == null ? null : Number(row.duracao_min),
+                ativo: row.ativo !== false
+            };
+        }
+
+        async function carregarProfissionaisCloud() {
+            if(!CloudDB || !empresaAtual?.cloud || !empresaAtual?.id) return;
+            const status = document.getElementById('profissionais-config-status');
+            if(status) status.textContent = 'Carregando profissionais...';
+            try {
+                const { data: profData, error: profError } = await CloudDB
+                    .from('profissionais')
+                    .select('id,empresa_id,usuario_id,nome,telefone,ativo,criado_em,atualizado_em')
+                    .eq('empresa_id', empresaAtual.id)
+                    .order('criado_em', { ascending:true });
+                if(profError) throw profError;
+
+                profissionais = (profData || []).map(profissionalCloudParaLocal);
+
+                const ids = profissionais.map(p => p.id);
+                if(ids.length) {
+                    const { data: relData, error: relError } = await CloudDB
+                        .from('profissionais_servicos')
+                        .select('profissional_id,servico_id,duracao_min,ativo,criado_em,atualizado_em')
+                        .in('profissional_id', ids);
+                    if(relError) throw relError;
+                    profissionaisServicos = (relData || []).map(profissionalServicoCloudParaLocal);
+                } else {
+                    profissionaisServicos = [];
+                }
+
+                renderizarProfissionaisConfig();
+                preencherSelectProfissionaisAgenda();
+                preencherSelectServicosAgenda();
+                if(status) status.textContent = `${profissionais.length} profissional(is) cadastrado(s).`;
+            } catch(err) {
+                console.error('Erro ao carregar profissionais:', err);
+                if(status) status.textContent = `Não foi possível carregar profissionais: ${err?.message || 'erro desconhecido'}`;
+            }
+        }
+
+        function servicosDoProfissional(profissionalId, somenteAtivos=true) {
+            return profissionaisServicos
+                .filter(r => String(r.profissionalId) === String(profissionalId) && (!somenteAtivos || r.ativo))
+                .map(r => {
+                    const s = servicos.find(x => String(x.id) === String(r.servicoId));
+                    if(!s) return null;
+                    return {
+                        ...s,
+                        duracaoProfissional: r.duracao,
+                        duracaoEfetiva: r.duracao || s.duracao || configExpediente.intervalo || 45
+                    };
+                })
+                .filter(Boolean);
+        }
+
+        function duracaoServicoProfissional(profissionalId, servicoId) {
+            const rel = profissionaisServicos.find(r =>
+                String(r.profissionalId) === String(profissionalId) &&
+                String(r.servicoId) === String(servicoId) &&
+                r.ativo
+            );
+            const servico = servicos.find(s => String(s.id) === String(servicoId));
+            return Number(rel?.duracao || servico?.duracao || configExpediente.intervalo || 45);
+        }
+
+        function renderizarProfissionaisConfig() {
+            const area = document.getElementById('lista-profissionais-config');
+            if(!area) return;
+
+            if(!profissionais.length) {
+                area.innerHTML = `<div class="section-box-cfg" style="text-align:center;color:#718096;text-transform:none;">
+                    Nenhum profissional cadastrado ainda.
+                </div>`;
+                return;
+            }
+
+            area.innerHTML = profissionais.map(p => {
+                const rels = profissionaisServicos.filter(r => String(r.profissionalId) === String(p.id));
+                const servicosHtml = servicos.length
+                    ? servicos.map(s => {
+                        const rel = rels.find(r => String(r.servicoId) === String(s.id));
+                        const marcado = !!rel?.ativo;
+                        const duracao = rel?.duracao || s.duracao || configExpediente.intervalo || 45;
+                        return `<label class="profissional-servico-item">
+                            <input type="checkbox" id="prof-serv-${p.id}-${s.id}" ${marcado ? 'checked' : ''}>
+                            <span><b>${s.nome}</b><br><small>padrão: ${Number(s.duracao || configExpediente.intervalo || 45)} min</small></span>
+                            <input type="number" id="prof-dur-${p.id}-${s.id}" min="5" step="5" value="${duracao}" title="Duração para este profissional">
+                        </label>`;
+                    }).join('')
+                    : `<div style="grid-column:1/-1;color:#718096;font-size:12px;text-transform:none;">Cadastre serviços antes de vinculá-los ao profissional.</div>`;
+
+                return `<div class="profissional-card">
+                    <div class="profissional-card-top">
+                        <div>
+                            <h4>${p.nome}</h4>
+                            <div class="profissional-meta">${p.telefone || 'Telefone não informado'} • ${p.ativo ? 'ATIVO' : 'INATIVO'}</div>
+                        </div>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            <button onclick="editarProfissional('${p.id}')" style="padding:7px 9px;">✏️ Editar</button>
+                            <button onclick="alternarProfissional('${p.id}', ${p.ativo ? 'false':'true'})" style="padding:7px 9px;">${p.ativo ? 'Desativar':'Reativar'}</button>
+                            ${usuarioEhAdmin() ? `<button class="btn-excluir-tabela" onclick="excluirProfissional('${p.id}')">Excluir</button>` : ''}
+                        </div>
+                    </div>
+                    <div class="profissional-servicos-grid">${servicosHtml}</div>
+                    <button class="btn-salvar" onclick="salvarServicosProfissional('${p.id}')" style="margin-top:12px;">💾 Salvar serviços e durações</button>
+                </div>`;
+            }).join('');
+        }
+
+        async function cadastrarProfissional() {
+            if(!CloudDB || !empresaAtual?.id) return;
+            if(!['ADMIN','GESTOR'].includes(obterPerfilAtual())) {
+                alert('Seu perfil não pode cadastrar profissionais.');
+                return;
+            }
+            const nome = String(document.getElementById('cfg-profissional-nome')?.value || '').trim().toUpperCase();
+            const telefone = String(document.getElementById('cfg-profissional-telefone')?.value || '').trim();
+            if(!nome) { alert('Informe o nome do profissional.'); return; }
+
+            const btn = document.getElementById('btn-cadastrar-profissional');
+            if(btn) { btn.disabled = true; btn.textContent = 'Cadastrando...'; }
+            try {
+                const { data, error } = await CloudDB.from('profissionais').insert({
+                    empresa_id: empresaAtual.id,
+                    nome,
+                    telefone: telefone || null,
+                    ativo: true
+                }).select().single();
+                if(error) throw error;
+
+                profissionais.push(profissionalCloudParaLocal(data));
+                document.getElementById('cfg-profissional-nome').value = '';
+                document.getElementById('cfg-profissional-telefone').value = '';
+                renderizarProfissionaisConfig();
+                await registrarAuditoria('CONFIGURACOES','PROFISSIONAL_CADASTRADO',data.id,{nome});
+                alert('Profissional cadastrado com sucesso!');
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível cadastrar o profissional: ${err?.message || 'erro desconhecido'}`);
+            } finally {
+                if(btn) { btn.disabled = false; btn.textContent = '➕ Cadastrar'; }
+            }
+        }
+
+        async function editarProfissional(id) {
+            const p = profissionais.find(x => String(x.id) === String(id));
+            if(!p) return;
+            if(!['ADMIN','GESTOR'].includes(obterPerfilAtual())) return;
+            const nome = prompt('Nome do profissional:', p.nome);
+            if(nome === null) return;
+            const telefone = prompt('Telefone do profissional:', p.telefone || '');
+            if(telefone === null) return;
+            const nomeNovo = String(nome).trim().toUpperCase();
+            if(!nomeNovo) { alert('Nome inválido.'); return; }
+            try {
+                const { data, error } = await CloudDB.from('profissionais')
+                    .update({nome:nomeNovo, telefone:String(telefone).trim() || null, atualizado_em:new Date().toISOString()})
+                    .eq('id', id).eq('empresa_id', empresaAtual.id)
+                    .select().single();
+                if(error) throw error;
+                profissionais = profissionais.map(x => String(x.id)===String(id) ? profissionalCloudParaLocal(data) : x);
+                renderizarProfissionaisConfig();
+                await registrarAuditoria('CONFIGURACOES','PROFISSIONAL_EDITADO',id,{nome:nomeNovo});
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível editar o profissional: ${err?.message || 'erro desconhecido'}`);
+            }
+        }
+
+        async function alternarProfissional(id, ativo) {
+            if(!['ADMIN','GESTOR'].includes(obterPerfilAtual())) return;
+            try {
+                const { data, error } = await CloudDB.from('profissionais')
+                    .update({ativo, atualizado_em:new Date().toISOString()})
+                    .eq('id', id).eq('empresa_id', empresaAtual.id)
+                    .select().single();
+                if(error) throw error;
+                profissionais = profissionais.map(x => String(x.id)===String(id) ? profissionalCloudParaLocal(data) : x);
+                renderizarProfissionaisConfig();
+                await registrarAuditoria('CONFIGURACOES',ativo ? 'PROFISSIONAL_REATIVADO':'PROFISSIONAL_DESATIVADO',id,{});
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível alterar o profissional: ${err?.message || 'erro desconhecido'}`);
+            }
+        }
+
+        async function excluirProfissional(id) {
+            if(!usuarioEhAdmin()) return;
+            const p = profissionais.find(x => String(x.id) === String(id));
+            if(!p) return;
+            if(!confirm(`Excluir o profissional "${p.nome}"? Agendamentos já existentes não serão apagados, mas perderão o vínculo com ele.`)) return;
+            try {
+                const { error } = await CloudDB.from('profissionais')
+                    .delete().eq('id', id).eq('empresa_id', empresaAtual.id);
+                if(error) throw error;
+                profissionais = profissionais.filter(x => String(x.id)!==String(id));
+                profissionaisServicos = profissionaisServicos.filter(r => String(r.profissionalId)!==String(id));
+                renderizarProfissionaisConfig();
+                await registrarAuditoria('CONFIGURACOES','PROFISSIONAL_EXCLUIDO',id,{nome:p.nome});
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível excluir o profissional: ${err?.message || 'erro desconhecido'}`);
+            }
+        }
+
+        async function salvarServicosProfissional(profissionalId) {
+            if(!['ADMIN','GESTOR'].includes(obterPerfilAtual())) return;
+            const profissional = profissionais.find(p => String(p.id)===String(profissionalId));
+            if(!profissional) return;
+
+            try {
+                for(const s of servicos) {
+                    const chk = document.getElementById(`prof-serv-${profissionalId}-${s.id}`);
+                    const dur = document.getElementById(`prof-dur-${profissionalId}-${s.id}`);
+                    if(!chk) continue;
+                    const duracao = Math.max(5, parseInt(dur?.value || s.duracao || 45, 10));
+                    const existente = profissionaisServicos.find(r =>
+                        String(r.profissionalId)===String(profissionalId) &&
+                        String(r.servicoId)===String(s.id)
+                    );
+
+                    if(existente) {
+                        const { error } = await CloudDB.from('profissionais_servicos')
+                            .update({ativo:chk.checked, duracao_min:duracao, atualizado_em:new Date().toISOString()})
+                            .eq('profissional_id', profissionalId)
+                            .eq('servico_id', s.id);
+                        if(error) throw error;
+                    } else if(chk.checked) {
+                        const { error } = await CloudDB.from('profissionais_servicos').insert({
+                            profissional_id: profissionalId,
+                            servico_id: s.id,
+                            duracao_min: duracao,
+                            ativo: true
+                        });
+                        if(error) throw error;
+                    }
+                }
+
+                await carregarProfissionaisCloud();
+                await registrarAuditoria('CONFIGURACOES','SERVICOS_PROFISSIONAL_ALTERADOS',profissionalId,{profissional:profissional.nome});
+                alert('Serviços e durações do profissional salvos com sucesso!');
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível salvar os serviços do profissional: ${err?.message || 'erro desconhecido'}`);
+            }
+        }
 
         function agendamentoCloudParaLocal(row) {
             return {
@@ -3083,8 +3469,11 @@
                 clienteId: row.cliente_id || null,
                 clienteNome: row.cliente_nome || '',
                 telefone: row.telefone || '',
+                clienteEmail: row.cliente_email || '',
                 servicoId: row.servico_id || null,
                 servico: row.servico_nome || '',
+                profissionalId: row.profissional_id || null,
+                profissionalNome: profissionais.find(p => String(p.id) === String(row.profissional_id))?.nome || '',
                 data: row.data || '',
                 horario: row.horario ? String(row.horario).slice(0,5) : '',
                 duracao: Number(row.duracao_min || configExpediente.intervalo || 45),
@@ -3102,6 +3491,7 @@
                 data: row.data || '',
                 horario: row.horario ? String(row.horario).slice(0,5) : '',
                 tipo: row.tipo,
+                profissionalId: row.profissional_id || null,
                 cloud: true
             };
         }
@@ -3125,7 +3515,7 @@
 
             const { data: agendaData, error: agendaError } = await CloudDB
                 .from('agendamentos')
-                .select('id,empresa_id,cliente_id,cliente_nome,telefone,servico_id,servico_nome,data,horario,duracao_min,status,observacoes,criado_em,atualizado_em')
+                .select('id,empresa_id,cliente_id,cliente_nome,cliente_email,telefone,servico_id,servico_nome,profissional_id,data,horario,duracao_min,status,observacoes,criado_em,atualizado_em')
                 .eq('empresa_id', empresaAtual.id)
                 .neq('status', 'CANCELADO')
                 .order('data', { ascending: true })
@@ -3134,7 +3524,7 @@
 
             const { data: bloqueiosData, error: bloqueiosError } = await CloudDB
                 .from('bloqueios_agenda')
-                .select('id,empresa_id,data,horario,tipo,criado_em')
+                .select('id,empresa_id,data,horario,tipo,profissional_id,criado_em')
                 .eq('empresa_id', empresaAtual.id)
                 .order('horario', { ascending: true });
             if(bloqueiosError) throw bloqueiosError;
@@ -4152,6 +4542,7 @@
                 await carregarConfiguracoesCloud();
                 await carregarClientesCloud();
                 await carregarCatalogoCloud();
+                await carregarProfissionaisCloud();
                 await carregarAgendaCloud();
                 await carregarFinanceiroCloud();
                 iniciarRealtimeAgendaCloud();
@@ -4285,6 +4676,7 @@
             }
             definirPeriodoDashboard('mes', false);
 
+            preencherSelectProfissionaisAgenda();
             renderizarAgenda();
             renderizarDashboard();
             preencherSelectServicosAgenda();
@@ -4332,6 +4724,13 @@
             });
 
             sincronizarDadosClientesTodasAsTelas();
+
+            // Mantém os horários elegíveis sincronizados com o relógio sem exigir recarga.
+            setInterval(() => {
+                if(document.getElementById('agenda')?.classList.contains('active')) {
+                    renderizarAgenda();
+                }
+            }, 60000);
         });
 
         function salvarStorage() {
@@ -4755,9 +5154,20 @@
             });
 
             // CONFIGURAÇÕES: somente ADMIN.
+            // Importante: controles bloqueados por perfil precisam ser reativados
+            // quando o usuário atual passa a ter permissão (ex.: após resolver a sessão ADMIN).
+            const podeEditarConfiguracoes = regraPerfil('configuracoes');
             document.querySelectorAll('#configuracoes button, #configuracoes input, #configuracoes select, #configuracoes textarea')
                 .forEach(el => {
-                    if(!regraPerfil('configuracoes')) el.disabled = true;
+                    if(!podeEditarConfiguracoes) {
+                        // Marca apenas os controles que ESTA rotina bloqueou.
+                        if(!el.disabled) el.dataset.disabledPorPerfil = '1';
+                        el.disabled = true;
+                    } else if(el.dataset.disabledPorPerfil === '1') {
+                        // Não mexe em controles naturalmente readonly/disabled por outros motivos.
+                        el.disabled = false;
+                        delete el.dataset.disabledPorPerfil;
+                    }
                 });
         }
 
@@ -4793,6 +5203,7 @@
                 atualizarAniversariantesDia();
                 atualizarAniversariantesMes();
             } else if(idTela === 'configuracoes') {
+                carregarProfissionaisCloud().catch(console.error);
                 if(usuarioEhAdmin()) carregarAuditoria().catch(console.error);
             } else if(idTela === 'financeiro') {
                 if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
@@ -4837,25 +5248,86 @@
         }
 
         /* --- LÓGICA REFORMULADA DA AGENDA INTERNA E BLOQUEIOS --- */
+
+        function preencherSelectProfissionaisAgenda() {
+            const filtro = document.getElementById('agenda-profissional-filtro');
+            const modal = document.getElementById('agenda-profissional');
+            const ativos = profissionais.filter(p => p.ativo !== false);
+
+            if(filtro) {
+                const atual = filtro.value;
+                filtro.innerHTML = '<option value="">Agenda Geral</option>';
+                ativos.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.nome;
+                    filtro.appendChild(opt);
+                });
+                if([...filtro.options].some(o => o.value === atual)) filtro.value = atual;
+            }
+
+            if(modal) {
+                const atual = modal.value;
+                modal.innerHTML = '<option value="">Selecione o profissional</option>';
+                ativos.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.nome;
+                    modal.appendChild(opt);
+                });
+                if([...modal.options].some(o => o.value === atual)) modal.value = atual;
+            }
+        }
+
+        function obterProfissionalAgendaSelecionado() {
+            return document.getElementById('agenda-profissional-filtro')?.value || '';
+        }
+
+        function preencherDuracaoPorServicoProfissional() {
+            const profissionalId = document.getElementById('agenda-profissional')?.value || '';
+            const selectServico = document.getElementById('agenda-servico');
+            const campoDuracao = document.getElementById('agenda-duracao-min');
+            if(!selectServico || !campoDuracao) return;
+
+            const servicoId = selectServico.selectedOptions?.[0]?.dataset?.servicoId || '';
+            if(!servicoId) return;
+
+            campoDuracao.value = duracaoServicoProfissional(profissionalId, servicoId);
+        }
+
         function preencherSelectServicosAgenda() {
             const select = document.getElementById('agenda-servico');
             if(!select) return;
             select.innerHTML = '';
-            
-            if(servicos.length === 0) {
-                let opt = document.createElement('option');
-                opt.value = "SERVIÇO PADRÃO";
-                opt.innerText = "SERVIÇO PADRÃO - R$ 0,00";
+
+            const profissionalId = document.getElementById('agenda-profissional')?.value || '';
+            let lista = servicos;
+
+            if(profissionalId) {
+                const vinculados = servicosDoProfissional(profissionalId, true);
+                lista = vinculados.length ? vinculados : [];
+            }
+
+            if(lista.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.innerText = profissionalId ? "Nenhum serviço vinculado a este profissional" : "Nenhum serviço cadastrado";
                 select.appendChild(opt);
                 return;
             }
 
-            servicos.forEach(s => {
-                let opt = document.createElement('option');
+            lista.forEach(s => {
+                const opt = document.createElement('option');
                 opt.value = s.nome;
-                opt.innerText = `${s.nome} - R$ ${s.preco.toFixed(2)}`;
+                opt.dataset.servicoId = s.id;
+                const duracao = profissionalId
+                    ? duracaoServicoProfissional(profissionalId, s.id)
+                    : Number(s.duracao || configExpediente.intervalo || 45);
+                opt.innerText = `${s.nome} - R$ ${Number(s.preco || 0).toFixed(2)} • ${duracao} MIN`;
                 select.appendChild(opt);
             });
+
+            preencherDuracaoPorServicoProfissional();
         }
 
         function obterNumeroSemana(data) {
@@ -4866,11 +5338,13 @@
             return [d.getUTCFullYear(), numSemana];
         }
 
-        function verificarBloqueioSlot(dataStr, horarioStr) {
+        function verificarBloqueioSlot(dataStr, horarioStr, profissionalId='') {
             let dataAtual = new Date(dataStr + 'T00:00:00');
 
             return bloqueios.find(b => {
                 if (b.horario !== horarioStr) return false;
+                if(profissionalId && String(b.profissionalId || '') !== String(profissionalId)) return false;
+                if(!profissionalId && b.profissionalId) return false;
 
                 if (b.tipo === 'permanente') return true;
 
@@ -4905,6 +5379,7 @@
                 return renderizarAgenda();
             }
             const dataRetroativa = dataSelecionada < hoje;
+            const profissionalFiltro = obterProfissionalAgendaSelecionado();
             const grid = document.getElementById('grid-horarios-agenda');
             if(!grid) return;
             grid.innerHTML = '';
@@ -4916,9 +5391,10 @@
             }
 
             let intervalo = configExpediente.intervalo || 45;
+            const profissionalAtual = profissionais.find(p => String(p.id) === String(profissionalFiltro));
             document.getElementById('agenda-expediente-info').innerText = dataRetroativa
                 ? `Consulta histórica — ${new Date(dataSelecionada + 'T00:00:00').toLocaleDateString('pt-BR')}`
-                : `Expediente: ${configExpediente.abertura} às ${configExpediente.fechamento} (Tempo Padrão: ${intervalo} min)`;
+                : `${profissionalAtual ? 'Agenda de ' + profissionalAtual.nome + ' • ' : 'Agenda Geral • '}Expediente: ${configExpediente.abertura} às ${configExpediente.fechamento}`;
 
             let [horaAb, minAb] = configExpediente.abertura.split(':').map(Number);
             let [horaFech, minFech] = configExpediente.fechamento.split(':').map(Number);
@@ -4930,12 +5406,14 @@
                 let h = String(Math.floor(minutosAtuais / 60)).padStart(2, '0');
                 let m = String(minutosAtuais % 60).padStart(2, '0');
                 let horarioStr = `${h}:${m}`;
+                const horarioPassadoHoje = dataSelecionada === hoje && minutosAtuais < obterMinutosAgoraLocal();
 
-                let bloqueioExistente = verificarBloqueioSlot(dataSelecionada, horarioStr);
+                let bloqueioExistente = verificarBloqueioSlot(dataSelecionada, horarioStr, profissionalFiltro);
                 
                 // Verifica se o slot atual cai dentro do período de algum agendamento
                 let agendamentoOcupado = agendamentos.find(a => {
                     if(a.data !== dataSelecionada) return false;
+                    if(profissionalFiltro && String(a.profissionalId || '') !== String(profissionalFiltro)) return false;
                     let ini = timeToMin(a.horario);
                     let dur = a.duracao || intervalo;
                     let fim = ini + dur;
@@ -4966,6 +5444,23 @@
                         ${dataRetroativa
                             ? '<div style="font-size:12px;color:#718096;text-align:center;">Bloqueio histórico — sem ações de alteração</div>'
                             : `<button class="btn-salvar" style="width: 100%; font-size: 12px; padding: 6px; background: #4a5568; color: white;" onclick="desbloquearHorario('${bloqueioExistente.id}')">Desbloquear Horário</button>`}
+                    `;
+                } else if(agendamentoOcupado && timeToMin(agendamentoOcupado.horario) !== minutosAtuais) {
+                    // O slot cai dentro da duração de um atendimento iniciado em um slot anterior.
+                    // Mantém o horário indisponível sem repetir todos os dados do mesmo agendamento.
+                    card.className = 'slot-card ocupado';
+                    card.style.opacity = '0.72';
+                    const fimOcupacao = minToTime(timeToMin(agendamentoOcupado.horario) + (agendamentoOcupado.duracao || intervalo));
+                    card.innerHTML = `
+                        <div>
+                            <div class="slot-header">
+                                <span class="slot-horario">${horarioStr}</span>
+                                <span class="slot-badge ocupado">OCUPADO</span>
+                            </div>
+                            <div class="slot-body" style="color:#718096;font-style:italic;">
+                                Continuação do atendimento iniciado às ${agendamentoOcupado.horario}, com término previsto às ${fimOcupacao}.
+                            </div>
+                        </div>
                     `;
                 } else if(agendamentoOcupado) {
                     card.className = 'slot-card ocupado';
@@ -5001,7 +5496,9 @@
                             </div>
                             <div class="slot-body">
                                 <b>Cliente:</b> ${agendamentoOcupado.clienteNome}<br>
+                                <b>Profissional:</b> ${agendamentoOcupado.profissionalNome || profissionais.find(p => String(p.id)===String(agendamentoOcupado.profissionalId))?.nome || 'Não informado'}<br>
                                 <b>Telefone:</b> ${whatsappHtml}<br>
+                                ${agendamentoOcupado.clienteEmail ? `<b>E-mail:</b> ${agendamentoOcupado.clienteEmail}<br>` : ''}
                                 <b>Serviço:</b> ${agendamentoOcupado.servico}<br>
                                 ${(() => {
                                     const rec = entradas.find(e => String(e.agendamentoId || '') === String(agendamentoOcupado.id));
@@ -5014,10 +5511,29 @@
                         <div style="display:flex; gap:6px; flex-wrap:wrap;">
                             ${entradaJaGeradaPorAgendamento(agendamentoOcupado.id)
                                 ? '<button class="btn-salvar" disabled style="flex:1 1 100%;font-size:12px;padding:8px;background:#718096;color:white;cursor:not-allowed;">✓ Finalizado e recebido</button>'
-                                : `<button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#38a169;color:white;" onclick="iniciarRecebimentoAgendamento('${agendamentoOcupado.id}')">✓ Finalizar atendimento</button>
+                                : `${agendamentoOcupado.isNaoCadastrado
+                                      ? `<button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#805ad5;color:white;" onclick="abrirCadastroClienteAgendamento('${agendamentoOcupado.id}')">👤 Cadastrar cliente</button>`
+                                      : ''}
+                                   <button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#38a169;color:white;" onclick="iniciarRecebimentoAgendamento('${agendamentoOcupado.id}')">✓ Finalizar atendimento</button>
                                    <button class="btn-salvar" style="flex:1;font-size:12px;padding:6px;background:#3182ce;color:white;" onclick="abrirEdicaoAgendamento('${agendamentoOcupado.id}')">✏️ Editar</button>
                                    <button class="btn-excluir-tabela" style="flex:1;font-size:12px;padding:6px;" onclick="cancelarAgendamento('${agendamentoOcupado.id}')">Liberar Horário</button>`}
                         </div>`}
+                    `;
+                } else if(horarioPassadoHoje) {
+                    card.className = 'slot-card';
+                    card.style.borderLeft = '5px solid #a0aec0';
+                    card.style.background = '#f7fafc';
+                    card.style.opacity = '0.78';
+                    card.innerHTML = `
+                        <div>
+                            <div class="slot-header">
+                                <span class="slot-horario">${horarioStr}</span>
+                                <span class="slot-badge" style="background:#e2e8f0;color:#4a5568;">ENCERRADO</span>
+                            </div>
+                            <div class="slot-body" style="font-style:italic;color:#718096;">
+                                Este horário já foi ultrapassado e não aceita novos agendamentos.
+                            </div>
+                        </div>
                     `;
                 } else {
                     card.className = 'slot-card vago';
@@ -5215,6 +5731,11 @@
                 alert('Não é possível bloquear horários em datas retroativas.');
                 return;
             }
+            if(horarioJaUltrapassado(dataSelecionada, horario)) {
+                alert('Este horário já foi ultrapassado e não pode mais ser bloqueado.');
+                renderizarAgenda();
+                return;
+            }
             document.getElementById('bloqueio-slot-hora').value = horario;
             const dataFmt = new Date(dataSelecionada + 'T00:00:00').toLocaleDateString('pt-BR');
             document.getElementById('modal-bloqueio-horario-txt').innerText = `Horário: ${horario} em ${dataFmt}`;
@@ -5228,7 +5749,19 @@
         async function confirmarBloqueio() {
             const horario = document.getElementById('bloqueio-slot-hora').value;
             const data = document.getElementById('agenda-data-filtro').value;
+            const profissionalId = obterProfissionalAgendaSelecionado();
+            if(!profissionalId) {
+                alert('Selecione um profissional específico antes de bloquear um horário.');
+                fecharModalBloqueio();
+                return;
+            }
             if (data < obterHojeLocal()) { alert('Não é possível bloquear horários em datas retroativas.'); return; }
+            if(horarioJaUltrapassado(data, horario)) {
+                alert('Este horário já foi ultrapassado e não pode mais ser bloqueado.');
+                fecharModalBloqueio();
+                renderizarAgenda();
+                return;
+            }
             const tipo = document.getElementById('bloqueio-tipo').value;
 
             try {
@@ -5237,14 +5770,15 @@
                         empresa_id: empresaAtual.id,
                         data: tipo === 'permanente' ? null : data,
                         horario,
-                        tipo
+                        tipo,
+                        profissional_id: profissionalId
                     };
                     const { data: row, error } = await CloudDB.from('bloqueios_agenda').insert(payload).select().single();
                     if(error) throw error;
                     bloqueios.push(bloqueioCloudParaLocal(row));
                     salvarCacheAgendaCloud();
                 } else {
-                    bloqueios.push({ id: Date.now(), data, horario, tipo });
+                    bloqueios.push({ id: Date.now(), data, horario, tipo, profissionalId });
                     salvarStorage();
                 }
                 fecharModalBloqueio();
@@ -5289,13 +5823,25 @@
                 return;
             }
 
+            if(horarioJaUltrapassado(dataSelecionada, horario)) {
+                alert('Este horário já foi ultrapassado e não está mais disponível para novos agendamentos.');
+                renderizarAgenda();
+                return;
+            }
+
             document.getElementById('agenda-edicao-id').value = '';
             const tipoClienteEl = document.getElementById('agenda-tipo-cliente');
             if (tipoClienteEl) tipoClienteEl.value = 'cadastrado';
             alternarTipoClienteAgendamento(true);
             document.getElementById('agenda-slot-hora').value = horario;
             document.getElementById('agenda-hora-inicio').value = horario;
+            preencherSelectProfissionaisAgenda();
+            const profFiltro = obterProfissionalAgendaSelecionado();
+            const selectProf = document.getElementById('agenda-profissional');
+            if(selectProf && profFiltro) selectProf.value = profFiltro;
+            preencherSelectServicosAgenda();
             document.getElementById('agenda-duracao-min').value = configExpediente.intervalo || 45;
+            preencherDuracaoPorServicoProfissional();
 
             const dataFmt = new Date(dataSelecionada + 'T00:00:00').toLocaleDateString('pt-BR');
             document.getElementById('titulo-modal-agendamento').innerText = 'Novo Agendamento';
@@ -5343,6 +5889,9 @@
             document.getElementById('agenda-telefone').value = agendamento.telefone || (clienteEdicao ? clienteEdicao.telefone || '' : '');
             document.getElementById('agenda-obs').value = agendamento.obs || '';
 
+            preencherSelectProfissionaisAgenda();
+            const selectProfissional = document.getElementById('agenda-profissional');
+            if(selectProfissional && agendamento.profissionalId) selectProfissional.value = agendamento.profissionalId;
             preencherSelectServicosAgenda();
             const selectServico = document.getElementById('agenda-servico');
             if (selectServico && agendamento.servico) selectServico.value = agendamento.servico;
@@ -5533,6 +6082,8 @@
             const duracaoMin = parseInt(document.getElementById('agenda-duracao-min').value) || configExpediente.intervalo || 45;
             const data = document.getElementById('agenda-data-filtro').value;
             const buscaVal = document.getElementById('agenda-cliente-busca').value.trim();
+            const profissionalId = document.getElementById('agenda-profissional')?.value || '';
+            const profissionalObj = profissionais.find(p => String(p.id) === String(profissionalId)) || null;
             const servico = document.getElementById('agenda-servico').value;
             const obs = document.getElementById('agenda-obs').value.trim();
             const telefoneCampo = document.getElementById('agenda-telefone').value.trim();
@@ -5546,13 +6097,21 @@
                 return;
             }
             if(!horaInicio) { alert('Informe o horário inicial do agendamento!'); return; }
+            if(horarioJaUltrapassado(data, horaInicio)) {
+                alert('O horário informado já foi ultrapassado. Escolha um horário futuro.');
+                renderizarAgenda();
+                return;
+            }
             if(!duracaoMin || duracaoMin <= 0) { alert('Informe uma duração válida em minutos!'); return; }
             if(!buscaVal) { alert('Informe o cliente para o agendamento!'); return; }
+            if(!profissionalId || !profissionalObj) { alert('Selecione o profissional do atendimento!'); return; }
+            if(!servico) { alert('Selecione o serviço do atendimento!'); return; }
 
             const inicioNovo = timeToMin(horaInicio);
             const fimNovo = inicioNovo + duracaoMin;
             const conflitoAgendamento = agendamentos.find(a => {
                 if(a.data !== data) return false;
+                if(String(a.profissionalId || '') !== String(profissionalId)) return false;
                 if(idEdicao && String(a.id) === String(idEdicao)) return false;
                 const iniExistente = timeToMin(a.horario);
                 const durExistente = a.duracao || configExpediente.intervalo || 45;
@@ -5607,6 +6166,7 @@
                         telefone: telefone || null,
                         servico_id: servicoObj?.id || null,
                         servico_nome: servico || null,
+                        profissional_id: profissionalId,
                         data,
                         horario: horaInicio,
                         duracao_min: duracaoMin,
@@ -5681,6 +6241,217 @@
                 console.error(err);
                 alert(`Não foi possível cancelar o agendamento: ${err?.message || 'erro desconhecido'}`);
             }
+        }
+
+
+        function normalizarTelefoneComparacao(valor) {
+            return String(valor || '').replace(/\D/g, '');
+        }
+
+        function abrirCadastroClienteAgendamento(agendamentoId) {
+            if(!validarAcessoPerfil('clientesEditar','Seu perfil não pode cadastrar clientes.')) return;
+
+            const ag = agendamentos.find(a => String(a.id) === String(agendamentoId));
+            if(!ag) {
+                alert('Agendamento não encontrado.');
+                return;
+            }
+            if(ag.clienteId) {
+                alert('Este agendamento já está vinculado a um cliente cadastrado.');
+                renderizarAgenda();
+                return;
+            }
+
+            document.getElementById('cad-agenda-id').value = ag.id;
+            document.getElementById('cad-agenda-nome').value = ag.clienteNome || '';
+            document.getElementById('cad-agenda-telefone').value = ag.telefone || '';
+            document.getElementById('cad-agenda-email').value = ag.clienteEmail || '';
+            document.getElementById('modal-cliente-agendamento').classList.add('active');
+        }
+
+        function fecharCadastroClienteAgendamento() {
+            document.getElementById('modal-cliente-agendamento')?.classList.remove('active');
+            const id = document.getElementById('cad-agenda-id');
+            if(id) id.value = '';
+        }
+
+        async function salvarClienteDoAgendamento() {
+            if(!validarAcessoPerfil('clientesEditar','Seu perfil não pode cadastrar clientes.')) return;
+
+            const agendamentoId = document.getElementById('cad-agenda-id')?.value || '';
+            const ag = agendamentos.find(a => String(a.id) === String(agendamentoId));
+            if(!ag) {
+                alert('Agendamento não encontrado.');
+                fecharCadastroClienteAgendamento();
+                return;
+            }
+
+            const nomeCompleto = String(document.getElementById('cad-agenda-nome')?.value || '').trim();
+            const telefone = String(document.getElementById('cad-agenda-telefone')?.value || '').trim();
+            const email = String(document.getElementById('cad-agenda-email')?.value || '').trim().toLowerCase();
+
+            if(!nomeCompleto) {
+                alert('Informe o nome do cliente.');
+                return;
+            }
+
+            const telNorm = normalizarTelefoneComparacao(telefone);
+            if(telNorm.length < 10 || telNorm.length > 11) {
+                alert('Informe um telefone válido com DDD.');
+                return;
+            }
+
+            if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                alert('Informe um e-mail válido ou deixe o campo em branco.');
+                return;
+            }
+
+            // Se outro cadastro com o mesmo telefone tiver surgido depois do agendamento,
+            // evita criar duplicidade e permite aproveitar esse cliente.
+            const existentesTelefone = clientes.filter(c =>
+                normalizarTelefoneComparacao(c.telefone) === telNorm
+            );
+
+            if(existentesTelefone.length === 1) {
+                const existente = existentesTelefone[0];
+                const nomeExistente = formatarNomeCompletoCliente(existente.nome, existente.sobrenome);
+                if(confirm(`Já existe o cliente "${nomeExistente}" com este telefone.\n\nDeseja vincular este agendamento ao cadastro existente em vez de criar outro?`)) {
+                    await vincularClienteAoAgendamento(ag, existente, {
+                        clienteNome: nomeExistente,
+                        telefone: existente.telefone || telefone,
+                        email: existente.email || email
+                    });
+                    fecharCadastroClienteAgendamento();
+                    return;
+                }
+            } else if(existentesTelefone.length > 1) {
+                alert('Há mais de um cadastro com este telefone. Para evitar vínculo incorreto, revise os cadastros na tela de Clientes antes de continuar.');
+                return;
+            }
+
+            // No formulário rápido mantemos o nome completo em "nome".
+            // Sobrenome permanece vazio; ele poderá ser enriquecido posteriormente no cadastro normal.
+            const dados = {
+                nome: formatarNomeCliente(nomeCompleto),
+                sobrenome: '',
+                telefone,
+                aniversario: '',
+                email,
+                rua: '',
+                bairro: '',
+                cidade: '',
+                instagram: '',
+                tiktok: '',
+                facebook: '',
+                twitter: '',
+                obs: 'CADASTRO CRIADO A PARTIR DE AGENDAMENTO EXTERNO'
+            };
+
+            const btn = document.getElementById('btn-cadastrar-cliente-agendamento');
+            if(btn) {
+                btn.disabled = true;
+                btn.textContent = 'Criando cadastro...';
+            }
+
+            try {
+                let clienteCriado = null;
+
+                if(CLIENTES_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud && empresaAtual?.id) {
+                    const codigo = gerarProximoCodigoCliente();
+                    const payload = clienteLocalParaCloud(dados, codigo);
+                    const { data, error } = await CloudDB.from('clientes').insert(payload).select().single();
+                    if(error) throw error;
+                    clienteCriado = clienteCloudParaLocal(data);
+                    clientes.push(clienteCriado);
+                    salvarCacheClientesCloud();
+                } else {
+                    const novoId = clientes.length > 0 ? Math.max(...clientes.map(c => Number(c.id) || 0)) + 1 : 1;
+                    clienteCriado = {
+                        id: novoId,
+                        codigo: `#${String(novoId).padStart(3, '0')}`,
+                        ...dados,
+                        dataCadastro: new Date().toISOString()
+                    };
+                    clientes.push(clienteCriado);
+                    salvarStorage();
+                }
+
+                await vincularClienteAoAgendamento(ag, clienteCriado, {
+                    clienteNome: formatarNomeCompletoCliente(clienteCriado.nome, clienteCriado.sobrenome),
+                    telefone: clienteCriado.telefone || telefone,
+                    email: clienteCriado.email || email
+                });
+
+                sincronizarDadosClientesTodasAsTelas();
+                await registrarAuditoria(
+                    'CLIENTES',
+                    'CLIENTE_CADASTRADO_VIA_AGENDAMENTO',
+                    clienteCriado.id,
+                    { nome: formatarNomeCompletoCliente(clienteCriado.nome, clienteCriado.sobrenome), agendamento_id: ag.id }
+                );
+
+                fecharCadastroClienteAgendamento();
+                alert('Cliente cadastrado e vinculado ao agendamento com sucesso!');
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível cadastrar e vincular o cliente: ${err?.message || 'erro desconhecido'}`);
+            } finally {
+                if(btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Criar cadastro e vincular';
+                }
+            }
+        }
+
+        async function vincularClienteAoAgendamento(agendamento, cliente, dados={}) {
+            if(!agendamento || !cliente) return;
+
+            const clienteNome = dados.clienteNome
+                || formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)
+                || agendamento.clienteNome;
+            const telefone = dados.telefone || cliente.telefone || agendamento.telefone || '';
+            const email = dados.email || cliente.email || agendamento.clienteEmail || '';
+
+            if(AGENDA_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+                const { data: row, error } = await CloudDB
+                    .from('agendamentos')
+                    .update({
+                        cliente_id: cliente.id,
+                        cliente_nome: clienteNome,
+                        telefone: telefone || null,
+                        cliente_email: email || null,
+                        atualizado_em: new Date().toISOString()
+                    })
+                    .eq('id', agendamento.id)
+                    .eq('empresa_id', empresaAtual.id)
+                    .select()
+                    .single();
+
+                if(error) throw error;
+
+                const atualizado = agendamentoCloudParaLocal(row);
+                agendamentos = agendamentos.map(a =>
+                    String(a.id) === String(agendamento.id) ? atualizado : a
+                );
+                salvarCacheAgendaCloud();
+            } else {
+                agendamento.clienteId = cliente.id;
+                agendamento.clienteNome = clienteNome;
+                agendamento.telefone = telefone;
+                agendamento.clienteEmail = email;
+                agendamento.isNaoCadastrado = false;
+                salvarStorage();
+            }
+
+            renderizarAgenda();
+            renderizarDashboard();
+
+            await registrarAuditoria(
+                'AGENDA',
+                'CLIENTE_VINCULADO_AGENDAMENTO',
+                agendamento.id,
+                { cliente_id: cliente.id, cliente: clienteNome }
+            );
         }
 
         /* --- MÓDULO CLIENTES --- */
