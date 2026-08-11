@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- SIMPLA | FRONT-END CONSOLIDADO v6.3 | Agenda por Profissional + Horários Passados Bloqueados -->
+    <!-- SIMPLA | FRONT-END CONSOLIDADO v6.3.1 | Central de Notificações no Cabeçalho -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarberManager - Gestão Simples</title>
@@ -1467,6 +1467,67 @@
             }
         }
 
+        /* Central de Notificacoes */
+        .notificacoes-acionador { position:relative; display:flex; align-items:center; justify-content:center; border:0; cursor:pointer; }
+        .notificacoes-sino-topo {
+            position:fixed; z-index:1250; top:18px; right:28px;
+            width:42px; height:42px; border-radius:50%;
+            background:white; color:#1a1c23; border:1px solid #e2e8f0;
+            box-shadow:0 4px 14px rgba(26,28,35,.10); font-size:20px;
+        }
+        .notificacoes-sino-topo:hover { border-color:var(--cor-accent); background:#fffdf7; }
+        .notificacoes-sino-mobile { display:none; width:40px; height:40px; border-radius:6px; background:transparent; color:white; font-size:20px; }
+        .notificacoes-contador {
+            position:absolute; top:-5px; right:-6px;
+            min-width:19px; height:19px; padding:0 5px; border-radius:99px;
+            display:none; align-items:center; justify-content:center;
+            background:#e53e3e; color:white; border:2px solid white;
+            font-size:10px; font-weight:800; line-height:15px;
+        }
+        .notificacoes-painel {
+            position:fixed; z-index:1500; top:68px; right:24px;
+            width:min(400px,calc(100vw - 300px));
+            max-height:min(590px,calc(100vh - 92px));
+            display:none; flex-direction:column;
+            background:white; border:1px solid #e2e8f0; border-radius:12px;
+            box-shadow:0 18px 50px rgba(26,28,35,.22);
+            overflow:hidden; text-transform:none;
+        }
+        .notificacoes-painel.aberto { display:flex; }
+        .notificacoes-painel.completa {
+            top:28px; right:28px; bottom:28px;
+            width:min(680px,calc(100vw - 310px));
+            max-height:none;
+        }
+        .notificacoes-cabecalho { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 16px; border-bottom:1px solid #e2e8f0; }
+        .notificacoes-cabecalho strong { font-size:15px; color:#1a1c23; text-transform:none; }
+        .notificacoes-acoes { display:flex; align-items:center; gap:7px; }
+        .notificacoes-atualizar, .notificacoes-marcar-todas, .notificacoes-ver-todas {
+            border:0; background:#edf2f7; color:#4a5568; border-radius:6px;
+            padding:7px 9px; cursor:pointer; font-size:11px; text-transform:none;
+        }
+        .notificacoes-marcar-todas:hover, .notificacoes-atualizar:hover, .notificacoes-ver-todas:hover { background:#e2e8f0; }
+        .notificacoes-lista { overflow-y:auto; min-height:90px; flex:1; }
+        .notificacao-item { width:100%; display:block; border:0; border-bottom:1px solid #edf2f7; background:white; padding:14px 16px; text-align:left; cursor:pointer; text-transform:none; }
+        .notificacao-item:hover { background:#f7fafc; }
+        .notificacao-item.nao-lida { background:#fffaf0; border-left:4px solid var(--cor-accent); padding-left:12px; }
+        .notificacao-titulo { display:flex; justify-content:space-between; gap:10px; color:#1a1c23; font-size:12px; font-weight:800; text-transform:none; }
+        .notificacao-mensagem { margin-top:6px; color:#4a5568; font-size:12px; line-height:1.45; text-transform:none; }
+        .notificacao-data { margin-top:7px; color:#a0aec0; font-size:10px; text-transform:none; }
+        .notificacoes-estado { padding:28px 18px; color:#718096; font-size:12px; text-align:center; line-height:1.5; text-transform:none; }
+        .notificacoes-rodape { display:flex; justify-content:flex-end; gap:8px; padding:10px 12px; border-top:1px solid #e2e8f0; background:#f8fafc; }
+        @media(max-width:768px) {
+            .notificacoes-sino-topo { display:none; }
+            .notificacoes-sino-mobile { display:flex; margin-left:auto; }
+            .notificacoes-painel,
+            .notificacoes-painel.completa {
+                left:10px; right:10px; top:66px; bottom:10px;
+                width:auto; max-height:none; border-radius:10px;
+            }
+            .notificacoes-cabecalho { padding:13px 14px; }
+            .notificacoes-cabecalho strong { font-size:14px; }
+            .notificacoes-marcar-todas { display:none; }
+        }
     </style>
 </head>
 <body class="auth-pending">
@@ -1866,6 +1927,7 @@
     <div class="mobile-topbar" aria-label="Navegação móvel">
         <button class="mobile-menu-toggle" type="button" onclick="alternarMenuMobile()" aria-label="Abrir menu">☰</button>
         <div class="mobile-brand" id="mobile-brand-text">Gestão de Serviços</div>
+        <button class="notificacoes-acionador notificacoes-sino-mobile" type="button" onclick="alternarPainelNotificacoes(event)" aria-label="Abrir notificações" title="Notificações">🔔<span class="notificacoes-contador" data-notificacoes-contador>0</span></button>
     </div>
     <div class="mobile-backdrop" onclick="fecharMenuMobile()"></div>
 
@@ -1884,6 +1946,25 @@
             <button class="menu-btn" id="menu-btn-configuracoes" onclick="mudarTela('configuracoes', event)">⚙️ Configurações</button>
         </div>
     </aside>
+
+    <button class="notificacoes-acionador notificacoes-sino-topo" type="button"
+        onclick="alternarPainelNotificacoes(event)" aria-label="Abrir notificações" title="Notificações">
+        🔔<span class="notificacoes-contador" data-notificacoes-contador>0</span>
+    </button>
+
+    <section id="notificacoes-painel" class="notificacoes-painel" aria-label="Central de Notificações" aria-hidden="true">
+        <div class="notificacoes-cabecalho">
+            <strong>Central de Notificações</strong>
+            <div class="notificacoes-acoes">
+                <button class="notificacoes-marcar-todas" type="button" onclick="marcarTodasNotificacoesComoLidas(event)">Marcar todas como lidas</button>
+                <button class="notificacoes-atualizar" type="button" onclick="carregarNotificacoes()">↻ Atualizar</button>
+            </div>
+        </div>
+        <div id="notificacoes-lista" class="notificacoes-lista"><div class="notificacoes-estado">Carregando notificações...</div></div>
+        <div class="notificacoes-rodape">
+            <button id="btn-notificacoes-ver-todas" class="notificacoes-ver-todas" type="button" onclick="alternarCentralNotificacoesCompleta(event)">Ver todas</button>
+        </div>
+    </section>
 
     <main class="main-content">
         
@@ -2822,8 +2903,10 @@
         const FINANCEIRO_CLOUD_ATIVO = true;
         let canalAgendaCloud = null;
         let canalFinanceiroCloud = null;
+        let canalNotificacoesCloud = null;
         let timerAtualizacaoFinanceiroCloud = null;
         let timerAtualizacaoAgendaCloud = null;
+        let notificacoes = [];
 
         const DataStore = {
             getJSON(chave, padrao) {
@@ -4545,8 +4628,10 @@
                 await carregarProfissionaisCloud();
                 await carregarAgendaCloud();
                 await carregarFinanceiroCloud();
+                await carregarNotificacoes();
                 iniciarRealtimeAgendaCloud();
                 iniciarRealtimeFinanceiroCloud();
+                iniciarRealtimeNotificacoesCloud();
                 const badgeCloud = document.getElementById('cloud-mode-badge');
                 if(badgeCloud) badgeCloud.textContent = 'V2 • OPERAÇÃO + CONFIGURAÇÕES + DASHBOARD NA NUVEM';
             } catch(err) {
@@ -4572,6 +4657,9 @@
             sessaoCloud = null;
             if(canalAgendaCloud && CloudDB) { try { CloudDB.removeChannel(canalAgendaCloud); } catch(e) {} canalAgendaCloud = null; }
             if(canalFinanceiroCloud && CloudDB) { try { CloudDB.removeChannel(canalFinanceiroCloud); } catch(e) {} canalFinanceiroCloud = null; }
+            if(canalNotificacoesCloud && CloudDB) { try { CloudDB.removeChannel(canalNotificacoesCloud); } catch(e) {} canalNotificacoesCloud = null; }
+            notificacoes = [];
+            renderizarNotificacoes();
             usuarioAtual = { id:null, nome:'', email:'', perfil:'' };
             clientes = [];
             salvarCacheClientesCloud();
@@ -5169,6 +5257,176 @@
                         delete el.dataset.disabledPorPerfil;
                     }
                 });
+        }
+
+        function escaparHtmlNotificacao(valor) {
+            return String(valor ?? '').replace(/[&<>'"]/g, caractere => ({
+                '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
+            })[caractere]);
+        }
+
+        function formatarDataNotificacao(valor) {
+            if(!valor) return '';
+            const data = new Date(valor);
+            if(Number.isNaN(data.getTime())) return '';
+            return data.toLocaleString('pt-BR', { dateStyle:'short', timeStyle:'short' });
+        }
+
+        function atualizarContadoresNotificacoes() {
+            const quantidade = notificacoes.filter(item => !item.lida).length;
+            document.querySelectorAll('[data-notificacoes-contador]').forEach(el => {
+                el.textContent = quantidade > 99 ? '99+' : String(quantidade);
+                el.style.display = quantidade ? 'inline-flex' : 'none';
+            });
+        }
+
+        function renderizarNotificacoes() {
+            const lista = document.getElementById('notificacoes-lista');
+            if(!lista) return;
+            atualizarContadoresNotificacoes();
+            if(!notificacoes.length) {
+                lista.innerHTML = '<div class="notificacoes-estado">Nenhuma notificação encontrada.</div>';
+                return;
+            }
+            lista.innerHTML = notificacoes.map(item => `
+                <button type="button" class="notificacao-item ${item.lida ? '' : 'nao-lida'}" onclick="abrirNotificacao('${escaparHtmlNotificacao(item.id)}')">
+                    <span class="notificacao-titulo"><span>${escaparHtmlNotificacao(item.titulo || 'Notificação')}</span>${item.lida ? '' : '<span>Nova</span>'}</span>
+                    <span class="notificacao-mensagem">${escaparHtmlNotificacao(item.mensagem || '')}</span>
+                    <span class="notificacao-data">${escaparHtmlNotificacao(formatarDataNotificacao(item.criado_em))}</span>
+                </button>`).join('');
+        }
+
+        async function carregarNotificacoes() {
+            const lista = document.getElementById('notificacoes-lista');
+            if(!CloudDB || !empresaAtual?.cloud || !empresaAtual?.id || !usuarioAtual?.id) {
+                notificacoes = [];
+                renderizarNotificacoes();
+                return;
+            }
+            if(lista && !notificacoes.length) lista.innerHTML = '<div class="notificacoes-estado">Carregando notificações...</div>';
+            try {
+                const { data, error } = await CloudDB.from('notificacoes')
+                    .select('id,empresa_id,usuario_id,agendamento_id,tipo,titulo,mensagem,lida,criado_em')
+                    .eq('empresa_id', empresaAtual.id)
+                    .eq('usuario_id', usuarioAtual.id)
+                    .order('criado_em', { ascending:false })
+                    .limit(50);
+                if(error) throw error;
+                notificacoes = data || [];
+                renderizarNotificacoes();
+            } catch(err) {
+                console.error('Falha ao carregar notificações:', err);
+                if(lista) lista.innerHTML = '<div class="notificacoes-estado">Não foi possível carregar as notificações agora.</div>';
+            }
+        }
+
+        function alternarPainelNotificacoes(event) {
+            if(event) event.stopPropagation();
+            const painel = document.getElementById('notificacoes-painel');
+            if(!painel) return;
+            const abrir = !painel.classList.contains('aberto');
+            if(!abrir) painel.classList.remove('completa');
+            painel.classList.toggle('aberto', abrir);
+            painel.setAttribute('aria-hidden', abrir ? 'false' : 'true');
+            atualizarTextoBotaoVerTodas();
+            if(abrir) carregarNotificacoes();
+        }
+
+        function fecharPainelNotificacoes() {
+            const painel = document.getElementById('notificacoes-painel');
+            painel?.classList.remove('aberto', 'completa');
+            painel?.setAttribute('aria-hidden', 'true');
+            atualizarTextoBotaoVerTodas();
+        }
+
+        function atualizarTextoBotaoVerTodas() {
+            const painel = document.getElementById('notificacoes-painel');
+            const botao = document.getElementById('btn-notificacoes-ver-todas');
+            if(botao) botao.textContent = painel?.classList.contains('completa') ? 'Visualização compacta' : 'Ver todas';
+        }
+
+        function alternarCentralNotificacoesCompleta(event) {
+            if(event) event.stopPropagation();
+            const painel = document.getElementById('notificacoes-painel');
+            if(!painel) return;
+            painel.classList.add('aberto');
+            painel.classList.toggle('completa');
+            painel.setAttribute('aria-hidden', 'false');
+            atualizarTextoBotaoVerTodas();
+            carregarNotificacoes();
+        }
+
+        async function marcarTodasNotificacoesComoLidas(event) {
+            if(event) event.stopPropagation();
+            if(!CloudDB || !empresaAtual?.id || !usuarioAtual?.id) return;
+            const pendentes = notificacoes.filter(item => !item.lida);
+            if(!pendentes.length) return;
+            try {
+                const ids = pendentes.map(item => item.id);
+                const { error } = await CloudDB.from('notificacoes')
+                    .update({ lida:true })
+                    .eq('empresa_id', empresaAtual.id)
+                    .eq('usuario_id', usuarioAtual.id)
+                    .in('id', ids);
+                if(error) throw error;
+                notificacoes.forEach(item => { if(ids.includes(item.id)) item.lida = true; });
+                renderizarNotificacoes();
+            } catch(err) {
+                console.error('Falha ao marcar notificações como lidas:', err);
+                alert('Não foi possível marcar todas as notificações como lidas agora.');
+            }
+        }
+
+        async function marcarNotificacaoComoLida(item) {
+            if(!item || item.lida || !CloudDB) return;
+            const { error } = await CloudDB.from('notificacoes').update({ lida:true })
+                .eq('id', item.id)
+                .eq('empresa_id', empresaAtual.id)
+                .eq('usuario_id', usuarioAtual.id);
+            if(error) throw error;
+            item.lida = true;
+            renderizarNotificacoes();
+        }
+
+        async function abrirNotificacao(id) {
+            const item = notificacoes.find(registro => String(registro.id) === String(id));
+            if(!item) return;
+            try { await marcarNotificacaoComoLida(item); }
+            catch(err) { console.error('Falha ao marcar notificação como lida:', err); }
+
+            if(String(item.tipo || '').toUpperCase() === 'NOVO_AGENDAMENTO' && item.agendamento_id) {
+                let agendamento = agendamentos.find(registro => String(registro.id) === String(item.agendamento_id));
+                if(!agendamento && CloudDB) {
+                    try {
+                        const { data, error } = await CloudDB.from('agendamentos')
+                            .select('id,empresa_id,cliente_id,cliente_nome,cliente_email,telefone,servico_id,servico_nome,profissional_id,data,horario,duracao_min,status,observacoes')
+                            .eq('id', item.agendamento_id).eq('empresa_id', empresaAtual.id).maybeSingle();
+                        if(error) throw error;
+                        if(data) agendamento = agendamentoCloudParaLocal(data);
+                    } catch(err) { console.error('Falha ao localizar agendamento da notificação:', err); }
+                }
+                if(agendamento?.data) {
+                    const filtroData = document.getElementById('agenda-data-filtro');
+                    if(filtroData) filtroData.value = agendamento.data;
+                }
+                fecharPainelNotificacoes();
+                mudarTela('agenda');
+                return;
+            }
+            fecharPainelNotificacoes();
+        }
+
+        function iniciarRealtimeNotificacoesCloud() {
+            if(canalNotificacoesCloud && CloudDB) {
+                try { CloudDB.removeChannel(canalNotificacoesCloud); } catch(e) {}
+                canalNotificacoesCloud = null;
+            }
+            if(!CloudDB || !empresaAtual?.cloud || !empresaAtual?.id || !usuarioAtual?.id) return;
+            canalNotificacoesCloud = CloudDB.channel(`notificacoes-${empresaAtual.id}-${usuarioAtual.id}`)
+                .on('postgres_changes', { event:'*', schema:'public', table:'notificacoes', filter:`empresa_id=eq.${empresaAtual.id}` }, payload => {
+                    const registro = payload.new || payload.old || {};
+                    if(String(registro.usuario_id || '') === String(usuarioAtual.id)) carregarNotificacoes();
+                }).subscribe();
         }
 
         function alternarMenuMobile() {
@@ -6109,6 +6367,20 @@
 
             const inicioNovo = timeToMin(horaInicio);
             const fimNovo = inicioNovo + duracaoMin;
+
+            // Validação crítica: todo o atendimento precisa caber dentro do expediente.
+            const inicioExpediente = timeToMin(configExpediente.abertura);
+            const fimExpediente = timeToMin(configExpediente.fechamento);
+
+            if (inicioNovo < inicioExpediente || fimNovo > fimExpediente) {
+                alert(
+                    `⚠️ HORÁRIO FORA DO EXPEDIENTE!\n\n` +
+                    `Este atendimento seria realizado das ${horaInicio} às ${minToTime(fimNovo)}.\n\n` +
+                    `O expediente da empresa é das ${configExpediente.abertura} às ${configExpediente.fechamento}.\n\n` +
+                    `Escolha um horário em que todo o atendimento caiba dentro do expediente.`
+                );
+                return;
+            }
             const conflitoAgendamento = agendamentos.find(a => {
                 if(a.data !== data) return false;
                 if(String(a.profissionalId || '') !== String(profissionalId)) return false;
@@ -8051,6 +8323,10 @@
                 new MutationObserver(syncMobileBrand).observe(logo, { childList:true, subtree:true, characterData:true });
             }
             window.addEventListener('resize', function () { if (window.innerWidth > 768) fecharMenuMobile(); });
+            document.addEventListener('click', function(event) {
+                const painel = document.getElementById('notificacoes-painel');
+                if(painel?.classList.contains('aberto') && !painel.contains(event.target) && !event.target.closest('.notificacoes-acionador')) fecharPainelNotificacoes();
+            });
         });
     </script>
 </body>
