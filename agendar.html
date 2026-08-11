@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendamento Online</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#f4f5f7;
+      --card:#ffffff;
+      --text:#1a202c;
+      --muted:#718096;
+      --accent:#d4af37;
+      --dark:#1a1c23;
+      --line:#e2e8f0;
+      --ok:#2f855a;
+      --danger:#c53030;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .topo{
+      background:var(--dark);
+      color:white;
+      padding:22px 16px;
+      text-align:center;
+      border-bottom:4px solid var(--accent);
+    }
+    .topo h1{
+      margin:0;
+      color:var(--accent);
+      font-size:24px;
+    }
+    .topo p{
+      margin:7px 0 0;
+      color:#cbd5e0;
+      font-size:13px;
+    }
+    .wrap{
+      width:min(760px,calc(100% - 24px));
+      margin:24px auto 48px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:22px;
+      box-shadow:0 8px 26px rgba(26,28,35,.07);
+      margin-bottom:16px;
+    }
+    .empresa{
+      text-align:center;
+      padding:18px 20px;
+    }
+    .empresa h2{margin:0 0 4px;font-size:22px}
+    .empresa span{font-size:12px;color:var(--muted)}
+    .steps{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:7px;
+      margin:18px 0;
+    }
+    .step{
+      height:5px;
+      border-radius:999px;
+      background:#e2e8f0;
+    }
+    .step.on{background:var(--accent)}
+    .titulo{
+      font-size:18px;
+      margin:0 0 5px;
+    }
+    .ajuda{
+      margin:0 0 18px;
+      font-size:13px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    input,select{
+      width:100%;
+      min-height:46px;
+      padding:10px 12px;
+      font-size:16px;
+      border:1px solid #cbd5e0;
+      border-radius:8px;
+      outline:none;
+      background:white;
+      color:var(--text);
+    }
+    input:focus,select:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(212,175,55,.13);
+    }
+    .opcoes{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+    .opcao{
+      border:1px solid var(--line);
+      background:white;
+      border-radius:10px;
+      padding:14px;
+      cursor:pointer;
+      text-align:left;
+      min-height:68px;
+      transition:.18s;
+    }
+    .opcao:hover{border-color:var(--accent)}
+    .opcao.selecionada{
+      border:2px solid var(--accent);
+      background:#fffaf0;
+    }
+    .opcao strong{display:block;font-size:14px}
+    .opcao small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}
+    .horarios{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:9px;
+    }
+    .horario{
+      min-height:44px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:white;
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+    }
+    .horario:hover{border-color:var(--accent)}
+    .horario.selecionado{
+      background:var(--dark);
+      color:white;
+      border-color:var(--dark);
+    }
+    .acoes{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top:20px;
+    }
+    .btn{
+      min-height:46px;
+      border:0;
+      border-radius:8px;
+      padding:11px 18px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:14px;
+    }
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-sec{background:#edf2f7;color:#4a5568}
+    .btn-pri{background:var(--dark);color:white}
+    .btn-pri:hover{background:var(--accent);color:var(--dark)}
+    .resumo{
+      display:grid;
+      gap:10px;
+      font-size:14px;
+    }
+    .linha{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      padding-bottom:9px;
+      border-bottom:1px solid #edf2f7;
+    }
+    .linha span:first-child{color:var(--muted)}
+    .linha b{text-align:right}
+    .status{
+      padding:12px;
+      border-radius:8px;
+      font-size:13px;
+      line-height:1.45;
+      margin:12px 0;
+      display:none;
+    }
+    .status.show{display:block}
+    .status.info{background:#ebf8ff;color:#2b6cb0;border:1px solid #bee3f8}
+    .status.erro{background:#fff5f5;color:#c53030;border:1px solid #fed7d7}
+    .status.ok{background:#f0fff4;color:#276749;border:1px solid #c6f6d5}
+    .vazio{
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+      padding:22px 8px;
+      border:1px dashed #cbd5e0;
+      border-radius:8px;
+    }
+    .sucesso{
+      text-align:center;
+      padding:30px 18px;
+    }
+    .sucesso .icone{
+      width:64px;height:64px;
+      border-radius:50%;
+      background:#c6f6d5;
+      color:#276749;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:30px;
+      margin:0 auto 14px;
+    }
+    .sucesso h2{margin:0 0 7px}
+    .sucesso p{color:var(--muted);line-height:1.5}
+    [hidden]{display:none!important}
+    @media(max-width:620px){
+      .wrap{margin-top:14px}
+      .card{padding:17px}
+      .grid2{grid-template-columns:1fr}
+      .opcoes{grid-template-columns:1fr}
+      .horarios{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .acoes{display:grid;grid-template-columns:1fr 1fr}
+      .btn{width:100%}
+    }
+    @media(max-width:380px){
+      .horarios{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+  </style>
+</head>
+<body>
+  <header class="topo">
+    <h1 id="marca">Agendamento Online</h1>
+    <p>Escolha seu atendimento em poucos passos.</p>
+  </header>
+
+  <main class="wrap">
+    <section class="card empresa">
+      <h2 id="empresa-nome">Carregando...</h2>
+      <span id="empresa-tipo"></span>
+    </section>
+
+    <div class="steps" aria-label="Progresso">
+      <div class="step on"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
+    </div>
+
+    <div id="status-global" class="status"></div>
+
+    <section class="card etapa" id="etapa-1">
+      <h3 class="titulo">Seus dados</h3>
+      <p class="ajuda">Precisamos apenas das informações essenciais para identificar seu agendamento.</p>
+      <div class="grid2">
+        <div>
+          <label for="cliente-nome">Nome *</label>
+          <input id="cliente-nome" type="text" autocomplete="name" placeholder="Seu nome">
+        </div>
+        <div>
+          <label for="cliente-telefone">WhatsApp / telefone *</label>
+          <input id="cliente-telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(81) 99999-9999">
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label for="cliente-email">E-mail</label>
+        <input id="cliente-email" type="email" autocomplete="email" placeholder="seuemail@exemplo.com">
+        <small style="display:block;margin-top:6px;color:#718096;font-size:11px;line-height:1.4;">
+          Opcional nesta versão. Quando informado, será associado ao seu cadastro.
+        </small>
+      </div>
+      <div class="acoes">
+        <button class="btn btn-pri" onclick="irParaProfissionais()">Continuar</button>
+      </div>
+    </section>
+
+    <section class="card etapa" id="etapa-2" hidden>
+      <h3 class="titulo">Escolha o profissional</h3>
+      <p class="ajuda">Depois de escolher o profissional, mostraremos somente os serviços realizados por ele.</p>
+      <div id="lista-profissionais" class="opcoes"></div>
+      <div class="acoes">
+        <button class="btn btn-sec" onclick="mostrarEtapa(1)">Voltar</button>
+        <button id="btn-profissional" class="btn btn-pri" disabled onclick="irParaServicos()">Continuar</button>
+      </div>
+    </section>
+
+    <section class="card etapa" id="etapa-3" hidden>
+      <h3 class="titulo">Escolha o serviço</h3>
+      <p class="ajuda">A duração do serviço será usada para calcular somente os horários em que o atendimento cabe por completo.</p>
+      <div id="lista-servicos" class="opcoes"></div>
+      <div class="acoes">
+        <button class="btn btn-sec" onclick="mostrarEtapa(2)">Voltar</button>
+        <button id="btn-servico" class="btn btn-pri" disabled onclick="irParaData()">Continuar</button>
+      </div>
+    </section>
+
+    <section class="card etapa" id="etapa-4" hidden>
+      <h3 class="titulo">Data e horário</h3>
+      <p class="ajuda">Os horários indisponíveis, bloqueados ou já ultrapassados não são exibidos.</p>
+      <div style="max-width:260px;margin-bottom:16px;">
+        <label for="agenda-data">Data *</label>
+        <input id="agenda-data" type="date" onchange="carregarHorarios()">
+      </div>
+      <div id="lista-horarios" class="horarios"></div>
+      <div class="acoes">
+        <button class="btn btn-sec" onclick="mostrarEtapa(3)">Voltar</button>
+        <button id="btn-horario" class="btn btn-pri" disabled onclick="irParaResumo()">Continuar</button>
+      </div>
+    </section>
+
+    <section class="card etapa" id="etapa-5" hidden>
+      <h3 class="titulo">Confirme seu agendamento</h3>
+      <p class="ajuda">Confira os dados antes de concluir.</p>
+      <div class="resumo" id="resumo"></div>
+      <div id="status-confirmacao" class="status"></div>
+      <div class="acoes">
+        <button class="btn btn-sec" id="btn-voltar-resumo" onclick="mostrarEtapa(4)">Voltar</button>
+        <button class="btn btn-pri" id="btn-confirmar" onclick="confirmarAgendamento()">Confirmar agendamento</button>
+      </div>
+    </section>
+
+    <section class="card sucesso" id="etapa-sucesso" hidden>
+      <div class="icone">✓</div>
+      <h2>Agendamento realizado!</h2>
+      <p id="sucesso-texto">Seu horário foi reservado com sucesso.</p>
+      <button class="btn btn-pri" onclick="novoAgendamento()">Fazer outro agendamento</button>
+    </section>
+  </main>
+
+<script>
+  const SUPABASE_URL = 'https://syvfhoglbhdairkcafts.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_OX4MzYwlV6asW9_3GooxPA_SP0uHrcu';
+
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const slug = (params.get('empresa') || params.get('slug') || 'simpla-barbearia').trim().toLowerCase();
+
+  const state = {
+    empresa:null,
+    profissional:null,
+    servico:null,
+    data:'',
+    horario:'',
+    nome:'',
+    telefone:'',
+    email:''
+  };
+
+  function setStatus(id, texto='', tipo='info'){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.className = 'status';
+    el.textContent = texto;
+    if(texto){
+      el.classList.add('show', tipo);
+    }
+  }
+
+  function mostrarEtapa(n){
+    document.querySelectorAll('.etapa').forEach(el => el.hidden = true);
+    document.getElementById('etapa-sucesso').hidden = true;
+    document.getElementById(`etapa-${n}`).hidden = false;
+    document.querySelectorAll('.step').forEach((el,i) => el.classList.toggle('on', i < n));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function formatarTelefoneInput(valor){
+    const n = String(valor || '').replace(/\D/g,'').slice(0,11);
+    if(n.length <= 2) return n;
+    if(n.length <= 7) return `(${n.slice(0,2)}) ${n.slice(2)}`;
+    if(n.length <= 10) return `(${n.slice(0,2)}) ${n.slice(2,6)}-${n.slice(6)}`;
+    return `(${n.slice(0,2)}) ${n.slice(2,7)}-${n.slice(7)}`;
+  }
+
+  function hojeLocal(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const dia = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${dia}`;
+  }
+
+  function dataPt(data){
+    if(!data) return '';
+    return new Date(data+'T00:00:00').toLocaleDateString('pt-BR');
+  }
+
+  function moeda(v){
+    return Number(v || 0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  }
+
+  async function iniciar(){
+    document.getElementById('cliente-telefone').addEventListener('input', e => {
+      e.target.value = formatarTelefoneInput(e.target.value);
+    });
+    document.getElementById('agenda-data').min = hojeLocal();
+
+    try{
+      const {data,error} = await db.rpc('agendamento_publico_empresa',{p_slug:slug});
+      if(error) throw error;
+      const empresa = Array.isArray(data) ? data[0] : data;
+      if(!empresa) throw new Error('Empresa não encontrada ou indisponível.');
+
+      state.empresa = empresa;
+      document.getElementById('empresa-nome').textContent = empresa.nome;
+      document.getElementById('empresa-tipo').textContent = empresa.tipo_negocio || '';
+      document.title = `Agendar | ${empresa.nome}`;
+      setStatus('status-global');
+    }catch(err){
+      console.error(err);
+      document.getElementById('empresa-nome').textContent = 'Agendamento indisponível';
+      document.getElementById('empresa-tipo').textContent = '';
+      setStatus('status-global', err?.message || 'Não foi possível carregar a empresa.', 'erro');
+      document.querySelectorAll('.etapa button,.etapa input').forEach(el => el.disabled = true);
+    }
+  }
+
+  function irParaProfissionais(){
+    const nome = document.getElementById('cliente-nome').value.trim();
+    const telefone = document.getElementById('cliente-telefone').value.trim();
+    const email = document.getElementById('cliente-email').value.trim().toLowerCase();
+    const numeros = telefone.replace(/\D/g,'');
+
+    if(nome.length < 2){
+      setStatus('status-global','Informe seu nome para continuar.','erro');
+      return;
+    }
+    if(numeros.length < 10 || numeros.length > 11){
+      setStatus('status-global','Informe um telefone com DDD válido.','erro');
+      return;
+    }
+
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+      setStatus('status-global','Informe um e-mail válido ou deixe o campo em branco.','erro');
+      return;
+    }
+
+    state.nome = nome;
+    state.telefone = telefone;
+    state.email = email;
+    setStatus('status-global');
+    carregarProfissionais();
+  }
+
+  async function carregarProfissionais(){
+    mostrarEtapa(2);
+    const area = document.getElementById('lista-profissionais');
+    area.innerHTML = '<div class="vazio" style="grid-column:1/-1;">Carregando profissionais...</div>';
+    document.getElementById('btn-profissional').disabled = true;
+    state.profissional = null;
+
+    try{
+      const {data,error} = await db.rpc('agendamento_publico_profissionais',{p_slug:slug});
+      if(error) throw error;
+      const lista = data || [];
+      if(!lista.length){
+        area.innerHTML = '<div class="vazio" style="grid-column:1/-1;">Nenhum profissional disponível para agendamento.</div>';
+        return;
+      }
+      area.innerHTML = '';
+      lista.forEach(p => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'opcao';
+        btn.innerHTML = `<strong>${escapeHtml(p.nome)}</strong><small>Ver serviços e agenda</small>`;
+        btn.onclick = () => {
+          area.querySelectorAll('.opcao').forEach(x => x.classList.remove('selecionada'));
+          btn.classList.add('selecionada');
+          state.profissional = p;
+          document.getElementById('btn-profissional').disabled = false;
+        };
+        area.appendChild(btn);
+      });
+    }catch(err){
+      console.error(err);
+      area.innerHTML = `<div class="vazio" style="grid-column:1/-1;color:#c53030;">${escapeHtml(err?.message || 'Erro ao carregar profissionais.')}</div>`;
+    }
+  }
+
+  function irParaServicos(){
+    if(!state.profissional) return;
+    carregarServicos();
+  }
+
+  async function carregarServicos(){
+    mostrarEtapa(3);
+    const area = document.getElementById('lista-servicos');
+    area.innerHTML = '<div class="vazio" style="grid-column:1/-1;">Carregando serviços...</div>';
+    document.getElementById('btn-servico').disabled = true;
+    state.servico = null;
+
+    try{
+      const {data,error} = await db.rpc('agendamento_publico_servicos_profissional',{
+        p_slug:slug,
+        p_profissional_id:state.profissional.id
+      });
+      if(error) throw error;
+      const lista = data || [];
+      if(!lista.length){
+        area.innerHTML = '<div class="vazio" style="grid-column:1/-1;">Nenhum serviço disponível para este profissional.</div>';
+        return;
+      }
+      area.innerHTML = '';
+      lista.forEach(s => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'opcao';
+        btn.innerHTML = `<strong>${escapeHtml(s.nome)}</strong><small>${moeda(s.preco)} • ${Number(s.duracao_min)} min</small>`;
+        btn.onclick = () => {
+          area.querySelectorAll('.opcao').forEach(x => x.classList.remove('selecionada'));
+          btn.classList.add('selecionada');
+          state.servico = s;
+          document.getElementById('btn-servico').disabled = false;
+        };
+        area.appendChild(btn);
+      });
+    }catch(err){
+      console.error(err);
+      area.innerHTML = `<div class="vazio" style="grid-column:1/-1;color:#c53030;">${escapeHtml(err?.message || 'Erro ao carregar serviços.')}</div>`;
+    }
+  }
+
+  function irParaData(){
+    if(!state.servico) return;
+    state.data = '';
+    state.horario = '';
+    document.getElementById('agenda-data').value = '';
+    document.getElementById('lista-horarios').innerHTML = '<div class="vazio" style="grid-column:1/-1;">Escolha uma data para ver os horários.</div>';
+    document.getElementById('btn-horario').disabled = true;
+    mostrarEtapa(4);
+  }
+
+  async function carregarHorarios(){
+    const dataEscolhida = document.getElementById('agenda-data').value;
+    const area = document.getElementById('lista-horarios');
+    state.data = dataEscolhida;
+    state.horario = '';
+    document.getElementById('btn-horario').disabled = true;
+
+    if(!dataEscolhida){
+      area.innerHTML = '<div class="vazio" style="grid-column:1/-1;">Escolha uma data.</div>';
+      return;
+    }
+    if(dataEscolhida < hojeLocal()){
+      area.innerHTML = '<div class="vazio" style="grid-column:1/-1;color:#c53030;">Não é possível agendar em uma data anterior a hoje.</div>';
+      return;
+    }
+
+    area.innerHTML = '<div class="vazio" style="grid-column:1/-1;">Consultando agenda...</div>';
+
+    try{
+      const {data,error} = await db.rpc('agendamento_publico_horarios',{
+        p_slug:slug,
+        p_profissional_id:state.profissional.id,
+        p_servico_id:state.servico.id,
+        p_data:dataEscolhida
+      });
+      if(error) throw error;
+      const lista = data || [];
+
+      if(!lista.length){
+        area.innerHTML = '<div class="vazio" style="grid-column:1/-1;">Não há horários disponíveis nesta data.</div>';
+        return;
+      }
+
+      area.innerHTML = '';
+      lista.forEach(item => {
+        const hora = String(item.horario || '').slice(0,5);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'horario';
+        btn.textContent = hora;
+        btn.onclick = () => {
+          area.querySelectorAll('.horario').forEach(x => x.classList.remove('selecionado'));
+          btn.classList.add('selecionado');
+          state.horario = hora;
+          document.getElementById('btn-horario').disabled = false;
+        };
+        area.appendChild(btn);
+      });
+    }catch(err){
+      console.error(err);
+      area.innerHTML = `<div class="vazio" style="grid-column:1/-1;color:#c53030;">${escapeHtml(err?.message || 'Erro ao consultar horários.')}</div>`;
+    }
+  }
+
+  function irParaResumo(){
+    if(!state.data || !state.horario) return;
+    const resumo = document.getElementById('resumo');
+    resumo.innerHTML = `
+      <div class="linha"><span>Cliente</span><b>${escapeHtml(state.nome)}</b></div>
+      <div class="linha"><span>Telefone</span><b>${escapeHtml(state.telefone)}</b></div>
+      ${state.email ? `<div class="linha"><span>E-mail</span><b>${escapeHtml(state.email)}</b></div>` : ''}
+      <div class="linha"><span>Profissional</span><b>${escapeHtml(state.profissional.nome)}</b></div>
+      <div class="linha"><span>Serviço</span><b>${escapeHtml(state.servico.nome)}</b></div>
+      <div class="linha"><span>Duração</span><b>${Number(state.servico.duracao_min)} min</b></div>
+      <div class="linha"><span>Valor</span><b>${moeda(state.servico.preco)}</b></div>
+      <div class="linha"><span>Data</span><b>${dataPt(state.data)}</b></div>
+      <div class="linha"><span>Horário</span><b>${escapeHtml(state.horario)}</b></div>
+    `;
+    setStatus('status-confirmacao');
+    mostrarEtapa(5);
+  }
+
+  async function confirmarAgendamento(){
+    const btn = document.getElementById('btn-confirmar');
+    const voltar = document.getElementById('btn-voltar-resumo');
+    btn.disabled = true;
+    voltar.disabled = true;
+    btn.textContent = 'Confirmando...';
+    setStatus('status-confirmacao','Estamos confirmando a disponibilidade do horário.','info');
+
+    try{
+      const {data,error} = await db.rpc('agendamento_publico_criar',{
+        p_slug:slug,
+        p_profissional_id:state.profissional.id,
+        p_servico_id:state.servico.id,
+        p_data:state.data,
+        p_horario:state.horario,
+        p_cliente_nome:state.nome,
+        p_telefone:state.telefone,
+        p_email:state.email || null
+      });
+      if(error) throw error;
+
+      const retorno = Array.isArray(data) ? data[0] : data;
+      document.querySelectorAll('.etapa').forEach(el => el.hidden = true);
+      document.getElementById('etapa-sucesso').hidden = false;
+      document.querySelectorAll('.step').forEach(el => el.classList.add('on'));
+      document.getElementById('sucesso-texto').textContent =
+        `${state.profissional.nome} • ${state.servico.nome} • ${dataPt(state.data)} às ${state.horario}.`;
+      setStatus('status-confirmacao');
+      window.scrollTo({top:0,behavior:'smooth'});
+      console.log('Agendamento criado:', retorno);
+    }catch(err){
+      console.error(err);
+      const msg = err?.message || 'Não foi possível concluir o agendamento.';
+      setStatus('status-confirmacao', msg, 'erro');
+
+      // Horário pode ter sido ocupado por outra pessoa. Recarrega a disponibilidade.
+      if(/hor[aá]rio|dispon[ií]vel|ocupado/i.test(msg)){
+        document.getElementById('btn-horario').disabled = true;
+        state.horario = '';
+      }
+    }finally{
+      btn.disabled = false;
+      voltar.disabled = false;
+      btn.textContent = 'Confirmar agendamento';
+    }
+  }
+
+  function novoAgendamento(){
+    state.profissional = null;
+    state.servico = null;
+    state.data = '';
+    state.horario = '';
+    document.getElementById('cliente-nome').value = '';
+    document.getElementById('cliente-telefone').value = '';
+    document.getElementById('cliente-email').value = '';
+    state.email = '';
+    mostrarEtapa(1);
+  }
+
+  function escapeHtml(valor){
+    return String(valor ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  document.addEventListener('DOMContentLoaded', iniciar);
+</script>
+</body>
+</html>
