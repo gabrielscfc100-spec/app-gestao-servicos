@@ -5203,43 +5203,7 @@
                 renderizarAgenda();
                 renderizarDashboard();
                 await registrarAuditoria('AGENDA','AGENDAMENTO_CONFIRMADO',id,{cliente:ag.clienteNome,data:ag.data,horario:ag.horario});
-
-                const telefoneCliente = String(ag.telefone || '').replace(/\D/g,'');
-                if(!telefoneCliente) {
-                    alert('Agendamento confirmado com sucesso! O cliente não possui telefone disponível para envio pelo WhatsApp.');
-                    return;
-                }
-
-                const telefoneWhatsapp = telefoneCliente.startsWith('55')
-                    ? telefoneCliente
-                    : `55${telefoneCliente}`;
-
-                const profissionalNome = ag.profissionalNome
-                    || profissionais.find(p => String(p.id) === String(ag.profissionalId))?.nome
-                    || 'nosso profissional';
-
-                const dataFormatada = ag.data
-                    ? new Date(`${ag.data}T00:00:00`).toLocaleDateString('pt-BR')
-                    : '';
-
-                const mensagemConfirmacao = [
-                    `Olá, ${ag.clienteNome || 'cliente'}!`,
-                    '',
-                    `Seu agendamento na ${nomeBarbearia || 'empresa'} foi confirmado. ✅`,
-                    '',
-                    `📅 Data: ${dataFormatada}`,
-                    `🕐 Horário: ${ag.horario || ''}`,
-                    `👤 Profissional: ${profissionalNome}`,
-                    `✂️ Serviço: ${ag.servico || ''}`,
-                    '',
-                    'Aguardamos você!'
-                ].join('\n');
-
-                const urlWhatsapp = `https://wa.me/${telefoneWhatsapp}?text=${encodeURIComponent(mensagemConfirmacao)}`;
-
-                // Usa navegação na própria aba em vez de popup.
-                // Isso evita bloqueios do navegador após a operação assíncrona de confirmação.
-                window.location.href = urlWhatsapp;
+                alert('Agendamento confirmado com sucesso! Use o botão verde no card para enviar a confirmação pelo WhatsApp.');
             } catch(err) {
                 console.error(err);
                 alert(`Não foi possível confirmar o agendamento: ${err?.message || 'erro desconhecido'}`);
@@ -6093,6 +6057,18 @@
                         ? `<a href="${linkWhatsApp}" target="_blank" rel="noopener noreferrer" style="color:#3182ce; font-weight:bold; text-decoration:none;">📱 ${telefoneExibicao} — WhatsApp</a>`
                         : `<span style="color:#a0aec0;">📱 ${telefoneExibicao}</span>`;
 
+                    const linkConfirmacaoWhatsapp = gerarLinkWhatsAppConfirmacaoAgendamento({
+                        ...agendamentoOcupado,
+                        telefone: telefoneAgendamento
+                    });
+                    const botaoConfirmacaoWhatsapp = linkConfirmacaoWhatsapp
+                        ? `<a href="${linkConfirmacaoWhatsapp}" target="_blank" rel="noopener noreferrer"
+                             class="btn-salvar"
+                             style="flex:1 1 100%;font-size:12px;padding:8px;background:#25D366;color:white;text-decoration:none;text-align:center;">
+                             💬 Enviar confirmação no WhatsApp
+                           </a>`
+                        : '';
+
                     card.innerHTML = `
                         <div>
                             <div class="slot-header">
@@ -6128,7 +6104,7 @@
                                       : ''}
                                    ${String(agendamentoOcupado.status || '').toUpperCase() === 'SOLICITADO'
                                       ? `<button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#dd6b20;color:white;" onclick="confirmarAgendamentoSolicitado('${agendamentoOcupado.id}')">✓ Confirmar agendamento</button>`
-                                      : `<button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#38a169;color:white;" onclick="iniciarRecebimentoAgendamento('${agendamentoOcupado.id}')">✓ Finalizar atendimento</button>`}
+                                      : `${botaoConfirmacaoWhatsapp}<button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#38a169;color:white;" onclick="iniciarRecebimentoAgendamento('${agendamentoOcupado.id}')">✓ Finalizar atendimento</button>`}
                                    <button class="btn-salvar" style="flex:1;font-size:12px;padding:6px;background:#3182ce;color:white;" onclick="abrirEdicaoAgendamento('${agendamentoOcupado.id}')">✏️ Editar</button>
                                    <button class="btn-excluir-tabela" style="flex:1;font-size:12px;padding:6px;" onclick="cancelarAgendamento('${agendamentoOcupado.id}')">Liberar Horário</button>`}
                         </div>`}
@@ -6610,6 +6586,41 @@
             return `https://wa.me/${numeroCompleto}?text=${encodeURIComponent(mensagem)}`;
         }
 
+
+        function gerarLinkWhatsAppConfirmacaoAgendamento(agendamento) {
+            if(!agendamento) return '';
+
+            const telefone = agendamento.telefone
+                || (clientes.find(c => String(c.id) === String(agendamento.clienteId))?.telefone || '');
+
+            const numeros = String(telefone || '').replace(/\D/g,'');
+            if(!numeros) return '';
+
+            const numeroCompleto = numeros.startsWith('55') ? numeros : `55${numeros}`;
+
+            const profissionalNome = agendamento.profissionalNome
+                || profissionais.find(p => String(p.id) === String(agendamento.profissionalId))?.nome
+                || 'Não informado';
+
+            const dataFmt = agendamento.data
+                ? new Date(`${agendamento.data}T00:00:00`).toLocaleDateString('pt-BR')
+                : '';
+
+            const mensagem = [
+                `Olá, ${agendamento.clienteNome || 'cliente'}!`,
+                '',
+                `Seu agendamento na ${nomeBarbearia || 'empresa'} foi confirmado. ✅`,
+                '',
+                `📅 Data: ${dataFmt}`,
+                `🕐 Horário: ${agendamento.horario || ''}`,
+                `👤 Profissional: ${profissionalNome}`,
+                `✂️ Serviço: ${agendamento.servico || ''}`,
+                '',
+                'Aguardamos você!'
+            ].join('\n');
+
+            return `https://wa.me/${numeroCompleto}?text=${encodeURIComponent(mensagem)}`;
+        }
 
         /* ===== INTEGRAÇÃO AGENDA -> CLIENTE -> FINANCEIRO ===== */
         function obterServicoDoAgendamento(agendamento) {
