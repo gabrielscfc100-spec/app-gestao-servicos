@@ -5203,7 +5203,46 @@
                 renderizarAgenda();
                 renderizarDashboard();
                 await registrarAuditoria('AGENDA','AGENDAMENTO_CONFIRMADO',id,{cliente:ag.clienteNome,data:ag.data,horario:ag.horario});
-                alert('Agendamento confirmado com sucesso!');
+
+                const telefoneCliente = String(ag.telefone || '').replace(/\D/g,'');
+                if(!telefoneCliente) {
+                    alert('Agendamento confirmado com sucesso! O cliente não possui telefone disponível para envio pelo WhatsApp.');
+                    return;
+                }
+
+                const telefoneWhatsapp = telefoneCliente.startsWith('55')
+                    ? telefoneCliente
+                    : `55${telefoneCliente}`;
+
+                const profissionalNome = ag.profissionalNome
+                    || profissionais.find(p => String(p.id) === String(ag.profissionalId))?.nome
+                    || 'nosso profissional';
+
+                const dataFormatada = ag.data
+                    ? new Date(`${ag.data}T00:00:00`).toLocaleDateString('pt-BR')
+                    : '';
+
+                const mensagemConfirmacao = [
+                    `Olá, ${ag.clienteNome || 'cliente'}!`,
+                    '',
+                    `Seu agendamento na ${nomeBarbearia || 'empresa'} foi confirmado. ✅`,
+                    '',
+                    `📅 Data: ${dataFormatada}`,
+                    `🕐 Horário: ${ag.horario || ''}`,
+                    `👤 Profissional: ${profissionalNome}`,
+                    `✂️ Serviço: ${ag.servico || ''}`,
+                    '',
+                    'Aguardamos você!'
+                ].join('\n');
+
+                const desejaEnviar = confirm(
+                    'Agendamento confirmado com sucesso!\n\nDeseja abrir o WhatsApp para enviar a confirmação ao cliente?'
+                );
+
+                if(desejaEnviar) {
+                    const urlWhatsapp = `https://wa.me/${telefoneWhatsapp}?text=${encodeURIComponent(mensagemConfirmacao)}`;
+                    window.open(urlWhatsapp, '_blank', 'noopener,noreferrer');
+                }
             } catch(err) {
                 console.error(err);
                 alert(`Não foi possível confirmar o agendamento: ${err?.message || 'erro desconhecido'}`);
