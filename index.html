@@ -2451,6 +2451,25 @@
 
                 <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
 
+                <h3 style="color: var(--cor-accent);">🔔 Notificações do Navegador</h3>
+                <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">
+                    Permita que o SimplA exiba avisos do navegador quando chegarem novas notificações enquanto o sistema estiver aberto.
+                </p>
+                <div class="section-box-cfg">
+                    <h4>Permissão de notificações</h4>
+                    <p id="cfg-status-notificacao-navegador" style="font-size:12px;color:#718096;margin-bottom:12px;text-transform:none;">
+                        Verificando permissão...
+                    </p>
+                    <button type="button" class="btn-salvar" onclick="solicitarPermissaoNotificacoesNavegador()" style="margin:0;">
+                        🔔 Permitir notificações neste navegador
+                    </button>
+                    <p style="font-size:11px;color:#718096;margin:10px 0 0;text-transform:none;">
+                        Esta permissão é específica deste navegador/dispositivo e pode ser revogada nas configurações do navegador.
+                    </p>
+                </div>
+
+                <hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;">
+
                 <h3 style="color: var(--cor-accent);">✅ Confirmação de Agendamentos</h3>
                 <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">
                     Defina o comportamento dos agendamentos realizados pelo link externo. Agendamentos criados diretamente pela equipe na Agenda continuam confirmados.
@@ -2951,6 +2970,9 @@
         let canalAgendaCloud = null;
         let canalFinanceiroCloud = null;
         let canalNotificacoesCloud = null;
+        let timerNotificacoesCloud = null;
+        let notificacoesNavegadorInicializadas = false;
+        let idsNotificacoesConhecidas = new Set();
         let timerAtualizacaoFinanceiroCloud = null;
         let timerAtualizacaoAgendaCloud = null;
         let notificacoes = [];
@@ -4877,6 +4899,9 @@
             if(canalAgendaCloud && CloudDB) { try { CloudDB.removeChannel(canalAgendaCloud); } catch(e) {} canalAgendaCloud = null; }
             if(canalFinanceiroCloud && CloudDB) { try { CloudDB.removeChannel(canalFinanceiroCloud); } catch(e) {} canalFinanceiroCloud = null; }
             if(canalNotificacoesCloud && CloudDB) { try { CloudDB.removeChannel(canalNotificacoesCloud); } catch(e) {} canalNotificacoesCloud = null; }
+            if(timerNotificacoesCloud) { clearInterval(timerNotificacoesCloud); timerNotificacoesCloud = null; }
+            notificacoesNavegadorInicializadas = false;
+            idsNotificacoesConhecidas = new Set();
             notificacoes = [];
             renderizarNotificacoes();
             usuarioAtual = { id:null, nome:'', email:'', perfil:'' };
@@ -5282,8 +5307,15 @@
             if(!link) return false;
 
             botao.href = link;
+
+            // Desktop: abre o WhatsApp em uma nova aba e mantém o SimplA aberto.
+            // Mobile: segue a navegação normal do aparelho.
+            const ehDesktop = window.matchMedia('(min-width: 769px)').matches;
+            botao.target = ehDesktop ? '_blank' : '_self';
+            botao.rel = ehDesktop ? 'noopener noreferrer' : '';
+
             if(texto) {
-                texto.textContent = `Deseja enviar a mensagem de confirmação para ${agendamento?.clienteNome || 'o cliente'} pelo WhatsApp?`;
+                texto.textContent = 'Deseja enviar a mensagem de confirmação para o seu cliente?';
             }
             modal.classList.add('active');
             return true;
@@ -5652,6 +5684,85 @@
             });
         }
 
+        function atualizarStatusPermissaoNotificacoesNavegador() {
+            const el = document.getElementById('cfg-status-notificacao-navegador');
+            if(!el) return;
+
+            if(!('Notification' in window)) {
+                el.textContent = 'Este navegador não oferece suporte às notificações do sistema.';
+                return;
+            }
+
+            const status = Notification.permission;
+            if(status === 'granted') {
+                el.textContent = '✅ Notificações permitidas neste navegador.';
+            } else if(status === 'denied') {
+                el.textContent = '🚫 Notificações bloqueadas. Altere a permissão nas configurações do navegador para habilitar novamente.';
+            } else {
+                el.textContent = 'Permissão ainda não concedida.';
+            }
+        }
+
+        async function solicitarPermissaoNotificacoesNavegador() {
+            if(!('Notification' in window)) {
+                alert('Este navegador não oferece suporte às notificações.');
+                return;
+            }
+
+            try {
+                const permissao = await Notification.requestPermission();
+                atualizarStatusPermissaoNotificacoesNavegador();
+
+                if(permissao === 'granted') {
+                    new Notification('SimplA', {
+                        body: 'Notificações ativadas com sucesso.'
+                    });
+                } else if(permissao === 'denied') {
+                    alert('A permissão foi bloqueada. Você poderá alterá-la nas configurações do navegador.');
+                }
+            } catch(err) {
+                console.error('Erro ao solicitar permissão de notificações:', err);
+                alert('Não foi possível solicitar a permissão de notificações neste navegador.');
+            }
+        }
+
+        function notificarNovasNotificacoesNoNavegador(listaAtual) {
+            const atuais = Array.isArray(listaAtual) ? listaAtual : [];
+
+            // Primeiro carregamento: apenas memoriza o que já existia para não disparar avisos antigos.
+            if(!notificacoesNavegadorInicializadas) {
+                idsNotificacoesConhecidas = new Set(atuais.map(item => String(item.id)));
+                notificacoesNavegadorInicializadas = true;
+                return;
+            }
+
+            const novas = atuais.filter(item =>
+                !item.lida &&
+                !idsNotificacoesConhecidas.has(String(item.id))
+            );
+
+            atuais.forEach(item => idsNotificacoesConhecidas.add(String(item.id)));
+
+            if(!novas.length || !('Notification' in window) || Notification.permission !== 'granted') return;
+
+            novas.slice().reverse().forEach(item => {
+                try {
+                    const aviso = new Notification(item.titulo || 'Nova notificação no SimplA', {
+                        body: item.mensagem || 'Você recebeu uma nova notificação.',
+                        tag: `simpla-${item.id}`
+                    });
+
+                    aviso.onclick = () => {
+                        try { window.focus(); } catch(e) {}
+                        aviso.close();
+                        abrirNotificacao(item.id).catch(console.error);
+                    };
+                } catch(err) {
+                    console.warn('Falha ao exibir notificação do navegador:', err);
+                }
+            });
+        }
+
         function renderizarNotificacoes() {
             const lista = document.getElementById('notificacoes-lista');
             if(!lista) return;
@@ -5684,7 +5795,9 @@
                     .order('criado_em', { ascending:false })
                     .limit(50);
                 if(error) throw error;
-                notificacoes = data || [];
+                const novasNotificacoes = data || [];
+                notificarNovasNotificacoesNoNavegador(novasNotificacoes);
+                notificacoes = novasNotificacoes;
                 renderizarNotificacoes();
             } catch(err) {
                 console.error('Falha ao carregar notificações:', err);
@@ -5814,18 +5927,74 @@
             fecharPainelNotificacoes();
         }
 
+        function iniciarFallbackNotificacoesCloud() {
+            if(timerNotificacoesCloud) clearInterval(timerNotificacoesCloud);
+
+            // Mantém badge e lista sincronizados mesmo se o websocket cair.
+            timerNotificacoesCloud = setInterval(() => {
+                if(document.visibilityState !== 'visible') return;
+                if(!CloudDB || !empresaAtual?.id || !usuarioAtual?.id) return;
+
+                carregarNotificacoes().catch(err =>
+                    console.warn('Fallback de notificações:', err)
+                );
+            }, 3000);
+        }
+
         function iniciarRealtimeNotificacoesCloud() {
             if(canalNotificacoesCloud && CloudDB) {
                 try { CloudDB.removeChannel(canalNotificacoesCloud); } catch(e) {}
                 canalNotificacoesCloud = null;
             }
+
+            if(timerNotificacoesCloud) {
+                clearInterval(timerNotificacoesCloud);
+                timerNotificacoesCloud = null;
+            }
+
             if(!CloudDB || !empresaAtual?.cloud || !empresaAtual?.id || !usuarioAtual?.id) return;
-            canalNotificacoesCloud = CloudDB.channel(`notificacoes-${empresaAtual.id}-${usuarioAtual.id}`)
-                .on('postgres_changes', { event:'*', schema:'public', table:'notificacoes', filter:`empresa_id=eq.${empresaAtual.id}` }, payload => {
-                    const registro = payload.new || payload.old || {};
-                    if(String(registro.usuario_id || '') === String(usuarioAtual.id)) carregarNotificacoes();
-                }).subscribe();
+
+            canalNotificacoesCloud = CloudDB
+                .channel(`notificacoes-${empresaAtual.id}-${usuarioAtual.id}`)
+                .on(
+                    'postgres_changes',
+                    {
+                        event:'*',
+                        schema:'public',
+                        table:'notificacoes',
+                        filter:`empresa_id=eq.${empresaAtual.id}`
+                    },
+                    payload => {
+                        const registro = payload.new || payload.old || {};
+                        if(String(registro.usuario_id || '') !== String(usuarioAtual.id)) return;
+
+                        carregarNotificacoes().catch(err =>
+                            console.error('Falha ao atualizar notificação em tempo real:', err)
+                        );
+                    }
+                )
+                .subscribe(status => {
+                    if(status === 'SUBSCRIBED') {
+                        console.info('Notificações Realtime conectadas.');
+                    } else if(['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)) {
+                        console.warn('Realtime de notificações indisponível:', status);
+                    }
+                });
+
+            iniciarFallbackNotificacoesCloud();
         }
+
+        document.addEventListener('visibilitychange', () => {
+            if(document.visibilityState === 'visible' && CloudDB && empresaAtual?.id && usuarioAtual?.id) {
+                carregarNotificacoes().catch(console.error);
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            if(CloudDB && empresaAtual?.id && usuarioAtual?.id) {
+                carregarNotificacoes().catch(console.error);
+            }
+        });
 
         function alternarMenuMobile() {
             document.body.classList.toggle('mobile-menu-open');
@@ -5859,6 +6028,7 @@
                 atualizarAniversariantesDia();
                 atualizarAniversariantesMes();
             } else if(idTela === 'configuracoes') {
+                atualizarStatusPermissaoNotificacoesNavegador();
                 carregarProfissionaisCloud().catch(console.error);
                 if(usuarioEhAdmin()) carregarAuditoria().catch(console.error);
             } else if(idTela === 'financeiro') {
@@ -8791,26 +8961,26 @@
     <!-- Modal de confirmação via WhatsApp -->
     <div class="modal-overlay" id="modal-confirmacao-whatsapp" style="z-index:5200;">
         <div class="modal-balao" style="max-width:430px;text-transform:none;">
-            <div style="font-size:44px;margin-bottom:8px;">✅</div>
-            <h3 style="text-transform:none;">Agendamento confirmado!</h3>
-            <p id="modal-confirmacao-whatsapp-texto" style="text-transform:none;line-height:1.5;">
-                Deseja enviar a mensagem de confirmação para o cliente pelo WhatsApp?
+            <div style="font-size:42px;margin-bottom:10px;">✅</div>
+            <h3 style="text-transform:none;margin-bottom:10px;">Agendamento confirmado com sucesso!</h3>
+            <p id="modal-confirmacao-whatsapp-texto"
+               style="text-transform:none;line-height:1.5;margin-bottom:20px;">
+                Deseja enviar a mensagem de confirmação para o seu cliente?
             </p>
-            <div class="modal-botoes" style="margin-top:18px;">
-                <button type="button"
-                        class="btn-cancelar-modal"
-                        onclick="fecharModalConfirmacaoWhatsapp()"
-                        style="text-transform:none;">
-                    Agora não
-                </button>
+            <div style="display:flex;gap:12px;width:100%;">
                 <a id="btn-modal-confirmacao-whatsapp"
                    href="#"
                    target="_blank"
                    rel="noopener noreferrer"
                    onclick="setTimeout(fecharModalConfirmacaoWhatsapp,150)"
-                   style="flex:1;padding:10px;border-radius:4px;background:#25D366;color:white;text-decoration:none;font-weight:bold;text-align:center;text-transform:none;">
-                    💬 Enviar no WhatsApp
+                   style="flex:1;padding:11px 16px;border-radius:6px;background:#25D366;color:white;text-decoration:none;font-weight:bold;text-align:center;text-transform:none;">
+                    Sim
                 </a>
+                <button type="button"
+                        onclick="fecharModalConfirmacaoWhatsapp()"
+                        style="flex:1;padding:11px 16px;border:0;border-radius:6px;background:#edf2f7;color:#2d3748;font-weight:bold;cursor:pointer;text-transform:none;">
+                    Não
+                </button>
             </div>
         </div>
     </div>
