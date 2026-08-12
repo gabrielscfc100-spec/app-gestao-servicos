@@ -2467,14 +2467,14 @@
                         Quando desativada, novos agendamentos externos entram como <b>SOLICITADO</b> e precisam ser confirmados pela equipe na Agenda.
                     </p>
                     <div class="form-group" style="margin-top:16px;margin-bottom:8px;">
-                        <label>Abrir WhatsApp do cliente após confirmar</label>
+                        <label>Perguntar se deseja enviar confirmação pelo WhatsApp</label>
                         <select id="cfg-whatsapp-apos-confirmacao" style="max-width:360px;">
-                            <option value="true">ATIVADA — perguntar após confirmar</option>
-                            <option value="false">DESATIVADA — apenas confirmar no sistema</option>
+                            <option value="true">ATIVADA — exibir pergunta após confirmar</option>
+                            <option value="false">DESATIVADA — não exibir a pergunta</option>
                         </select>
                     </div>
                     <p style="font-size:11px;color:#718096;margin:0;text-transform:none;">
-                        Quando ativada, após confirmar o agendamento, o SimplA pergunta se o usuário deseja enviar a mensagem de confirmação pelo WhatsApp.
+                        Quando ativada, após confirmar o agendamento, o SimplA exibe uma janela perguntando se o usuário deseja enviar a mensagem de confirmação pelo WhatsApp.
                     </p>
                 </div>
                 <div class="section-box-cfg" style="margin-top:12px;">
@@ -5208,7 +5208,7 @@
             if(!ag) return;
             if(String(ag.status || '').toUpperCase() !== 'SOLICITADO') return;
 
-            const whatsappAoConfirmarAtivo = configModulos?.agendamento?.abrirWhatsappAoConfirmar !== false;
+            const perguntarWhatsapp = configModulos?.agendamento?.abrirWhatsappAoConfirmar !== false;
 
             try {
                 if(AGENDA_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
@@ -5241,31 +5241,52 @@
                     {cliente:ag.clienteNome,data:ag.data,horario:ag.horario}
                 ).catch(err => console.warn('Auditoria da confirmação:', err));
 
-                if(!whatsappAoConfirmarAtivo) {
+                if(!perguntarWhatsapp) {
                     alert('Agendamento confirmado com sucesso!');
                     return;
                 }
 
                 const agAtualizado = agendamentos.find(a => String(a.id) === String(id)) || ag;
-                const linkWhatsapp = gerarLinkWhatsAppConfirmacaoAgendamento(agAtualizado);
 
-                if(!linkWhatsapp) {
+                // Exibe modal próprio do SimplA. O botão é um <a href> real para wa.me.
+                if(!abrirModalConfirmacaoWhatsapp(agAtualizado)) {
                     alert('Agendamento confirmado com sucesso! Não foi encontrado um telefone válido para enviar a confirmação pelo WhatsApp.');
-                    return;
-                }
-
-                const desejaEnviar = confirm(
-                    'Agendamento confirmado com sucesso!\\n\\nDeseja enviar a mensagem de confirmação pelo WhatsApp?'
-                );
-
-                if(desejaEnviar) {
-                    window.location.assign(linkWhatsapp);
                 }
 
             } catch(err) {
                 console.error(err);
                 alert(`Não foi possível confirmar o agendamento: ${err?.message || 'erro desconhecido'}`);
             }
+        }
+
+        function fecharModalConfirmacaoWhatsapp() {
+            const modal = document.getElementById('modal-confirmacao-whatsapp');
+            if(modal) modal.classList.remove('active');
+        }
+
+        function abrirModalConfirmacaoWhatsapp(agendamento) {
+            const modal = document.getElementById('modal-confirmacao-whatsapp');
+            const botao = document.getElementById('btn-modal-confirmacao-whatsapp');
+            const texto = document.getElementById('modal-confirmacao-whatsapp-texto');
+            if(!modal || !botao) return false;
+
+            // Usa o telefone do próprio agendamento; se necessário, recupera do cadastro.
+            const telefone = agendamento?.telefone
+                || (clientes.find(c => String(c.id) === String(agendamento?.clienteId))?.telefone || '');
+
+            const link = gerarLinkWhatsAppAgendamento({
+                ...agendamento,
+                telefone
+            });
+
+            if(!link) return false;
+
+            botao.href = link;
+            if(texto) {
+                texto.textContent = `Deseja enviar a mensagem de confirmação para ${agendamento?.clienteNome || 'o cliente'} pelo WhatsApp?`;
+            }
+            modal.classList.add('active');
+            return true;
         }
 
         /* --- GERENCIAMENTO DINÂMICO DE MÓDULOS E RECURSOS --- */
@@ -8766,5 +8787,33 @@
             });
         });
     </script>
+
+    <!-- Modal de confirmação via WhatsApp -->
+    <div class="modal-overlay" id="modal-confirmacao-whatsapp" style="z-index:5200;">
+        <div class="modal-balao" style="max-width:430px;text-transform:none;">
+            <div style="font-size:44px;margin-bottom:8px;">✅</div>
+            <h3 style="text-transform:none;">Agendamento confirmado!</h3>
+            <p id="modal-confirmacao-whatsapp-texto" style="text-transform:none;line-height:1.5;">
+                Deseja enviar a mensagem de confirmação para o cliente pelo WhatsApp?
+            </p>
+            <div class="modal-botoes" style="margin-top:18px;">
+                <button type="button"
+                        class="btn-cancelar-modal"
+                        onclick="fecharModalConfirmacaoWhatsapp()"
+                        style="text-transform:none;">
+                    Agora não
+                </button>
+                <a id="btn-modal-confirmacao-whatsapp"
+                   href="#"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   onclick="setTimeout(fecharModalConfirmacaoWhatsapp,150)"
+                   style="flex:1;padding:10px;border-radius:4px;background:#25D366;color:white;text-decoration:none;font-weight:bold;text-align:center;text-transform:none;">
+                    💬 Enviar no WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
