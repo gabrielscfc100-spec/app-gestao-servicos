@@ -2466,6 +2466,16 @@
                     <p style="font-size:11px;color:#718096;margin:0;text-transform:none;">
                         Quando desativada, novos agendamentos externos entram como <b>SOLICITADO</b> e precisam ser confirmados pela equipe na Agenda.
                     </p>
+                    <div class="form-group" style="margin-top:16px;margin-bottom:8px;">
+                        <label>Abrir WhatsApp do cliente após confirmar</label>
+                        <select id="cfg-whatsapp-apos-confirmacao" style="max-width:360px;">
+                            <option value="true">ATIVADA — abrir conversa automaticamente</option>
+                            <option value="false">DESATIVADA — apenas confirmar no sistema</option>
+                        </select>
+                    </div>
+                    <p style="font-size:11px;color:#718096;margin:0;text-transform:none;">
+                        Quando ativada, ao clicar em <b>Confirmar agendamento</b>, o SimplA confirma o horário e abre o WhatsApp do cliente com uma mensagem pronta.
+                    </p>
                 </div>
                 <div class="section-box-cfg" style="margin-top:12px;">
                     <h4>WhatsApp da empresa</h4>
@@ -3043,7 +3053,8 @@
                 saidas: true
             },
             agendamento: {
-                confirmacaoAutomatica: true
+                confirmacaoAutomatica: true,
+                abrirWhatsappAoConfirmar: true
             }
         });
 
@@ -5131,9 +5142,14 @@
         }
 
         function carregarConfigConfirmacaoAutomaticaUI() {
-            if(!configModulos.agendamento) configModulos.agendamento = { confirmacaoAutomatica:true };
+            if(!configModulos.agendamento) configModulos.agendamento = { confirmacaoAutomatica:true, abrirWhatsappAoConfirmar:true };
+            if(typeof configModulos.agendamento.abrirWhatsappAoConfirmar !== 'boolean') {
+                configModulos.agendamento.abrirWhatsappAoConfirmar = true;
+            }
             const el = document.getElementById('cfg-confirmacao-automatica');
             if(el) el.value = configModulos.agendamento.confirmacaoAutomatica === false ? 'false' : 'true';
+            const zapConfirmacao = document.getElementById('cfg-whatsapp-apos-confirmacao');
+            if(zapConfirmacao) zapConfirmacao.value = configModulos.agendamento.abrirWhatsappAoConfirmar === false ? 'false' : 'true';
             const zap = document.getElementById('cfg-whatsapp-empresa');
             if(zap) zap.value = whatsappEmpresa || '';
         }
@@ -5143,6 +5159,8 @@
             if(!configModulos.agendamento) configModulos.agendamento = {};
             configModulos.agendamento.confirmacaoAutomatica =
                 document.getElementById('cfg-confirmacao-automatica')?.value !== 'false';
+            configModulos.agendamento.abrirWhatsappAoConfirmar =
+                document.getElementById('cfg-whatsapp-apos-confirmacao')?.value !== 'false';
             whatsappEmpresa = String(document.getElementById('cfg-whatsapp-empresa')?.value || '').trim();
             DataStore.setText('simpla_whatsapp_empresa', whatsappEmpresa);
             salvarStorage();
@@ -5151,7 +5169,11 @@
                 'CONFIGURACOES',
                 'CONFIRMACAO_AUTOMATICA_ALTERADA',
                 empresaAtual.id,
-                { ativada: configModulos.agendamento.confirmacaoAutomatica, whatsapp_configurado: !!whatsappEmpresa }
+                {
+                    ativada: configModulos.agendamento.confirmacaoAutomatica,
+                    abrir_whatsapp_ao_confirmar: configModulos.agendamento.abrirWhatsappAoConfirmar !== false,
+                    whatsapp_configurado: !!whatsappEmpresa
+                }
             );
             alert(configModulos.agendamento.confirmacaoAutomatica
                 ? 'Confirmação automática ativada.'
@@ -5188,8 +5210,12 @@
             // Abre a aba durante o clique do usuário, antes de qualquer await.
             // Isso evita o bloqueio de pop-up após a confirmação assíncrona no Supabase.
             let janelaWhatsapp = null;
-            const linkPrevioWhatsapp = gerarLinkWhatsAppConfirmacaoAgendamento(ag);
-            if(linkPrevioWhatsapp) {
+            const whatsappAoConfirmarAtivo = configModulos?.agendamento?.abrirWhatsappAoConfirmar !== false;
+            const linkPrevioWhatsapp = whatsappAoConfirmarAtivo
+                ? gerarLinkWhatsAppConfirmacaoAgendamento(ag)
+                : '';
+
+            if(whatsappAoConfirmarAtivo && linkPrevioWhatsapp) {
                 try {
                     janelaWhatsapp = window.open('about:blank', '_blank');
                     if(janelaWhatsapp) {
@@ -5226,14 +5252,19 @@
                 await registrarAuditoria('AGENDA','AGENDAMENTO_CONFIRMADO',id,{cliente:ag.clienteNome,data:ag.data,horario:ag.horario});
 
                 const agAtualizado = agendamentos.find(a => String(a.id) === String(id)) || ag;
+
+                if(!whatsappAoConfirmarAtivo) {
+                    if(janelaWhatsapp && !janelaWhatsapp.closed) janelaWhatsapp.close();
+                    alert('Agendamento confirmado com sucesso!');
+                    return;
+                }
+
                 const linkWhatsapp = gerarLinkWhatsAppConfirmacaoAgendamento(agAtualizado);
 
                 if(linkWhatsapp) {
                     if(janelaWhatsapp && !janelaWhatsapp.closed) {
                         janelaWhatsapp.location.href = linkWhatsapp;
                     } else {
-                        // Fallback para navegadores que bloquearem a nova aba.
-                        // O botão verde continuará disponível no card.
                         alert('Agendamento confirmado! O navegador bloqueou a abertura automática do WhatsApp. Use o botão verde no card para enviar a confirmação.');
                     }
                 } else {
@@ -5249,7 +5280,10 @@
 
         /* --- GERENCIAMENTO DINÂMICO DE MÓDULOS E RECURSOS --- */
         function carregarConfigModulosUI() {
-            if(!configModulos.agendamento) configModulos.agendamento = { confirmacaoAutomatica:true };
+            if(!configModulos.agendamento) configModulos.agendamento = { confirmacaoAutomatica:true, abrirWhatsappAoConfirmar:true };
+            if(typeof configModulos.agendamento.abrirWhatsappAoConfirmar !== 'boolean') {
+                configModulos.agendamento.abrirWhatsappAoConfirmar = true;
+            }
             carregarConfigConfirmacaoAutomaticaUI();
             document.getElementById('cfg-mod-agenda').checked = configModulos.paginas.agenda;
             document.getElementById('cfg-mod-clientes').checked = configModulos.paginas.clientes;
