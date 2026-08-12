@@ -2971,6 +2971,7 @@
         let canalFinanceiroCloud = null;
         let canalNotificacoesCloud = null;
         let timerNotificacoesCloud = null;
+        let carregandoNotificacoesCloud = false;
         let notificacoesNavegadorInicializadas = false;
         let idsNotificacoesConhecidas = new Set();
         let timerAtualizacaoFinanceiroCloud = null;
@@ -4862,6 +4863,11 @@
                 aplicarNomeBarbearia();
             }
             carregarConfigEmpresaV2UI();
+
+            // Notificações não dependem do carregamento dos demais módulos.
+            // Inicia o fallback assim que usuário e empresa já estão definidos.
+            iniciarFallbackNotificacoesCloud();
+
             try {
                 await carregarConfiguracoesCloud();
                 await carregarClientesCloud();
@@ -4900,6 +4906,7 @@
             if(canalFinanceiroCloud && CloudDB) { try { CloudDB.removeChannel(canalFinanceiroCloud); } catch(e) {} canalFinanceiroCloud = null; }
             if(canalNotificacoesCloud && CloudDB) { try { CloudDB.removeChannel(canalNotificacoesCloud); } catch(e) {} canalNotificacoesCloud = null; }
             if(timerNotificacoesCloud) { clearInterval(timerNotificacoesCloud); timerNotificacoesCloud = null; }
+            carregandoNotificacoesCloud = false;
             notificacoesNavegadorInicializadas = false;
             idsNotificacoesConhecidas = new Set();
             notificacoes = [];
@@ -5786,6 +5793,8 @@
                 renderizarNotificacoes();
                 return;
             }
+            if(carregandoNotificacoesCloud) return;
+            carregandoNotificacoesCloud = true;
             if(lista && !notificacoes.length) lista.innerHTML = '<div class="notificacoes-estado">Carregando notificações...</div>';
             try {
                 const { data, error } = await CloudDB.from('notificacoes')
@@ -5802,6 +5811,8 @@
             } catch(err) {
                 console.error('Falha ao carregar notificações:', err);
                 if(lista) lista.innerHTML = '<div class="notificacoes-estado">Não foi possível carregar as notificações agora.</div>';
+            } finally {
+                carregandoNotificacoesCloud = false;
             }
         }
 
@@ -5929,16 +5940,27 @@
 
         function iniciarFallbackNotificacoesCloud() {
             if(timerNotificacoesCloud) clearInterval(timerNotificacoesCloud);
+            timerNotificacoesCloud = null;
 
-            // Mantém badge e lista sincronizados mesmo se o websocket cair.
+            if(!CloudDB || !empresaAtual?.cloud || !empresaAtual?.id || !usuarioAtual?.id) return;
+
+            // Faz uma consulta imediatamente, sem esperar o primeiro intervalo.
+            carregarNotificacoes().catch(err =>
+                console.warn('Carga inicial automática de notificações:', err)
+            );
+
+            // Fallback independente do websocket. Continua ativo mesmo se a aba
+            // estiver em segundo plano (o navegador pode reduzir a frequência,
+            // mas não dependemos mais de clique no sino).
             timerNotificacoesCloud = setInterval(() => {
-                if(document.visibilityState !== 'visible') return;
-                if(!CloudDB || !empresaAtual?.id || !usuarioAtual?.id) return;
+                if(!CloudDB || !empresaAtual?.cloud || !empresaAtual?.id || !usuarioAtual?.id) return;
 
                 carregarNotificacoes().catch(err =>
                     console.warn('Fallback de notificações:', err)
                 );
             }, 3000);
+
+            console.info('Atualização automática de notificações iniciada: 3s.');
         }
 
         function iniciarRealtimeNotificacoesCloud() {
@@ -5947,12 +5969,10 @@
                 canalNotificacoesCloud = null;
             }
 
-            if(timerNotificacoesCloud) {
-                clearInterval(timerNotificacoesCloud);
-                timerNotificacoesCloud = null;
+            if(!CloudDB || !empresaAtual?.cloud || !empresaAtual?.id || !usuarioAtual?.id) {
+                iniciarFallbackNotificacoesCloud();
+                return;
             }
-
-            if(!CloudDB || !empresaAtual?.cloud || !empresaAtual?.id || !usuarioAtual?.id) return;
 
             canalNotificacoesCloud = CloudDB
                 .channel(`notificacoes-${empresaAtual.id}-${usuarioAtual.id}`)
@@ -5981,7 +6001,7 @@
                     }
                 });
 
-            iniciarFallbackNotificacoesCloud();
+            if(!timerNotificacoesCloud) iniciarFallbackNotificacoesCloud();
         }
 
         document.addEventListener('visibilitychange', () => {
