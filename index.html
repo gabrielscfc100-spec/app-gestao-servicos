@@ -2467,7 +2467,17 @@
                         Quando desativada, novos agendamentos externos entram como <b>SOLICITADO</b> e precisam ser confirmados pela equipe na Agenda.
                     </p>
                 </div>
-                <button class="btn-salvar" style="margin-bottom:24px;" onclick="salvarConfigConfirmacaoAutomatica()">💾 Salvar Confirmação Automática</button>
+                <div class="section-box-cfg" style="margin-top:12px;">
+                    <h4>WhatsApp da empresa</h4>
+                    <div class="form-group" style="margin-bottom:8px;max-width:360px;">
+                        <label>Número com DDD</label>
+                        <input type="tel" id="cfg-whatsapp-empresa" placeholder="Ex.: (81) 99999-9999" style="text-transform:none;">
+                    </div>
+                    <p style="font-size:11px;color:#718096;margin:0;text-transform:none;">
+                        Este número será usado pelo botão de WhatsApp exibido ao cliente depois do agendamento.
+                    </p>
+                </div>
+                <button class="btn-salvar" style="margin-bottom:24px;" onclick="salvarConfigConfirmacaoAutomatica()">💾 Salvar Confirmação e WhatsApp</button>
 
                 <hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;">
 
@@ -3003,6 +3013,7 @@
         let mensagemConfirmacaoAgendamento = DataStore.getText('barber_msg_confirmacao_agendamento', 'Olá [NOME]! Passando para confirmar seu agendamento para o dia [DATA], às [HORA].\n\nPedimos que chegue com 10 minutos de antecedência. O tempo de tolerância é de até 10 minutos.\n\nPodemos confirmar?');
         let mensagemAniversarioMes = DataStore.getText('barber_msg_aniversario_mes', 'Olá [NOME]! 🎉 Seu aniversário está chegando no dia [DATA]! Para comemorar, preparamos um possível desconto especial para você na [BARBEARIA]. Entre em contato conosco para saber mais. Esperamos você!');
         let nomeBarbearia = DataStore.getText('barber_nome_barbearia', 'BarberManager');
+        let whatsappEmpresa = DataStore.getText('simpla_whatsapp_empresa', '');
 
         // Configuração de Expediente
         let configExpediente = DataStore.getJSON('barber_config_expediente', {
@@ -4732,6 +4743,10 @@
             if(row.mensagem_aniversario != null) mensagemAniversario = row.mensagem_aniversario;
             if(row.mensagem_confirmacao != null) mensagemConfirmacaoAgendamento = row.mensagem_confirmacao;
             if(row.mensagem_aniversario_mes != null) mensagemAniversarioMes = row.mensagem_aniversario_mes;
+            if(row.whatsapp_empresa != null) {
+                whatsappEmpresa = row.whatsapp_empresa || '';
+                DataStore.setText('simpla_whatsapp_empresa', whatsappEmpresa);
+            }
             if(row.tema) DataStore.setText('barber_tema', row.tema);
             salvarCacheConfiguracoesCloud();
             atualizarUIConfiguracoesCloud();
@@ -4787,6 +4802,7 @@
                     mensagem_aniversario: mensagemAniversario,
                     mensagem_confirmacao: mensagemConfirmacaoAgendamento,
                     mensagem_aniversario_mes: mensagemAniversarioMes,
+                    whatsapp_empresa: whatsappEmpresa || null,
                     atualizado_em: new Date().toISOString()
                 };
                 const { error } = await CloudDB.from('configuracoes_empresa').upsert(payload,{onConflict:'empresa_id'});
@@ -5118,6 +5134,8 @@
             if(!configModulos.agendamento) configModulos.agendamento = { confirmacaoAutomatica:true };
             const el = document.getElementById('cfg-confirmacao-automatica');
             if(el) el.value = configModulos.agendamento.confirmacaoAutomatica === false ? 'false' : 'true';
+            const zap = document.getElementById('cfg-whatsapp-empresa');
+            if(zap) zap.value = whatsappEmpresa || '';
         }
 
         async function salvarConfigConfirmacaoAutomatica() {
@@ -5125,13 +5143,15 @@
             if(!configModulos.agendamento) configModulos.agendamento = {};
             configModulos.agendamento.confirmacaoAutomatica =
                 document.getElementById('cfg-confirmacao-automatica')?.value !== 'false';
+            whatsappEmpresa = String(document.getElementById('cfg-whatsapp-empresa')?.value || '').trim();
+            DataStore.setText('simpla_whatsapp_empresa', whatsappEmpresa);
             salvarStorage();
             await persistirConfiguracoesCloud();
             await registrarAuditoria(
                 'CONFIGURACOES',
                 'CONFIRMACAO_AUTOMATICA_ALTERADA',
                 empresaAtual.id,
-                { ativada: configModulos.agendamento.confirmacaoAutomatica }
+                { ativada: configModulos.agendamento.confirmacaoAutomatica, whatsapp_configurado: !!whatsappEmpresa }
             );
             alert(configModulos.agendamento.confirmacaoAutomatica
                 ? 'Confirmação automática ativada.'
