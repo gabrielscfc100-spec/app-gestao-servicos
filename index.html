@@ -5235,14 +5235,11 @@
                     'Aguardamos você!'
                 ].join('\n');
 
-                const desejaEnviar = confirm(
-                    'Agendamento confirmado com sucesso!\n\nDeseja abrir o WhatsApp para enviar a confirmação ao cliente?'
-                );
+                const urlWhatsapp = `https://wa.me/${telefoneWhatsapp}?text=${encodeURIComponent(mensagemConfirmacao)}`;
 
-                if(desejaEnviar) {
-                    const urlWhatsapp = `https://wa.me/${telefoneWhatsapp}?text=${encodeURIComponent(mensagemConfirmacao)}`;
-                    window.open(urlWhatsapp, '_blank', 'noopener,noreferrer');
-                }
+                // Usa navegação na própria aba em vez de popup.
+                // Isso evita bloqueios do navegador após a operação assíncrona de confirmação.
+                window.location.href = urlWhatsapp;
             } catch(err) {
                 console.error(err);
                 alert(`Não foi possível confirmar o agendamento: ${err?.message || 'erro desconhecido'}`);
