@@ -2469,12 +2469,12 @@
                     <div class="form-group" style="margin-top:16px;margin-bottom:8px;">
                         <label>Abrir WhatsApp do cliente após confirmar</label>
                         <select id="cfg-whatsapp-apos-confirmacao" style="max-width:360px;">
-                            <option value="true">ATIVADA — abrir conversa automaticamente</option>
+                            <option value="true">ATIVADA — perguntar após confirmar</option>
                             <option value="false">DESATIVADA — apenas confirmar no sistema</option>
                         </select>
                     </div>
                     <p style="font-size:11px;color:#718096;margin:0;text-transform:none;">
-                        Quando ativada, ao clicar em <b>Confirmar agendamento</b>, o SimplA confirma o horário e abre o WhatsApp do cliente com uma mensagem pronta.
+                        Quando ativada, após confirmar o agendamento, o SimplA pergunta se o usuário deseja enviar a mensagem de confirmação pelo WhatsApp.
                     </p>
                 </div>
                 <div class="section-box-cfg" style="margin-top:12px;">
@@ -5203,33 +5203,12 @@
 
         async function confirmarAgendamentoSolicitado(id) {
             if(!validarAcessoPerfil('agendaEditar','Seu perfil possui apenas consulta da Agenda.')) return;
+
             const ag = agendamentos.find(a => String(a.id) === String(id));
             if(!ag) return;
             if(String(ag.status || '').toUpperCase() !== 'SOLICITADO') return;
 
-            // Abre a aba durante o clique do usuário, antes de qualquer await.
-            // Isso evita o bloqueio de pop-up após a confirmação assíncrona no Supabase.
-            let janelaWhatsapp = null;
             const whatsappAoConfirmarAtivo = configModulos?.agendamento?.abrirWhatsappAoConfirmar !== false;
-            const linkPrevioWhatsapp = whatsappAoConfirmarAtivo
-                ? gerarLinkWhatsAppConfirmacaoAgendamento(ag)
-                : '';
-
-            if(whatsappAoConfirmarAtivo && linkPrevioWhatsapp) {
-                try {
-                    janelaWhatsapp = window.open('about:blank', '_blank');
-                    if(janelaWhatsapp) {
-                        janelaWhatsapp.document.write(
-                            '<!doctype html><html><head><title>Abrindo WhatsApp...</title></head>' +
-                            '<body style="font-family:Arial,sans-serif;padding:24px;text-align:center;">' +
-                            '<p>Confirmando agendamento e preparando o WhatsApp...</p>' +
-                            '</body></html>'
-                        );
-                    }
-                } catch(e) {
-                    janelaWhatsapp = null;
-                }
-            }
 
             try {
                 if(AGENDA_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
@@ -5239,40 +5218,51 @@
                         .eq('empresa_id', empresaAtual.id)
                         .select()
                         .single();
+
                     if(error) throw error;
+
                     const atualizado = agendamentoCloudParaLocal(data);
-                    agendamentos = agendamentos.map(a => String(a.id) === String(id) ? atualizado : a);
+                    agendamentos = agendamentos.map(a =>
+                        String(a.id) === String(id) ? atualizado : a
+                    );
                     salvarCacheAgendaCloud();
                 } else {
                     ag.status = 'AGENDADO';
                     salvarStorage();
                 }
+
                 renderizarAgenda();
                 renderizarDashboard();
-                await registrarAuditoria('AGENDA','AGENDAMENTO_CONFIRMADO',id,{cliente:ag.clienteNome,data:ag.data,horario:ag.horario});
 
-                const agAtualizado = agendamentos.find(a => String(a.id) === String(id)) || ag;
+                registrarAuditoria(
+                    'AGENDA',
+                    'AGENDAMENTO_CONFIRMADO',
+                    id,
+                    {cliente:ag.clienteNome,data:ag.data,horario:ag.horario}
+                ).catch(err => console.warn('Auditoria da confirmação:', err));
 
                 if(!whatsappAoConfirmarAtivo) {
-                    if(janelaWhatsapp && !janelaWhatsapp.closed) janelaWhatsapp.close();
                     alert('Agendamento confirmado com sucesso!');
                     return;
                 }
 
+                const agAtualizado = agendamentos.find(a => String(a.id) === String(id)) || ag;
                 const linkWhatsapp = gerarLinkWhatsAppConfirmacaoAgendamento(agAtualizado);
 
-                if(linkWhatsapp) {
-                    if(janelaWhatsapp && !janelaWhatsapp.closed) {
-                        janelaWhatsapp.location.href = linkWhatsapp;
-                    } else {
-                        alert('Agendamento confirmado! O navegador bloqueou a abertura automática do WhatsApp. Use o botão verde no card para enviar a confirmação.');
-                    }
-                } else {
-                    if(janelaWhatsapp && !janelaWhatsapp.closed) janelaWhatsapp.close();
-                    alert('Agendamento confirmado com sucesso! Não há telefone disponível para abrir o WhatsApp.');
+                if(!linkWhatsapp) {
+                    alert('Agendamento confirmado com sucesso! Não foi encontrado um telefone válido para enviar a confirmação pelo WhatsApp.');
+                    return;
                 }
+
+                const desejaEnviar = confirm(
+                    'Agendamento confirmado com sucesso!\\n\\nDeseja enviar a mensagem de confirmação pelo WhatsApp?'
+                );
+
+                if(desejaEnviar) {
+                    window.location.assign(linkWhatsapp);
+                }
+
             } catch(err) {
-                if(janelaWhatsapp && !janelaWhatsapp.closed) janelaWhatsapp.close();
                 console.error(err);
                 alert(`Não foi possível confirmar o agendamento: ${err?.message || 'erro desconhecido'}`);
             }
