@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- SIMPLA | FRONT-END CONSOLIDADO v6.3.1 | Central de Notificações no Cabeçalho -->
+    <!-- SIMPLA | FRONT-END CONSOLIDADO v6.5.0 | Bloqueios de Agenda Configuráveis -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarberManager - Gestão Simples</title>
@@ -2451,6 +2451,111 @@
 
                 <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
 
+                <h3 style="color: var(--cor-accent);">🔒 Bloqueios de Agenda</h3>
+                <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">
+                    Crie indisponibilidades para um dia inteiro ou para um intervalo de horário.
+                    O bloqueio pode valer para toda a empresa ou apenas para um profissional e também pode ser recorrente.
+                </p>
+
+                <div class="section-box-cfg" id="box-cfg-bloqueios-agenda">
+                    <h4 id="cfg-bloqueio-titulo-form">Novo bloqueio</h4>
+                    <input type="hidden" id="cfg-bloqueio-id">
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Aplicar para</label>
+                            <select id="cfg-bloqueio-profissional">
+                                <option value="">Toda a empresa</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Tipo de bloqueio</label>
+                            <select id="cfg-bloqueio-escopo" onchange="atualizarFormularioBloqueioConfig()">
+                                <option value="DIA_INTEIRO">Dia inteiro</option>
+                                <option value="INTERVALO">Horário / intervalo específico</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Recorrência</label>
+                            <select id="cfg-bloqueio-recorrencia" onchange="atualizarFormularioBloqueioConfig()">
+                                <option value="NAO">Não recorrente</option>
+                                <option value="SEMANAL">Semanal</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="cfg-bloqueio-grupo-dia-semana" style="margin-bottom:0;display:none;">
+                            <label>Dia da semana</label>
+                            <select id="cfg-bloqueio-dia-semana">
+                                <option value="0">Domingo</option>
+                                <option value="1">Segunda-feira</option>
+                                <option value="2">Terça-feira</option>
+                                <option value="3">Quarta-feira</option>
+                                <option value="4">Quinta-feira</option>
+                                <option value="5">Sexta-feira</option>
+                                <option value="6">Sábado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label id="cfg-bloqueio-label-data-inicio">Data</label>
+                            <input type="date" id="cfg-bloqueio-data-inicio">
+                        </div>
+
+                        <div class="form-group" id="cfg-bloqueio-grupo-data-fim" style="margin-bottom:0;display:none;">
+                            <label>Repetir até</label>
+                            <input type="date" id="cfg-bloqueio-data-fim">
+                        </div>
+                    </div>
+
+                    <div id="cfg-bloqueio-grupo-horarios"
+                         style="display:none;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Hora inicial</label>
+                            <input type="time" id="cfg-bloqueio-hora-inicio">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Hora final</label>
+                            <input type="time" id="cfg-bloqueio-hora-fim">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:12px;margin-bottom:0;">
+                        <label>Motivo / observação</label>
+                        <input type="text" id="cfg-bloqueio-motivo"
+                               placeholder="Ex.: almoço, reunião, feriado, férias..."
+                               style="text-transform:none;">
+                    </div>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+                        <button type="button" class="btn-salvar" onclick="salvarBloqueioConfigurado()" style="margin:0;">
+                            💾 Salvar bloqueio
+                        </button>
+                        <button type="button" class="btn-cancelar-modal" id="btn-cancelar-edicao-bloqueio"
+                                onclick="limparFormularioBloqueioConfig()"
+                                style="display:none;border:0;border-radius:4px;padding:11px 18px;font-weight:bold;cursor:pointer;">
+                            Cancelar edição
+                        </button>
+                    </div>
+
+                    <div id="cfg-bloqueio-status"
+                         style="font-size:11px;color:#718096;margin-top:10px;text-transform:none;"></div>
+                </div>
+
+                <div class="section-box-cfg">
+                    <h4>Bloqueios cadastrados</h4>
+                    <div id="lista-bloqueios-config">
+                        <div style="font-size:12px;color:#a0aec0;text-transform:none;">Nenhum bloqueio configurado.</div>
+                    </div>
+                </div>
+
+                <hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;">
+
                 <h3 style="color: var(--cor-accent);">🔔 Notificações do Navegador</h3>
                 <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">
                     Permita que o SimplA exiba avisos do navegador quando chegarem novas notificações enquanto o sistema estiver aberto.
@@ -3412,6 +3517,8 @@
                 renderizarProfissionaisConfig();
                 preencherSelectProfissionaisAgenda();
                 preencherSelectServicosAgenda();
+                preencherProfissionaisBloqueioConfig();
+                renderizarBloqueiosConfig();
                 if(status) status.textContent = `${profissionais.length} profissional(is) cadastrado(s).`;
             } catch(err) {
                 console.error('Erro ao carregar profissionais:', err);
@@ -3811,6 +3918,18 @@
                 horario: row.horario ? String(row.horario).slice(0,5) : '',
                 tipo: row.tipo,
                 profissionalId: row.profissional_id || null,
+
+                // Estrutura configurável v2. Campos nulos identificam bloqueios legados.
+                escopo: row.escopo || null,
+                horaInicio: row.hora_inicio ? String(row.hora_inicio).slice(0,5) : '',
+                horaFim: row.hora_fim ? String(row.hora_fim).slice(0,5) : '',
+                recorrencia: row.recorrencia || null,
+                diaSemana: row.dia_semana == null ? null : Number(row.dia_semana),
+                dataInicio: row.data_inicio || '',
+                dataFim: row.data_fim || '',
+                motivo: row.motivo || '',
+                ativo: row.ativo !== false,
+                atualizadoEm: row.atualizado_em || '',
                 cloud: true
             };
         }
@@ -3843,7 +3962,7 @@
 
             const { data: bloqueiosData, error: bloqueiosError } = await CloudDB
                 .from('bloqueios_agenda')
-                .select('id,empresa_id,data,horario,tipo,profissional_id,criado_em')
+                .select('id,empresa_id,data,horario,tipo,profissional_id,escopo,hora_inicio,hora_fim,recorrencia,dia_semana,data_inicio,data_fim,motivo,ativo,criado_em,atualizado_em')
                 .eq('empresa_id', empresaAtual.id)
                 .order('horario', { ascending: true });
             if(bloqueiosError) throw bloqueiosError;
@@ -3853,6 +3972,8 @@
             salvarCacheAgendaCloud();
             renderizarAgenda();
             renderizarDashboard();
+            preencherProfissionaisBloqueioConfig();
+            renderizarBloqueiosConfig();
         }
 
         async function atualizarAgendaCloudERender() {
@@ -6049,6 +6170,9 @@
                 atualizarAniversariantesMes();
             } else if(idTela === 'configuracoes') {
                 atualizarStatusPermissaoNotificacoesNavegador();
+                preencherProfissionaisBloqueioConfig();
+                atualizarFormularioBloqueioConfig();
+                renderizarBloqueiosConfig();
                 carregarProfissionaisCloud().catch(console.error);
                 if(usuarioEhAdmin()) carregarAuditoria().catch(console.error);
             } else if(idTela === 'financeiro') {
@@ -6176,6 +6300,485 @@
             preencherDuracaoPorServicoProfissional();
         }
 
+        function preencherProfissionaisBloqueioConfig() {
+            const select = document.getElementById('cfg-bloqueio-profissional');
+            if(!select) return;
+
+            const valorAtual = select.value || '';
+            select.innerHTML = '<option value="">Toda a empresa</option>';
+
+            profissionais
+                .filter(p => p.ativo !== false)
+                .forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.nome;
+                    select.appendChild(opt);
+                });
+
+            if([...select.options].some(opt => String(opt.value) === String(valorAtual))) {
+                select.value = valorAtual;
+            }
+        }
+
+        function atualizarFormularioBloqueioConfig() {
+            const escopo = document.getElementById('cfg-bloqueio-escopo')?.value || 'DIA_INTEIRO';
+            const recorrencia = document.getElementById('cfg-bloqueio-recorrencia')?.value || 'NAO';
+
+            const horarios = document.getElementById('cfg-bloqueio-grupo-horarios');
+            const diaSemana = document.getElementById('cfg-bloqueio-grupo-dia-semana');
+            const dataFim = document.getElementById('cfg-bloqueio-grupo-data-fim');
+            const labelData = document.getElementById('cfg-bloqueio-label-data-inicio');
+
+            if(horarios) horarios.style.display = escopo === 'INTERVALO' ? 'grid' : 'none';
+            if(diaSemana) diaSemana.style.display = recorrencia === 'SEMANAL' ? 'block' : 'none';
+            if(dataFim) dataFim.style.display = recorrencia === 'SEMANAL' ? 'block' : 'none';
+            if(labelData) labelData.textContent = recorrencia === 'SEMANAL' ? 'Início da recorrência' : 'Data';
+
+            const dataInicio = document.getElementById('cfg-bloqueio-data-inicio');
+            const dataFinal = document.getElementById('cfg-bloqueio-data-fim');
+            if(dataInicio && !dataInicio.value) dataInicio.value = obterHojeLocal();
+            if(dataFinal && recorrencia === 'SEMANAL' && !dataFinal.value) {
+                const d = new Date((dataInicio?.value || obterHojeLocal()) + 'T00:00:00');
+                d.setMonth(d.getMonth() + 1);
+                dataFinal.value = d.toISOString().slice(0,10);
+            }
+        }
+
+        function limparFormularioBloqueioConfig() {
+            const id = document.getElementById('cfg-bloqueio-id');
+            const titulo = document.getElementById('cfg-bloqueio-titulo-form');
+            const cancelar = document.getElementById('btn-cancelar-edicao-bloqueio');
+
+            if(id) id.value = '';
+            if(titulo) titulo.textContent = 'Novo bloqueio';
+            if(cancelar) cancelar.style.display = 'none';
+
+            const profissional = document.getElementById('cfg-bloqueio-profissional');
+            const escopo = document.getElementById('cfg-bloqueio-escopo');
+            const recorrencia = document.getElementById('cfg-bloqueio-recorrencia');
+            const diaSemana = document.getElementById('cfg-bloqueio-dia-semana');
+            const dataInicio = document.getElementById('cfg-bloqueio-data-inicio');
+            const dataFim = document.getElementById('cfg-bloqueio-data-fim');
+            const horaInicio = document.getElementById('cfg-bloqueio-hora-inicio');
+            const horaFim = document.getElementById('cfg-bloqueio-hora-fim');
+            const motivo = document.getElementById('cfg-bloqueio-motivo');
+
+            if(profissional) profissional.value = '';
+            if(escopo) escopo.value = 'DIA_INTEIRO';
+            if(recorrencia) recorrencia.value = 'NAO';
+            if(diaSemana) diaSemana.value = '1';
+            if(dataInicio) dataInicio.value = obterHojeLocal();
+            if(dataFim) dataFim.value = '';
+            if(horaInicio) horaInicio.value = '';
+            if(horaFim) horaFim.value = '';
+            if(motivo) motivo.value = '';
+
+            atualizarFormularioBloqueioConfig();
+        }
+
+        function nomeDiaSemanaBloqueio(numero) {
+            return ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'][Number(numero)] || '';
+        }
+
+        function formatarDataBloqueio(data) {
+            if(!data) return '-';
+            return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR');
+        }
+
+        function bloqueioEhConfiguravel(b) {
+            return !!(b && b.escopo);
+        }
+
+        function bloqueioConfiguradoAplicaData(b, dataStr) {
+            if(!bloqueioEhConfiguravel(b) || b.ativo === false || !dataStr) return false;
+
+            const dataInicio = b.dataInicio || b.data || '';
+            const dataFim = b.dataFim || dataInicio;
+
+            if(dataInicio && dataStr < dataInicio) return false;
+            if(dataFim && dataStr > dataFim) return false;
+
+            if(String(b.recorrencia || 'NAO').toUpperCase() === 'SEMANAL') {
+                const dia = new Date(dataStr + 'T00:00:00').getDay();
+                return Number(b.diaSemana) === Number(dia);
+            }
+
+            return dataStr === dataInicio;
+        }
+
+        function bloqueioConfiguradoAplicaProfissional(b, profissionalId='') {
+            if(!b?.profissionalId) return true; // regra global
+            if(!profissionalId) return false;   // agenda geral: não bloqueia todos por regra individual
+            return String(b.profissionalId) === String(profissionalId);
+        }
+
+        function bloqueioConfiguradoAplicaHorario(b, horarioStr) {
+            if(!bloqueioEhConfiguravel(b)) return false;
+            if(String(b.escopo).toUpperCase() === 'DIA_INTEIRO') return true;
+
+            const inicio = b.horaInicio || b.horario || '';
+            const fim = b.horaFim || '';
+            if(!inicio || !fim || !horarioStr) return false;
+
+            const min = timeToMin(horarioStr);
+            return min >= timeToMin(inicio) && min < timeToMin(fim);
+        }
+
+        function bloqueioConfiguradoConflitaAgendamento(regra, ag) {
+            if(!regra || !ag || String(ag.status || '').toUpperCase() === 'CANCELADO') return false;
+            if(!bloqueioConfiguradoAplicaData(regra, ag.data)) return false;
+
+            if(regra.profissionalId && String(regra.profissionalId) !== String(ag.profissionalId || '')) {
+                return false;
+            }
+
+            if(String(regra.escopo).toUpperCase() === 'DIA_INTEIRO') return true;
+
+            const inicioBloqueio = timeToMin(regra.horaInicio);
+            const fimBloqueio = timeToMin(regra.horaFim);
+            const inicioAg = timeToMin(ag.horario);
+            const fimAg = inicioAg + Number(ag.duracao || configExpediente.intervalo || 45);
+
+            return inicioAg < fimBloqueio && fimAg > inicioBloqueio;
+        }
+
+        function obterDadosFormularioBloqueioConfig() {
+            const escopo = document.getElementById('cfg-bloqueio-escopo')?.value || 'DIA_INTEIRO';
+            const recorrencia = document.getElementById('cfg-bloqueio-recorrencia')?.value || 'NAO';
+            const profissionalId = document.getElementById('cfg-bloqueio-profissional')?.value || null;
+            const dataInicio = document.getElementById('cfg-bloqueio-data-inicio')?.value || '';
+            const dataFimInformada = document.getElementById('cfg-bloqueio-data-fim')?.value || '';
+            const horaInicio = document.getElementById('cfg-bloqueio-hora-inicio')?.value || '';
+            const horaFim = document.getElementById('cfg-bloqueio-hora-fim')?.value || '';
+            const motivo = String(document.getElementById('cfg-bloqueio-motivo')?.value || '').trim();
+            const diaSemana = recorrencia === 'SEMANAL'
+                ? Number(document.getElementById('cfg-bloqueio-dia-semana')?.value ?? 1)
+                : null;
+
+            return {
+                profissionalId,
+                escopo,
+                recorrencia,
+                diaSemana,
+                dataInicio,
+                dataFim: recorrencia === 'SEMANAL' ? dataFimInformada : dataInicio,
+                horaInicio: escopo === 'INTERVALO' ? horaInicio : '',
+                horaFim: escopo === 'INTERVALO' ? horaFim : '',
+                motivo,
+                ativo: true
+            };
+        }
+
+        function validarDadosBloqueioConfig(regra) {
+            if(!regra.dataInicio) return 'Informe a data do bloqueio.';
+            if(regra.dataInicio < obterHojeLocal()) return 'Não é possível criar bloqueios iniciando em data retroativa.';
+
+            if(regra.recorrencia === 'SEMANAL') {
+                if(!regra.dataFim) return 'Informe até quando a recorrência deve valer.';
+                if(regra.dataFim < regra.dataInicio) return 'A data final da recorrência não pode ser anterior à data inicial.';
+            }
+
+            if(regra.escopo === 'INTERVALO') {
+                if(!regra.horaInicio || !regra.horaFim) return 'Informe a hora inicial e a hora final.';
+                if(timeToMin(regra.horaFim) <= timeToMin(regra.horaInicio)) {
+                    return 'A hora final precisa ser posterior à hora inicial.';
+                }
+            }
+
+            return '';
+        }
+
+        async function salvarBloqueioConfigurado() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
+            if(!validarAcessoPerfil('agendaBloquear','Seu perfil não pode bloquear horários.')) return;
+
+            const regra = obterDadosFormularioBloqueioConfig();
+            const erro = validarDadosBloqueioConfig(regra);
+            if(erro) {
+                alert(erro);
+                return;
+            }
+
+            const idEdicao = document.getElementById('cfg-bloqueio-id')?.value || '';
+            const conflitos = agendamentos.filter(ag =>
+                String(ag.id) !== String(idEdicao) &&
+                bloqueioConfiguradoConflitaAgendamento(regra, ag)
+            );
+
+            if(conflitos.length) {
+                const exemplos = conflitos.slice(0,4)
+                    .map(a => `${formatarDataBloqueio(a.data)} às ${a.horario} — ${a.clienteNome || 'Cliente'}`)
+                    .join('\n');
+
+                alert(
+                    `Este bloqueio conflita com ${conflitos.length} agendamento(s) já existente(s).\n\n` +
+                    `${exemplos}${conflitos.length > 4 ? '\n...' : ''}\n\n` +
+                    'Resolva os agendamentos existentes antes de criar o bloqueio.'
+                );
+                return;
+            }
+
+            const status = document.getElementById('cfg-bloqueio-status');
+            if(status) status.textContent = idEdicao ? 'Atualizando bloqueio...' : 'Salvando bloqueio...';
+
+            try {
+                const payload = {
+                    empresa_id: empresaAtual.id,
+                    profissional_id: regra.profissionalId,
+                    // Compatibilidade com o formato legado:
+                    data: regra.dataInicio,
+                    horario: regra.escopo === 'INTERVALO' ? regra.horaInicio : null,
+                    tipo: 'dia',
+
+                    escopo: regra.escopo,
+                    hora_inicio: regra.escopo === 'INTERVALO' ? regra.horaInicio : null,
+                    hora_fim: regra.escopo === 'INTERVALO' ? regra.horaFim : null,
+                    recorrencia: regra.recorrencia,
+                    dia_semana: regra.recorrencia === 'SEMANAL' ? regra.diaSemana : null,
+                    data_inicio: regra.dataInicio,
+                    data_fim: regra.dataFim,
+                    motivo: regra.motivo || null,
+                    ativo: true,
+                    atualizado_em: new Date().toISOString()
+                };
+
+                if(AGENDA_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+                    let resultado;
+                    if(idEdicao) {
+                        resultado = await CloudDB.from('bloqueios_agenda')
+                            .update(payload)
+                            .eq('id', idEdicao)
+                            .eq('empresa_id', empresaAtual.id)
+                            .select()
+                            .single();
+                    } else {
+                        resultado = await CloudDB.from('bloqueios_agenda')
+                            .insert(payload)
+                            .select()
+                            .single();
+                    }
+
+                    if(resultado.error) throw resultado.error;
+
+                    const local = bloqueioCloudParaLocal(resultado.data);
+                    if(idEdicao) {
+                        bloqueios = bloqueios.map(b => String(b.id) === String(idEdicao) ? local : b);
+                    } else {
+                        bloqueios.push(local);
+                    }
+                    salvarCacheAgendaCloud();
+                } else {
+                    const local = {
+                        id: idEdicao || Date.now(),
+                        empresaId: empresaAtual?.id || null,
+                        profissionalId: regra.profissionalId,
+                        data: regra.dataInicio,
+                        horario: regra.horaInicio,
+                        tipo: 'dia',
+                        escopo: regra.escopo,
+                        horaInicio: regra.horaInicio,
+                        horaFim: regra.horaFim,
+                        recorrencia: regra.recorrencia,
+                        diaSemana: regra.diaSemana,
+                        dataInicio: regra.dataInicio,
+                        dataFim: regra.dataFim,
+                        motivo: regra.motivo,
+                        ativo: true,
+                        cloud: false
+                    };
+
+                    if(idEdicao) {
+                        bloqueios = bloqueios.map(b => String(b.id) === String(idEdicao) ? local : b);
+                    } else {
+                        bloqueios.push(local);
+                    }
+                    salvarStorage();
+                }
+
+                renderizarBloqueiosConfig();
+                renderizarAgenda();
+                limparFormularioBloqueioConfig();
+
+                await registrarAuditoria(
+                    'CONFIGURACOES',
+                    idEdicao ? 'BLOQUEIO_AGENDA_EDITADO' : 'BLOQUEIO_AGENDA_CRIADO',
+                    idEdicao || bloqueios[bloqueios.length - 1]?.id || null,
+                    {
+                        escopo: regra.escopo,
+                        recorrencia: regra.recorrencia,
+                        profissional_id: regra.profissionalId,
+                        data_inicio: regra.dataInicio,
+                        data_fim: regra.dataFim,
+                        hora_inicio: regra.horaInicio,
+                        hora_fim: regra.horaFim
+                    }
+                );
+
+                if(status) status.textContent = 'Bloqueio salvo com sucesso.';
+            } catch(err) {
+                console.error('Erro ao salvar bloqueio configurável:', err);
+                if(status) status.textContent = 'Não foi possível salvar o bloqueio.';
+                alert(`Não foi possível salvar o bloqueio: ${err?.message || 'erro desconhecido'}`);
+            }
+        }
+
+        function editarBloqueioConfigurado(id) {
+            const b = bloqueios.find(item => String(item.id) === String(id));
+            if(!b || !bloqueioEhConfiguravel(b)) return;
+
+            document.getElementById('cfg-bloqueio-id').value = b.id;
+            document.getElementById('cfg-bloqueio-titulo-form').textContent = 'Editar bloqueio';
+            document.getElementById('btn-cancelar-edicao-bloqueio').style.display = 'inline-block';
+
+            preencherProfissionaisBloqueioConfig();
+            document.getElementById('cfg-bloqueio-profissional').value = b.profissionalId || '';
+            document.getElementById('cfg-bloqueio-escopo').value = b.escopo || 'DIA_INTEIRO';
+            document.getElementById('cfg-bloqueio-recorrencia').value = b.recorrencia || 'NAO';
+            document.getElementById('cfg-bloqueio-dia-semana').value = String(b.diaSemana ?? 1);
+            document.getElementById('cfg-bloqueio-data-inicio').value = b.dataInicio || b.data || '';
+            document.getElementById('cfg-bloqueio-data-fim').value = b.dataFim || b.dataInicio || b.data || '';
+            document.getElementById('cfg-bloqueio-hora-inicio').value = b.horaInicio || b.horario || '';
+            document.getElementById('cfg-bloqueio-hora-fim').value = b.horaFim || '';
+            document.getElementById('cfg-bloqueio-motivo').value = b.motivo || '';
+
+            atualizarFormularioBloqueioConfig();
+            document.getElementById('box-cfg-bloqueios-agenda')?.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+
+        async function alternarAtivoBloqueioConfigurado(id) {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
+
+            const b = bloqueios.find(item => String(item.id) === String(id));
+            if(!b || !bloqueioEhConfiguravel(b)) return;
+
+            const novoAtivo = b.ativo === false;
+            try {
+                if(AGENDA_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+                    const { data, error } = await CloudDB.from('bloqueios_agenda')
+                        .update({ativo:novoAtivo,atualizado_em:new Date().toISOString()})
+                        .eq('id', id)
+                        .eq('empresa_id', empresaAtual.id)
+                        .select()
+                        .single();
+                    if(error) throw error;
+                    const local = bloqueioCloudParaLocal(data);
+                    bloqueios = bloqueios.map(item => String(item.id) === String(id) ? local : item);
+                    salvarCacheAgendaCloud();
+                } else {
+                    b.ativo = novoAtivo;
+                    salvarStorage();
+                }
+
+                renderizarBloqueiosConfig();
+                renderizarAgenda();
+                await registrarAuditoria(
+                    'CONFIGURACOES',
+                    novoAtivo ? 'BLOQUEIO_AGENDA_ATIVADO' : 'BLOQUEIO_AGENDA_DESATIVADO',
+                    id,
+                    {}
+                );
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível alterar o bloqueio: ${err?.message || 'erro desconhecido'}`);
+            }
+        }
+
+        async function excluirBloqueioConfigurado(id) {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
+            if(!validarPermissaoCancelamento('bloqueios','excluir bloqueios')) return;
+            if(!confirm('Deseja excluir definitivamente este bloqueio?')) return;
+
+            const b = bloqueios.find(item => String(item.id) === String(id));
+            try {
+                if(AGENDA_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+                    const { error } = await CloudDB.from('bloqueios_agenda')
+                        .delete()
+                        .eq('id', id)
+                        .eq('empresa_id', empresaAtual.id);
+                    if(error) throw error;
+                }
+
+                bloqueios = bloqueios.filter(item => String(item.id) !== String(id));
+                salvarCacheAgendaCloud();
+                renderizarBloqueiosConfig();
+                renderizarAgenda();
+
+                await registrarAuditoria(
+                    'CONFIGURACOES',
+                    'BLOQUEIO_AGENDA_EXCLUIDO',
+                    id,
+                    {motivo:b?.motivo || null}
+                );
+            } catch(err) {
+                console.error(err);
+                alert(`Não foi possível excluir o bloqueio: ${err?.message || 'erro desconhecido'}`);
+            }
+        }
+
+        function renderizarBloqueiosConfig() {
+            const lista = document.getElementById('lista-bloqueios-config');
+            if(!lista) return;
+
+            const configurados = bloqueios
+                .filter(bloqueioEhConfiguravel)
+                .sort((a,b) => String(a.dataInicio || '').localeCompare(String(b.dataInicio || '')));
+
+            if(!configurados.length) {
+                lista.innerHTML = '<div style="font-size:12px;color:#a0aec0;text-transform:none;">Nenhum bloqueio configurado.</div>';
+                return;
+            }
+
+            lista.innerHTML = configurados.map(b => {
+                const profissional = b.profissionalId
+                    ? (profissionais.find(p => String(p.id) === String(b.profissionalId))?.nome || 'Profissional')
+                    : 'Toda a empresa';
+
+                const escopo = b.escopo === 'DIA_INTEIRO'
+                    ? 'Dia inteiro'
+                    : `${b.horaInicio || '--:--'} às ${b.horaFim || '--:--'}`;
+
+                const periodo = b.recorrencia === 'SEMANAL'
+                    ? `${nomeDiaSemanaBloqueio(b.diaSemana)} • ${formatarDataBloqueio(b.dataInicio)} até ${formatarDataBloqueio(b.dataFim)}`
+                    : formatarDataBloqueio(b.dataInicio || b.data);
+
+                const status = b.ativo === false ? 'DESATIVADO' : 'ATIVO';
+                const statusCss = b.ativo === false
+                    ? 'background:#edf2f7;color:#718096;'
+                    : 'background:#c6f6d5;color:#22543d;';
+
+                return `
+                    <div style="border:1px solid #e2e8f0;border-radius:7px;padding:12px;margin-bottom:10px;background:white;text-transform:none;">
+                        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+                            <div style="min-width:0;flex:1;">
+                                <div style="font-weight:800;color:#1a1c23;text-transform:none;">${escopo}</div>
+                                <div style="font-size:12px;color:#4a5568;margin-top:5px;text-transform:none;">
+                                    📅 ${periodo}<br>
+                                    👤 ${profissional}
+                                    ${b.motivo ? `<br>📝 ${String(b.motivo).replace(/</g,'&lt;').replace(/>/g,'&gt;')}` : ''}
+                                </div>
+                            </div>
+                            <span style="${statusCss}padding:4px 7px;border-radius:99px;font-size:10px;font-weight:bold;">${status}</span>
+                        </div>
+                        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;">
+                            <button type="button" onclick="editarBloqueioConfigurado('${b.id}')"
+                                    style="border:0;border-radius:4px;padding:7px 9px;cursor:pointer;background:#bee3f8;color:#2b6cb0;font-weight:bold;">
+                                ✏️ Editar
+                            </button>
+                            <button type="button" onclick="alternarAtivoBloqueioConfigurado('${b.id}')"
+                                    style="border:0;border-radius:4px;padding:7px 9px;cursor:pointer;background:#feebc8;color:#9c4221;font-weight:bold;">
+                                ${b.ativo === false ? '▶ Ativar' : '⏸ Desativar'}
+                            </button>
+                            <button type="button" onclick="excluirBloqueioConfigurado('${b.id}')"
+                                    style="border:0;border-radius:4px;padding:7px 9px;cursor:pointer;background:#fed7d7;color:#c53030;font-weight:bold;">
+                                🗑 Excluir
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function obterNumeroSemana(data) {
             let d = new Date(Date.UTC(data.getFullYear(), data.getMonth(), data.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -6185,24 +6788,37 @@
         }
 
         function verificarBloqueioSlot(dataStr, horarioStr, profissionalId='') {
-            let dataAtual = new Date(dataStr + 'T00:00:00');
+            const dataAtual = new Date(dataStr + 'T00:00:00');
 
             return bloqueios.find(b => {
+                if(b.ativo === false) return false;
+
+                // Bloqueios configuráveis v2
+                if(bloqueioEhConfiguravel(b)) {
+                    if(!bloqueioConfiguradoAplicaProfissional(b, profissionalId)) return false;
+                    if(!bloqueioConfiguradoAplicaData(b, dataStr)) return false;
+                    return bloqueioConfiguradoAplicaHorario(b, horarioStr);
+                }
+
+                // Compatibilidade com os bloqueios legados já existentes.
                 if (b.horario !== horarioStr) return false;
-                if(profissionalId && String(b.profissionalId || '') !== String(profissionalId)) return false;
-                if(!profissionalId && b.profissionalId) return false;
+
+                // Sem profissional = bloqueio global. Com profissional = aplica somente àquele profissional.
+                if(b.profissionalId && (!profissionalId || String(b.profissionalId) !== String(profissionalId))) {
+                    return false;
+                }
 
                 if (b.tipo === 'permanente') return true;
 
-                let dataBloqueio = new Date(b.data + 'T00:00:00');
+                const dataBloqueio = new Date(b.data + 'T00:00:00');
 
                 if (b.tipo === 'dia') {
                     return b.data === dataStr;
                 }
 
                 if (b.tipo === 'semana') {
-                    let [anoA, semA] = obterNumeroSemana(dataAtual);
-                    let [anoB, semB] = obterNumeroSemana(dataBloqueio);
+                    const [anoA, semA] = obterNumeroSemana(dataAtual);
+                    const [anoB, semB] = obterNumeroSemana(dataBloqueio);
                     return anoA === anoB && semA === semB;
                 }
 
@@ -6269,12 +6885,16 @@
                 let card = document.createElement('div');
 
                 if (bloqueioExistente) {
-                    let descTipo = {
-                        'dia': 'Este Dia',
-                        'semana': 'Esta Semana',
-                        'mes': 'Este Mês',
-                        'permanente': 'Permanente'
-                    }[bloqueioExistente.tipo] || 'Bloqueado';
+                    let descTipo = bloqueioEhConfiguravel(bloqueioExistente)
+                        ? (bloqueioExistente.escopo === 'DIA_INTEIRO'
+                            ? (bloqueioExistente.recorrencia === 'SEMANAL' ? 'Dia inteiro recorrente' : 'Dia inteiro')
+                            : (bloqueioExistente.recorrencia === 'SEMANAL' ? 'Intervalo recorrente' : 'Intervalo'))
+                        : ({
+                            'dia': 'Este Dia',
+                            'semana': 'Esta Semana',
+                            'mes': 'Este Mês',
+                            'permanente': 'Permanente'
+                        }[bloqueioExistente.tipo] || 'Bloqueado');
 
                     card.className = 'slot-card bloqueado';
                     card.innerHTML = `
