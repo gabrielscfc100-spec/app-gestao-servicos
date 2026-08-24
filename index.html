@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- SIMPLA | FRONT-END CONSOLIDADO v6.5.0 | Bloqueios de Agenda Configuráveis -->
+    <!-- SIMPLA | FRONT-END CONSOLIDADO v6.6.1 | Fundação PWA -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BarberManager - Gestão Simples</title>
+    <title>SimplA - Gestão</title>
+    <meta name="theme-color" content="#075b73">
+    <meta name="application-name" content="SimplA">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SimplA">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./icons/icon-180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
     <!-- Chart.js para os Gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Supabase JS v2 - autenticação e dados em nuvem -->
@@ -9624,6 +9632,30 @@
             </div>
         </div>
     </div>
+
+
+    <script>
+        // -----------------------------------------------------------
+        // SIMPLA PWA v1 — Fundação
+        // -----------------------------------------------------------
+        (function registrarSimplaPWA(){
+            if(!('serviceWorker' in navigator)) return;
+
+            window.addEventListener('load', async () => {
+                try {
+                    const registro = await navigator.serviceWorker.register('./service-worker.js', {
+                        scope: './'
+                    });
+                    console.info('SimplA PWA: Service Worker registrado.', registro.scope);
+
+                    // Verifica atualizações do SW em cada abertura.
+                    registro.update().catch(() => {});
+                } catch(err) {
+                    console.warn('SimplA PWA: não foi possível registrar o Service Worker.', err);
+                }
+            });
+        })();
+    </script>
 
 </body>
 </html>
