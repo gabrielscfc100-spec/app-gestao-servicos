@@ -1,5 +1,5 @@
 // SimplA Service Worker — Web Push v1
-const CACHE_VERSION = 'simpla-shell-v3';
+const CACHE_VERSION = 'simpla-shell-v4';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
