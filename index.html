@@ -2421,7 +2421,20 @@
                 </div>
             </div>
 
-            <div class="form-container agenda-scroll-area">
+            
+            <div class="form-container" id="agenda-online-compartilhar" style="margin-bottom:16px;">
+                <h3 style="margin-bottom:6px;">🔗 Agendamento Online</h3>
+                <p style="font-size:13px;color:#718096;margin-bottom:10px;">Copie ou compartilhe o link público de agendamento da sua empresa.</p>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <input id="agenda-link-publico" type="text" readonly
+                           style="flex:1;min-width:240px;padding:9px;border:1px solid #cbd5e0;border-radius:6px;background:#f7fafc;"
+                           placeholder="Link de agendamento">
+                    <button type="button" class="btn-salvar" onclick="copiarLinkAgendamentoPublico()">📋 Copiar link</button>
+                    <button type="button" class="btn-salvar" onclick="compartilharLinkAgendamentoPublico()">📤 Compartilhar</button>
+                </div>
+            </div>
+
+<div class="form-container agenda-scroll-area">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; position: sticky; top: 0; background: white; z-index: 3; padding-bottom: 10px;">
                     <h3 id="agenda-subtitulo-data" style="margin:0; font-size: 16px; color: #1a1c23;">Horários do Expediente</h3>
                     <span style="font-size: 12px; color: #718096;" id="agenda-expediente-info">Expediente: 08:00 às 18:00 (Blocos de 45 min)</span>
@@ -6863,7 +6876,44 @@
             });
         }
 
+        function obterLinkAgendamentoPublico() {
+            const slug = String(empresaAtual?.slug || '').trim();
+            if(!slug) return '';
+            return `https://gabrielscfc100-spec.github.io/agendamento-simpla/?empresa=${encodeURIComponent(slug)}`;
+        }
+
+        function atualizarLinkAgendamentoPublico() {
+            const campo = document.getElementById('agenda-link-publico');
+            if(!campo) return;
+            campo.value = obterLinkAgendamentoPublico();
+        }
+
+        async function copiarLinkAgendamentoPublico() {
+            const link = obterLinkAgendamentoPublico();
+            if(!link) { alert('Não foi possível identificar o link público desta empresa.'); return; }
+            try {
+                await navigator.clipboard.writeText(link);
+                alert('Link de agendamento copiado!');
+            } catch(err) {
+                const campo = document.getElementById('agenda-link-publico');
+                if(campo) { campo.value = link; campo.select(); document.execCommand('copy'); }
+                alert('Link de agendamento copiado!');
+            }
+        }
+
+        async function compartilharLinkAgendamentoPublico() {
+            const link = obterLinkAgendamentoPublico();
+            if(!link) { alert('Não foi possível identificar o link público desta empresa.'); return; }
+            const titulo = `Agendamento online${empresaAtual?.nome ? ' - ' + empresaAtual.nome : ''}`;
+            if(navigator.share) {
+                try { await navigator.share({ title: titulo, text: 'Faça seu agendamento online:', url: link }); return; }
+                catch(err) { if(err?.name === 'AbortError') return; }
+            }
+            await copiarLinkAgendamentoPublico();
+        }
+
         function renderizarAgenda() {
+            atualizarLinkAgendamentoPublico();
             const dataFiltroInput = document.getElementById('agenda-data-filtro');
             if(!dataFiltroInput) return;
             const dataSelecionada = dataFiltroInput.value;
