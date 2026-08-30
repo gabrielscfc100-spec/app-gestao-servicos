@@ -4344,7 +4344,7 @@
         async function localizarEmpresaUsuarioCloud(user) {
             const { data, error } = await CloudDB
                 .from('usuarios_empresas')
-                .select('empresa_id, perfil, empresas(id,nome,tipo_negocio)')
+                .select('empresa_id, perfil, empresas(id,nome,slug,tipo_negocio)')
                 .eq('usuario_id', user.id)
                 .eq('ativo', true)
                 .limit(1)
@@ -4379,6 +4379,7 @@
                 empresaAtual = {
                     id: vinculo.empresa_id,
                     nome: emp?.nome || 'Meu Negócio',
+                    slug: emp?.slug || '',
                     tipoNegocio: emp?.tipo_negocio || 'OUTRO',
                     perfil: vinculo.perfil || 'FUNCIONARIO',
                     cloud: true
@@ -4409,7 +4410,18 @@
                 // Cria a linha de configuração base; se já existir, apenas mantém.
                 const { error: cfgError } = await CloudDB.from('configuracoes_empresa').upsert({ empresa_id: empresaId }, { onConflict: 'empresa_id' });
                 if(cfgError) console.warn('Configuração inicial será criada posteriormente:', cfgError);
-                empresaAtual = { id: empresaId, nome, tipoNegocio: tipo, perfil: 'ADMIN', cloud: true };
+                let slugEmpresa = '';
+                try {
+                    const { data: empresaCriada } = await CloudDB
+                        .from('empresas')
+                        .select('slug')
+                        .eq('id', empresaId)
+                        .maybeSingle();
+                    slugEmpresa = empresaCriada?.slug || '';
+                } catch(e) {
+                    console.warn('Não foi possível carregar o slug da empresa recém-criada:', e);
+                }
+                empresaAtual = { id: empresaId, nome, slug: slugEmpresa, tipoNegocio: tipo, perfil: 'ADMIN', cloud: true };
                 usuarioAtual.perfil = 'ADMIN';
                 nomeBarbearia = nome;
                 DataStore.setText('barber_nome_barbearia', nomeBarbearia);
@@ -6882,13 +6894,40 @@
             return `https://gabrielscfc100-spec.github.io/agendamento-simpla/?empresa=${encodeURIComponent(slug)}`;
         }
 
-        function atualizarLinkAgendamentoPublico() {
+        async function garantirSlugEmpresaAtual() {
+            if(String(empresaAtual?.slug || '').trim()) return empresaAtual.slug;
+            if(!CloudDB || !empresaAtual?.id || !empresaAtual?.cloud) return '';
+            try {
+                const { data, error } = await CloudDB
+                    .from('empresas')
+                    .select('slug')
+                    .eq('id', empresaAtual.id)
+                    .maybeSingle();
+                if(error) throw error;
+                if(data?.slug) {
+                    empresaAtual = { ...empresaAtual, slug: data.slug };
+                    DataStore.setJSON('app_empresa_atual', empresaAtual);
+                    return data.slug;
+                }
+            } catch(err) {
+                console.warn('Não foi possível carregar o slug da empresa:', err);
+            }
+            return '';
+        }
+
+        async function atualizarLinkAgendamentoPublico() {
             const campo = document.getElementById('agenda-link-publico');
             if(!campo) return;
-            campo.value = obterLinkAgendamentoPublico();
+            campo.value = '';
+            campo.placeholder = 'Carregando link de agendamento...';
+            await garantirSlugEmpresaAtual();
+            const link = obterLinkAgendamentoPublico();
+            campo.value = link;
+            campo.placeholder = link ? 'Link de agendamento' : 'Link externo indisponível';
         }
 
         async function copiarLinkAgendamentoPublico() {
+            await garantirSlugEmpresaAtual();
             const link = obterLinkAgendamentoPublico();
             if(!link) { alert('Não foi possível identificar o link público desta empresa.'); return; }
             try {
@@ -6902,6 +6941,7 @@
         }
 
         async function compartilharLinkAgendamentoPublico() {
+            await garantirSlugEmpresaAtual();
             const link = obterLinkAgendamentoPublico();
             if(!link) { alert('Não foi possível identificar o link público desta empresa.'); return; }
             const titulo = `Agendamento online${empresaAtual?.nome ? ' - ' + empresaAtual.nome : ''}`;
@@ -6913,7 +6953,7 @@
         }
 
         function renderizarAgenda() {
-            atualizarLinkAgendamentoPublico();
+            atualizarLinkAgendamentoPublico().catch(err => console.warn('Link externo:', err));
             const dataFiltroInput = document.getElementById('agenda-data-filtro');
             if(!dataFiltroInput) return;
             const dataSelecionada = dataFiltroInput.value;
