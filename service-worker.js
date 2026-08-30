@@ -1,5 +1,5 @@
-// SimplA Service Worker — Web Push v1
-const CACHE_VERSION = 'simpla-shell-v4';
+// SimplA Service Worker — Fundação PWA v1
+const CACHE_VERSION = 'simpla-shell-v2-notificacoes';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
@@ -10,8 +10,7 @@ const APP_SHELL = [
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/icon-maskable-512.png',
-  './icons/logo-pwa.png'
+  './icons/icon-maskable-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -82,56 +81,65 @@ self.addEventListener('message', event => {
 
 
 // -----------------------------------------------------------
-// WEB PUSH
+// PUSH — cada evento é tratado como notificação independente.
+// Evita que dois novos agendamentos sejam fundidos/substituídos.
 // -----------------------------------------------------------
 self.addEventListener('push', event => {
-  let payload = {};
-
-  try {
-    payload = event.data ? event.data.json() : {};
-  } catch(e) {
-    payload = {
-      titulo: 'SimplA',
-      mensagem: event.data ? event.data.text() : 'Você recebeu uma nova notificação.'
-    };
-  }
-
-  const titulo = payload.titulo || payload.title || 'SimplA';
-  const mensagem = payload.mensagem || payload.body || 'Você recebeu uma nova notificação.';
-
-  const options = {
-    body: mensagem,
-    icon: payload.icon || './icons/icon-192.png',
-    badge: payload.badge || './icons/icon-192.png',
-    tag: payload.tag || (payload.notificacao_id ? `simpla-${payload.notificacao_id}` : undefined),
-    renotify: !!payload.renotify,
-    data: {
-      url: payload.url || './',
-      notificacao_id: payload.notificacao_id || null,
-      agendamento_id: payload.agendamento_id || null
+  event.waitUntil((async () => {
+    let payload = {};
+    try {
+      payload = event.data ? event.data.json() : {};
+    } catch (err) {
+      try {
+        payload = { mensagem: event.data ? event.data.text() : '' };
+      } catch (_) {
+        payload = {};
+      }
     }
-  };
 
-  event.waitUntil(self.registration.showNotification(titulo, options));
+    const notificacaoId = String(payload.notificacao_id || `${Date.now()}-${Math.random()}`);
+    const titulo = payload.titulo || 'SimplA';
+    const mensagem = payload.mensagem || 'Você recebeu uma nova notificação.';
+    const url = payload.url || './';
+
+    await self.registration.showNotification(titulo, {
+      body: mensagem,
+      icon: payload.icon || './icons/icon-192.png',
+      badge: payload.badge || './icons/icon-192.png',
+      tag: `simpla-${notificacaoId}`,
+      renotify: true,
+      data: {
+        url,
+        notificacao_id: payload.notificacao_id || null,
+        agendamento_id: payload.agendamento_id || null,
+        tipo: payload.tipo || 'GERAL'
+      }
+    });
+  })());
 });
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();
 
-  const destino = event.notification?.data?.url || './';
-  const destinoAbsoluto = new URL(destino, self.registration.scope).href;
+  event.waitUntil((async () => {
+    const destino = event.notification?.data?.url || './';
+    const janelas = await clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    });
 
-  event.waitUntil(
-    clients.matchAll({ type:'window', includeUncontrolled:true }).then(janelas => {
-      for(const janela of janelas) {
-        if('focus' in janela) {
-          try {
-            janela.navigate(destinoAbsoluto);
-          } catch(e) {}
-          return janela.focus();
-        }
+    for (const janela of janelas) {
+      if('focus' in janela) {
+        try {
+          if('navigate' in janela) await janela.navigate(destino);
+        } catch (_) {}
+        await janela.focus();
+        return;
       }
-      return clients.openWindow ? clients.openWindow(destinoAbsoluto) : undefined;
-    })
-  );
+    }
+
+    if(clients.openWindow) {
+      await clients.openWindow(destino);
+    }
+  })());
 });

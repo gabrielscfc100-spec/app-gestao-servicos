@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- SIMPLA | FRONT-END CONSOLIDADO v6.7.1 | Fundação PWA -->
+    <!-- SIMPLA | FRONT-END CONSOLIDADO v6.6.0 | Fundação PWA -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SimplA - Gestão</title>
-    <meta name="theme-color" content="#075b73">
+    <meta name="theme-color" content="#1a1c23">
     <meta name="application-name" content="SimplA">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -2564,29 +2564,20 @@
 
                 <hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;">
 
-                <h3 style="color: var(--cor-accent);">🔔 Notificações e Push</h3>
+                <h3 style="color: var(--cor-accent);">🔔 Notificações do Navegador</h3>
                 <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">
-                    Ative este dispositivo para receber notificações do SimplA. A assinatura Push fica vinculada ao seu usuário e à empresa atual.
+                    Permita que o SimplA exiba avisos do navegador quando chegarem novas notificações enquanto o sistema estiver aberto.
                 </p>
                 <div class="section-box-cfg">
-                    <h4>Este dispositivo</h4>
+                    <h4>Permissão de notificações</h4>
                     <p id="cfg-status-notificacao-navegador" style="font-size:12px;color:#718096;margin-bottom:12px;text-transform:none;">
                         Verificando permissão...
                     </p>
-                    <p id="cfg-status-push-dispositivo" style="font-size:12px;color:#718096;margin-bottom:12px;text-transform:none;">
-                        Verificando assinatura Push...
-                    </p>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <button type="button" class="btn-salvar" onclick="ativarPushNesteDispositivo()" style="margin:0;">
-                            🔔 Ativar Push neste dispositivo
-                        </button>
-                        <button type="button" class="btn-cancelar-modal" onclick="desativarPushNesteDispositivo()"
-                                style="margin:0;border:0;border-radius:4px;padding:11px 18px;font-weight:bold;cursor:pointer;">
-                            Desativar neste dispositivo
-                        </button>
-                    </div>
+                    <button type="button" class="btn-salvar" onclick="solicitarPermissaoNotificacoesNavegador()" style="margin:0;">
+                        🔔 Permitir notificações neste navegador
+                    </button>
                     <p style="font-size:11px;color:#718096;margin:10px 0 0;text-transform:none;">
-                        No iPhone/iPad, o Push deve ser ativado pelo SimplA instalado na Tela de Início. A permissão é específica de cada navegador/dispositivo.
+                        Esta permissão é específica deste navegador/dispositivo e pode ser revogada nas configurações do navegador.
                     </p>
                 </div>
 
@@ -3095,6 +3086,7 @@
         let timerNotificacoesCloud = null;
         let carregandoNotificacoesCloud = false;
         let notificacoesNavegadorInicializadas = false;
+        let recarregarNotificacoesPendente = false;
         let idsNotificacoesConhecidas = new Set();
         let timerAtualizacaoFinanceiroCloud = null;
         let timerAtualizacaoAgendaCloud = null;
@@ -5829,192 +5821,6 @@
             });
         }
 
-        const SIMPLA_VAPID_PUBLIC_KEY = 'BK8UFlCS8cmdrHyz3bQ_P-BZXmCigAZATj4ZVQRuEdCmin8lpAEQNI3EY-f2WWVeIp5HFfTzMd1toitsVr5uEW4';
-
-        function base64UrlParaUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-            const rawData = atob(base64);
-            return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
-        }
-
-        function detectarPlataformaPush() {
-            const ua = navigator.userAgent || '';
-            if(/iPhone|iPad|iPod/i.test(ua)) return 'iOS/iPadOS';
-            if(/Android/i.test(ua)) return 'Android';
-            if(/Windows/i.test(ua)) return 'Windows';
-            if(/Macintosh|Mac OS X/i.test(ua)) return 'macOS';
-            return navigator.platform || 'Outro';
-        }
-
-        function nomeDispositivoPush() {
-            const plataforma = detectarPlataformaPush();
-            const modoPwa = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
-            return `${plataforma}${modoPwa ? ' • PWA' : ' • Navegador'}`;
-        }
-
-        async function obterRegistroServiceWorkerSimpla() {
-            if(!('serviceWorker' in navigator)) return null;
-            let registro = await navigator.serviceWorker.getRegistration('./');
-            if(!registro) {
-                registro = await navigator.serviceWorker.register('./service-worker.js', { scope:'./' });
-            }
-            return registro;
-        }
-
-        async function obterAssinaturaPushAtual() {
-            try {
-                const registro = await obterRegistroServiceWorkerSimpla();
-                if(!registro || !('pushManager' in registro)) return null;
-                return await registro.pushManager.getSubscription();
-            } catch(err) {
-                console.warn('Não foi possível consultar a assinatura Push:', err);
-                return null;
-            }
-        }
-
-        async function salvarAssinaturaPushNoSupabase(assinatura) {
-            if(!assinatura) throw new Error('Assinatura Push não disponível.');
-            if(!CloudDB || !empresaAtual?.id || !usuarioAtual?.id) {
-                throw new Error('Entre no SimplA antes de ativar o Push.');
-            }
-
-            const json = assinatura.toJSON();
-            const payload = {
-                empresa_id: empresaAtual.id,
-                usuario_id: usuarioAtual.id,
-                endpoint: assinatura.endpoint,
-                p256dh: json?.keys?.p256dh || '',
-                auth_key: json?.keys?.auth || '',
-                dispositivo_nome: nomeDispositivoPush(),
-                plataforma: detectarPlataformaPush(),
-                user_agent: navigator.userAgent || null,
-                ativo: true,
-                ultimo_uso_em: new Date().toISOString()
-            };
-
-            if(!payload.p256dh || !payload.auth_key) {
-                throw new Error('O navegador não retornou as chaves da assinatura Push.');
-            }
-
-            const { error } = await CloudDB
-                .from('push_assinaturas')
-                .upsert(payload, {
-                    onConflict:'empresa_id,usuario_id,endpoint'
-                });
-
-            if(error) throw error;
-        }
-
-        async function atualizarStatusPushDispositivo() {
-            const el = document.getElementById('cfg-status-push-dispositivo');
-            if(!el) return;
-
-            if(!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                el.textContent = '⚠️ Este navegador não oferece suporte ao Web Push.';
-                return;
-            }
-
-            if(!('Notification' in window) || Notification.permission !== 'granted') {
-                el.textContent = 'Push ainda não ativado neste dispositivo.';
-                return;
-            }
-
-            const assinatura = await obterAssinaturaPushAtual();
-            if(assinatura) {
-                el.textContent = `✅ Push ativo neste dispositivo • ${nomeDispositivoPush()}`;
-            } else {
-                el.textContent = 'Permissão concedida, mas este dispositivo ainda não possui assinatura Push.';
-            }
-        }
-
-        async function ativarPushNesteDispositivo() {
-            if(!window.isSecureContext) {
-                alert('O Push exige uma conexão segura (HTTPS).');
-                return;
-            }
-            if(!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-                alert('Este navegador/dispositivo não oferece suporte ao Web Push.');
-                return;
-            }
-            if(!CloudDB || !empresaAtual?.id || !usuarioAtual?.id) {
-                alert('Faça login no SimplA antes de ativar o Push.');
-                return;
-            }
-
-            try {
-                let permissao = Notification.permission;
-                if(permissao !== 'granted') {
-                    permissao = await Notification.requestPermission();
-                }
-
-                atualizarStatusPermissaoNotificacoesNavegador();
-
-                if(permissao !== 'granted') {
-                    if(permissao === 'denied') {
-                        alert('A permissão de notificações foi bloqueada neste dispositivo.');
-                    }
-                    await atualizarStatusPushDispositivo();
-                    return;
-                }
-
-                const registro = await obterRegistroServiceWorkerSimpla();
-                if(!registro) throw new Error('Service Worker não disponível.');
-
-                let assinatura = await registro.pushManager.getSubscription();
-                if(!assinatura) {
-                    assinatura = await registro.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: base64UrlParaUint8Array(SIMPLA_VAPID_PUBLIC_KEY)
-                    });
-                }
-
-                await salvarAssinaturaPushNoSupabase(assinatura);
-                await atualizarStatusPushDispositivo();
-
-                try {
-                    await registro.showNotification('SimplA', {
-                        body: 'Este dispositivo foi ativado para receber Push.',
-                        icon: './icons/icon-192.png',
-                        badge: './icons/icon-192.png',
-                        tag: 'simpla-push-ativado'
-                    });
-                } catch(e) {}
-
-                alert('Push ativado com sucesso neste dispositivo.');
-            } catch(err) {
-                console.error('Erro ao ativar Push:', err);
-                alert(`Não foi possível ativar o Push: ${err?.message || 'erro desconhecido'}`);
-                await atualizarStatusPushDispositivo();
-            }
-        }
-
-        async function desativarPushNesteDispositivo() {
-            if(!('serviceWorker' in navigator)) return;
-
-            try {
-                const assinatura = await obterAssinaturaPushAtual();
-
-                if(assinatura && CloudDB && empresaAtual?.id && usuarioAtual?.id) {
-                    const { error } = await CloudDB
-                        .from('push_assinaturas')
-                        .delete()
-                        .eq('empresa_id', empresaAtual.id)
-                        .eq('usuario_id', usuarioAtual.id)
-                        .eq('endpoint', assinatura.endpoint);
-                    if(error) throw error;
-                }
-
-                if(assinatura) await assinatura.unsubscribe();
-
-                await atualizarStatusPushDispositivo();
-                alert('Push desativado neste dispositivo.');
-            } catch(err) {
-                console.error('Erro ao desativar Push:', err);
-                alert(`Não foi possível desativar o Push: ${err?.message || 'erro desconhecido'}`);
-            }
-        }
-
         function atualizarStatusPermissaoNotificacoesNavegador() {
             const el = document.getElementById('cfg-status-notificacao-navegador');
             if(!el) return;
@@ -6035,7 +5841,26 @@
         }
 
         async function solicitarPermissaoNotificacoesNavegador() {
-            return ativarPushNesteDispositivo();
+            if(!('Notification' in window)) {
+                alert('Este navegador não oferece suporte às notificações.');
+                return;
+            }
+
+            try {
+                const permissao = await Notification.requestPermission();
+                atualizarStatusPermissaoNotificacoesNavegador();
+
+                if(permissao === 'granted') {
+                    new Notification('SimplA', {
+                        body: 'Notificações ativadas com sucesso.'
+                    });
+                } else if(permissao === 'denied') {
+                    alert('A permissão foi bloqueada. Você poderá alterá-la nas configurações do navegador.');
+                }
+            } catch(err) {
+                console.error('Erro ao solicitar permissão de notificações:', err);
+                alert('Não foi possível solicitar a permissão de notificações neste navegador.');
+            }
         }
 
         function notificarNovasNotificacoesNoNavegador(listaAtual) {
@@ -6098,7 +5923,10 @@
                 renderizarNotificacoes();
                 return;
             }
-            if(carregandoNotificacoesCloud) return;
+            if(carregandoNotificacoesCloud) {
+                recarregarNotificacoesPendente = true;
+                return;
+            }
             carregandoNotificacoesCloud = true;
             if(lista && !notificacoes.length) lista.innerHTML = '<div class="notificacoes-estado">Carregando notificações...</div>';
             try {
@@ -6118,6 +5946,14 @@
                 if(lista) lista.innerHTML = '<div class="notificacoes-estado">Não foi possível carregar as notificações agora.</div>';
             } finally {
                 carregandoNotificacoesCloud = false;
+                if(recarregarNotificacoesPendente) {
+                    recarregarNotificacoesPendente = false;
+                    setTimeout(() => {
+                        carregarNotificacoes().catch(err =>
+                            console.warn('Recarga pendente de notificações:', err)
+                        );
+                    }, 50);
+                }
             }
         }
 
@@ -6293,6 +6129,18 @@
                         const registro = payload.new || payload.old || {};
                         if(String(registro.usuario_id || '') !== String(usuarioAtual.id)) return;
 
+                        if(payload.eventType === 'INSERT' && registro?.id) {
+                            const jaExiste = notificacoes.some(item => String(item.id) === String(registro.id));
+                            if(!jaExiste) {
+                                const listaAtualizada = [registro, ...notificacoes]
+                                    .sort((a,b) => new Date(b.criado_em || 0) - new Date(a.criado_em || 0))
+                                    .slice(0, 50);
+                                notificarNovasNotificacoesNoNavegador(listaAtualizada);
+                                notificacoes = listaAtualizada;
+                                renderizarNotificacoes();
+                            }
+                        }
+
                         carregarNotificacoes().catch(err =>
                             console.error('Falha ao atualizar notificação em tempo real:', err)
                         );
@@ -6354,7 +6202,6 @@
                 atualizarAniversariantesMes();
             } else if(idTela === 'configuracoes') {
                 atualizarStatusPermissaoNotificacoesNavegador();
-                atualizarStatusPushDispositivo().catch(console.error);
                 preencherProfissionaisBloqueioConfig();
                 atualizarFormularioBloqueioConfig();
                 renderizarBloqueiosConfig();
@@ -9813,7 +9660,7 @@
 
     <script>
         // -----------------------------------------------------------
-        // SIMPLA PWA v1 — Fundação
+        // SIMPLA PWA v1.1 — Notificações confiáveis
         // -----------------------------------------------------------
         (function registrarSimplaPWA(){
             if(!('serviceWorker' in navigator)) return;
