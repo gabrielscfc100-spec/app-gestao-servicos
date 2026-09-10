@@ -1,0 +1,36 @@
+name: Diagnosticar materiais mobile v25
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  diagnostico:
+    if: github.actor != 'github-actions[bot]' || contains(github.event.head_commit.message, 'diagnosticar materiais')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Localizar blocos de materiais
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          lines=p.read_text(encoding='utf-8').splitlines()
+          termos=['MATERIAIS','Materiais','material','materiais-container','aba-materiais','COMPRA DE MATERIAL']
+          idx=[]
+          for i,l in enumerate(lines):
+              if any(t in l for t in termos): idx.append(i)
+          blocos=[]
+          for i in idx:
+              a=max(0,i-8); b=min(len(lines),i+14)
+              if any(a<=x<=b for x in []): continue
+              blocos.append((a,b))
+          # merge
+          merged=[]
+          for a,b in sorted(blocos):
+              if merged and a<=merged[-1][1]+1: merged[-1]=(merged[-1][0],max(merged[-1][1],b))
+              else: merged.append((a,b))
+          for a,b in merged:
+              print(f'--- LINHAS {a+1}-{b} ---')
+              for n in range(a,b): print(f'{n+1}: {lines[n]}')
+          PY
