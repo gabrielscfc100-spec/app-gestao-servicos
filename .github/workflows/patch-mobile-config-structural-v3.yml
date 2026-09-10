@@ -1,0 +1,35 @@
+name: Corrigir configuracoes mobile estruturalmente
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Aplicar patch
+        run: python patch-mobile-config-structural-v3.py
+      - name: Validar
+        run: |
+          grep -q 'simpla-mobile-config-structural-v3' index.html
+          grep -q 'grid-template-columns:42px minmax(0,1fr)' index.html
+          grep -q 'MutationObserver' index.html
+      - name: Commit final e limpeza
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f patch-mobile-config-structural-v3.py .github/workflows/patch-mobile-config-structural-v3.yml
+          git add -A
+          git commit -m 'fix: reorganizar switches e textos no mobile'
+          git push
