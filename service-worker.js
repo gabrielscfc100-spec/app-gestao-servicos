@@ -1,5 +1,5 @@
-// SimplA Service Worker — Fundação PWA v1
-const CACHE_VERSION = 'simpla-shell-v3-notificacoes-deeplink';
+// SimplA Service Worker — PWA com atualização controlada
+const CACHE_VERSION = 'simpla-shell-v4-atualizacao-controlada';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
@@ -17,7 +17,6 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_VERSION)
       .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -42,10 +41,13 @@ self.addEventListener('fetch', event => {
   // Nunca intercepta Supabase, APIs ou CDNs externas.
   if(url.origin !== self.location.origin) return;
 
+  // O próprio service worker nunca deve ser servido por cache antigo.
+  if(url.pathname.endsWith('/service-worker.js')) return;
+
   // HTML/navegação: prioriza sempre a versão mais nova da rede.
   if(request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: 'no-store' })
         .then(response => {
           const copia = response.clone();
           caches.open(CACHE_VERSION).then(cache => cache.put(request, copia));
@@ -56,6 +58,22 @@ self.addEventListener('fetch', event => {
             || (await caches.match('./index.html'))
             || (await caches.match(OFFLINE_URL));
         })
+    );
+    return;
+  }
+
+  // Manifest e HTML principal: rede primeiro para evitar retenção de versão antiga.
+  if(url.pathname.endsWith('/manifest.webmanifest') || url.pathname.endsWith('/index.html')) {
+    event.respondWith(
+      fetch(request, { cache: 'no-store' })
+        .then(response => {
+          if(response && response.ok) {
+            const copia = response.clone();
+            caches.open(CACHE_VERSION).then(cache => cache.put(request, copia));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
     );
     return;
   }
@@ -76,9 +94,10 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('message', event => {
-  if(event.data === 'SKIP_WAITING') self.skipWaiting();
+  if(event.data === 'SKIP_WAITING' || event.data?.tipo === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
-
 
 // -----------------------------------------------------------
 // PUSH — cada evento é tratado como notificação independente.
@@ -137,7 +156,6 @@ self.addEventListener('notificationclick', event => {
     for (const janela of janelas) {
       if('focus' in janela) {
         try {
-          // Se a janela já estiver no app, envia os IDs e evita depender apenas do reload.
           janela.postMessage({
             tipo: 'ABRIR_NOTIFICACAO_SIMPLA',
             notificacao_id: dados.notificacao_id || null,
