@@ -1,0 +1,39 @@
+name: Relatorio financeiro por formas v34
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-relatorio-formas-v34.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Aplicar patch
+        run: python .github/scripts/patch-relatorio-formas-v34.py
+      - name: Atualizar cache PWA
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('service-worker.js')
+          s=p.read_text(encoding='utf-8')
+          import re
+          s=re.sub(r"const CACHE_VERSION = '[^']+';", "const CACHE_VERSION = 'simpla-shell-v34-relatorio-formas';", s, count=1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Validar marcadores
+        run: |
+          grep -q 'simpla-relatorio-formas-v34' index.html
+          grep -q 'simpla-shell-v34-relatorio-formas' service-worker.js
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html service-worker.js
+          git commit -m 'feat: adicionar relatorio financeiro por forma de pagamento'
+          git push origin main
