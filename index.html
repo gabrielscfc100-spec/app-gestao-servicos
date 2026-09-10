@@ -12069,6 +12069,95 @@ hr{
 </script>
 
 
+
+<style id="simpla-materiais-mobile-v25">
+/* Materiais v25 — corrige o formulário real .fin-inline-form no mobile */
+@media (max-width: 768px) {
+  #financeiro #aba-saidas .fin-despesas-top-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  #financeiro #aba-saidas .fin-despesas-top-grid > .fin-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  #financeiro #aba-saidas .fin-despesas-top-grid > .fin-panel:first-child .fin-inline-form {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  #financeiro #aba-saidas .fin-despesas-top-grid > .fin-panel:first-child .fin-inline-form > .form-group {
+    display: block !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  #financeiro #aba-saidas .fin-despesas-top-grid > .fin-panel:first-child .fin-inline-form label {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    writing-mode: horizontal-tb !important;
+    margin-bottom: 6px !important;
+  }
+
+  #financeiro #aba-saidas .fin-despesas-top-grid > .fin-panel:first-child #material-nome {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #financeiro #aba-saidas .fin-despesas-top-grid > .fin-panel:first-child .fin-inline-form > .btn-salvar {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+    box-sizing: border-box !important;
+  }
+
+  #financeiro #aba-saidas #lista-materiais-cadastrados {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-top: 10px !important;
+  }
+
+  #financeiro #aba-saidas #lista-materiais-cadastrados > div {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #financeiro #aba-saidas #lista-materiais-cadastrados span {
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+</style>
+
 <style id="simpla-materiais-mobile-v24">
 /* Materiais v24 — responsividade específica do formulário e listagem */
 #aba-materiais,
