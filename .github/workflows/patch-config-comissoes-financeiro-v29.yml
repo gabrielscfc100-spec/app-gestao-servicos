@@ -1,0 +1,28 @@
+name: Reorganizar configuracoes v29
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-config-comissoes-financeiro-v29.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-config-comissoes-financeiro-v29.py
+      - name: Validar
+        run: |
+          grep -q 'simpla-config-financeiro-comissoes-v29' index.html
+          grep -q "simpla-shell-v29-config-financeiro" service-worker.js
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html service-worker.js
+          git commit -m 'feat: mover comissoes para financeiro nas configuracoes'
+          git push
