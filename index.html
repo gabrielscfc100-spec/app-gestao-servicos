@@ -2215,6 +2215,96 @@ hr{
   }
 }
 </style>
+<style id="simpla-mobile-config-v4-fix">
+@media (max-width:768px){
+  #configuracoes label.simpla-mobile-switch-row{
+    display:grid!important;
+    grid-template-columns:46px minmax(0,1fr)!important;
+    column-gap:12px!important;
+    align-items:center!important;
+  }
+  #configuracoes label.simpla-mobile-switch-row > input[type="checkbox"]{
+    grid-column:1!important;
+    grid-row:1!important;
+    margin:0!important;
+    justify-self:start!important;
+  }
+  #configuracoes label.simpla-mobile-switch-row > .simpla-mobile-option-text{
+    grid-column:2!important;
+    grid-row:1!important;
+    display:block!important;
+    min-width:0!important;
+    margin:0!important;
+    font-size:11.5px!important;
+    line-height:1.28!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+  #configuracoes .profissional-servico-item{
+    display:grid!important;
+    grid-template-columns:44px minmax(0,1fr) 88px!important;
+    column-gap:12px!important;
+    align-items:center!important;
+    padding:11px!important;
+  }
+  #configuracoes .profissional-servico-item > input[type="checkbox"]{
+    grid-column:1!important;
+    grid-row:1!important;
+    width:40px!important;
+    min-width:40px!important;
+    max-width:40px!important;
+    margin:0!important;
+    justify-self:start!important;
+  }
+  #configuracoes .profissional-servico-item > span{
+    grid-column:2!important;
+    grid-row:1!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:0!important;
+    font-size:11.5px!important;
+    line-height:1.22!important;
+  }
+  #configuracoes .profissional-servico-item > span b{
+    display:block!important;
+    font-size:12px!important;
+    line-height:1.18!important;
+    margin-bottom:2px!important;
+  }
+  #configuracoes .profissional-servico-item > span small{
+    display:block!important;
+    font-size:10.5px!important;
+    line-height:1.18!important;
+  }
+  #configuracoes .profissional-servico-item > input[type="number"]{
+    grid-column:3!important;
+    grid-row:1!important;
+    width:88px!important;
+    min-width:88px!important;
+    max-width:88px!important;
+    padding:8px 7px!important;
+    font-size:14px!important;
+    text-align:center!important;
+  }
+}
+@media (max-width:420px){
+  #configuracoes label.simpla-mobile-switch-row{
+    grid-template-columns:42px minmax(0,1fr)!important;
+    column-gap:10px!important;
+  }
+  #configuracoes label.simpla-mobile-switch-row > .simpla-mobile-option-text{
+    font-size:11px!important;
+  }
+  #configuracoes .profissional-servico-item{
+    grid-template-columns:42px minmax(0,1fr) 84px!important;
+    column-gap:10px!important;
+    padding:10px!important;
+  }
+  #configuracoes .profissional-servico-item > input[type="number"]{
+    width:84px!important;min-width:84px!important;max-width:84px!important;
+  }
+}
+</style>
 <script id="simpla-mobile-config-structural-v3-script">
 (function(){
   function aplicarEstruturaMobileConfiguracoes(){
@@ -2225,7 +2315,21 @@ hr{
       if(!cb) return;
       if(label.classList.contains('cfg-switch')) return;
       if(label.querySelector('.cfg-switch-track')) return;
+      if(label.classList.contains('profissional-servico-item')) {
+        label.classList.remove('simpla-mobile-switch-row');
+        return;
+      }
       label.classList.add('simpla-mobile-switch-row');
+
+      const textosDiretos = Array.from(label.childNodes).filter(no =>
+        no.nodeType === Node.TEXT_NODE && String(no.textContent || '').trim()
+      );
+      textosDiretos.forEach(no => {
+        const span = document.createElement('span');
+        span.className = 'simpla-mobile-option-text';
+        span.textContent = String(no.textContent || '').trim();
+        no.replaceWith(span);
+      });
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{
