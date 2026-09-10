@@ -1,0 +1,28 @@
+name: Aplicar Registro de Atendimento v18
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-registro-atendimento-v18.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .tmp_patch_registro_atendimento_v18.py
+      - name: Validar marcadores
+        run: |
+          grep -q "simpla-registro-atendimento-v18" index.html
+          grep -q "simpla-shell-v18-registro-atendimento" service-worker.js
+          grep -q "abrirRegistroAtendimento" index.html
+      - name: Commitar alteração funcional
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .tmp_patch_registro_atendimento_v18.py .github/workflows/patch-registro-atendimento-v18.yml
+          git add index.html service-worker.js .tmp_patch_registro_atendimento_v18.py .github/workflows/patch-registro-atendimento-v18.yml || true
+          git commit -m "feat: separar registro de atendimento do financeiro"
+          git push
