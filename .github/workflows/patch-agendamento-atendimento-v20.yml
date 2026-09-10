@@ -1,0 +1,37 @@
+name: Integrar agendamento ao atendimento v20
+on:
+  push:
+    paths:
+      - '.tmp_patch_agendamento_atendimento_v20.py'
+      - '.github/workflows/patch-agendamento-atendimento-v20.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Aplicar integração
+        run: python .tmp_patch_agendamento_atendimento_v20.py
+      - name: Validar
+        run: |
+          grep -q 'simpla-agendamento-atendimento-v20' index.html
+          grep -q 'Origem do atendimento' index.html
+          grep -q 'Agendamentos de hoje' index.html
+          grep -q 'simpla-shell-v20-agendamento-atendimento' service-worker.js
+      - name: Commitar alteração funcional
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .tmp_patch_agendamento_atendimento_v20.py \
+                .tmp_diag_atendimento_v20.txt \
+                .tmp_diag_atendimento2_v20.txt \
+                .github/workflows/diag-atendimento-v20.yml \
+                .github/workflows/diag-atendimento2-v20.yml \
+                .github/workflows/patch-agendamento-atendimento-v20.yml
+          git add -A
+          git commit -m 'feat: integrar agendamentos ao registro de atendimento'
+          git push
