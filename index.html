@@ -6389,7 +6389,7 @@ hr{
         function obterLinkAgendamentoPublico() {
             const slug = String(empresaAtual?.slug || '').trim();
             if(!slug) return '';
-            return `https://gabrielscfc100-spec.github.io/agendamento-simpla/?empresa=${encodeURIComponent(slug)}`;
+            return `https://agendamento-simpla.simpla.workers.dev/${encodeURIComponent(slug)}`;
         }
 
         async function garantirSlugEmpresaAtual() {
