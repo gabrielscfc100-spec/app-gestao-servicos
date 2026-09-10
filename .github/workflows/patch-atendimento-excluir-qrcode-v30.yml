@@ -1,0 +1,29 @@
+name: Ajustar itens e Pix final v30
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-atendimento-excluir-qrcode-v30.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-atendimento-excluir-qrcode-v30.py
+      - name: Validar
+        run: |
+          grep -q 'simpla-atendimento-pix-final-v30' index.html
+          grep -q 'btn-remover-item-atendimento-v30' index.html
+          grep -q "simpla-shell-v30-itens-pix-final" service-worker.js
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html service-worker.js
+          git commit -m 'feat: excluir itens e ampliar qr code pix na finalizacao'
+          git push
