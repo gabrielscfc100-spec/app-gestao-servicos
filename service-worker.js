@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v12-perfis-acesso';
+const CACHE_VERSION = 'simpla-shell-v13-telefone-cliente';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
