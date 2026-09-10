@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v20-agendamento-atendimento';
+const CACHE_VERSION = 'simpla-shell-v21-gramatica-contagem';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
