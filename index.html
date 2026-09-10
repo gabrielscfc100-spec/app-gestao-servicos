@@ -2280,7 +2280,7 @@ hr{
                 </p><div class="section-box-cfg" id="box-cfg-confirmacao-automatica"><h4>Confirmação automática</h4><div class="form-group" style="margin-bottom:8px;"><select id="cfg-confirmacao-automatica" style="max-width:360px;"><option value="true">ATIVADA — confirmar automaticamente</option><option value="false">DESATIVADA — aguardar confirmação da equipe</option></select></div><p style="font-size:11px;color:#718096;margin:0;text-transform:none;">Quando desativada, novos agendamentos externos entram como <b>SOLICITADO</b> e precisam ser confirmados pela equipe na Agenda.
                     </p><div class="form-group" style="margin-top:16px;margin-bottom:8px;"><label>Perguntar se deseja enviar confirmação pelo WhatsApp</label><select id="cfg-whatsapp-apos-confirmacao" style="max-width:360px;"><option value="true">ATIVADA — exibir pergunta após confirmar</option><option value="false">DESATIVADA — não exibir a pergunta</option></select></div><p style="font-size:11px;color:#718096;margin:0;text-transform:none;">Quando ativada, após confirmar o agendamento, o SimplA exibe uma janela perguntando se o usuário deseja enviar a mensagem de confirmação pelo WhatsApp.
                     </p></div><div class="section-box-cfg" style="margin-top:12px;"><h4>WhatsApp da empresa</h4><div class="form-group" style="margin-bottom:8px;max-width:360px;"><label>Número com DDD</label><input type="tel" id="cfg-whatsapp-empresa" placeholder="Ex.: (81) 99999-9999" style="text-transform:none;"></div><p style="font-size:11px;color:#718096;margin:0;text-transform:none;">Quando a confirmação automática estiver desativada, novos pedidos externos entram como <b>AGUARDANDO CONFIRMAÇÃO</b>. Após a equipe confirmar na Agenda, o horário passa para <b>CONFIRMADO</b>. Este número será usado no envio manual da confirmação pelo WhatsApp.
-                    </p></div><button class="btn-salvar" style="margin-bottom:24px;" onclick="salvarConfigConfirmacaoAutomatica()"> Salvar Confirmação e WhatsApp</button><hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;"><h3 style="color: var(--cor-accent);">Comissões</h3>
+                    </p></div><button class="btn-salvar" style="margin-bottom:24px;" onclick="salvarConfigConfirmacaoAutomatica()"> Salvar Confirmação e WhatsApp</button><div class="section-box-cfg" style="margin-top:12px;"><h4>Cancelamento e reagendamento pelo Portal</h4><div class="form-group" style="margin-bottom:8px;max-width:360px;"><label>Antecedência mínima (minutos)</label><input type="number" id="cfg-portal-antecedencia" min="0" step="1" value="60"></div><p style="font-size:11px;color:#718096;margin:0 0 12px;text-transform:none;">Define até quantos minutos antes do atendimento o cliente poderá cancelar ou reagendar pelo Portal. Use 0 para permitir até o horário do atendimento.</p><button class="btn-salvar" type="button" onclick="salvarConfigPortalAntecedencia()">Salvar regra do Portal</button></div><hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;"><h3 style="color: var(--cor-accent);">Comissões</h3>
 <p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">Defina se a empresa utiliza comissões e quais itens entram no cálculo.</p>
 <div class="section-box-cfg" id="box-cfg-comissoes">
   <div class="form-group"><label>Utilizar comissões</label>
@@ -2464,6 +2464,7 @@ hr{
         let mensagemAniversarioMes = DataStore.getText('barber_msg_aniversario_mes', 'Olá [NOME]!  Seu aniversário está chegando no dia [DATA]! Para comemorar, preparamos um possível desconto especial para você na [BARBEARIA]. Entre em contato conosco para saber mais. Esperamos você!');
         let nomeBarbearia = DataStore.getText('barber_nome_barbearia', 'BarberManager');
         let whatsappEmpresa = DataStore.getText('simpla_whatsapp_empresa', '');
+        let cancelamentoPortalAntecedenciaMinutos = 60;
 
         // Configuração de Expediente
         let configExpediente = DataStore.getJSON('barber_config_expediente', {
@@ -4300,6 +4301,7 @@ hr{
             if(row.mensagem_aniversario != null) mensagemAniversario = row.mensagem_aniversario;
             if(row.mensagem_confirmacao != null) mensagemConfirmacaoAgendamento = row.mensagem_confirmacao;
             if(row.mensagem_aniversario_mes != null) mensagemAniversarioMes = row.mensagem_aniversario_mes;
+            if(row.cancelamento_portal_antecedencia_minutos != null) cancelamentoPortalAntecedenciaMinutos = Math.max(0, Number(row.cancelamento_portal_antecedencia_minutos || 0));
             if(row.whatsapp_empresa != null) {
                 whatsappEmpresa = row.whatsapp_empresa || '';
                 DataStore.setText('simpla_whatsapp_empresa', whatsappEmpresa);
@@ -4323,6 +4325,8 @@ hr{
 
         function atualizarUIConfiguracoesCloud() {
             carregarConfigExpedienteUI();
+            const portalAntecedenciaEl = document.getElementById('cfg-portal-antecedencia');
+            if(portalAntecedenciaEl) portalAntecedenciaEl.value = String(Math.max(0, Number(cancelamentoPortalAntecedenciaMinutos || 0)));
             carregarConfigModulosUI(); aplicarVisibilidadeModulos();
             carregarConfigCamposUI(); aplicarVisibilidadeCampos();
             carregarConfigDashboardUI(); aplicarVisibilidadeDashboard();
@@ -4361,6 +4365,7 @@ hr{
                     mensagem_confirmacao: mensagemConfirmacaoAgendamento,
                     mensagem_aniversario_mes: mensagemAniversarioMes,
                     whatsapp_empresa: whatsappEmpresa || null,
+                    cancelamento_portal_antecedencia_minutos: Math.max(0, Number(cancelamentoPortalAntecedenciaMinutos || 0)),
                     comissoes_ativas: !!configComissoes.ativa,
                     comissao_percentual_padrao: Number(configComissoes.percentualServicos || 0),
                     comissao_percentual_servicos: Number(configComissoes.percentualServicos || 0),
@@ -4736,6 +4741,20 @@ hr{
             );
             alert(configModulos.agendamento.confirmacaoAutomatica
                 ? 'Confirmação automática ativada.' : 'Confirmação automática desativada. Novos agendamentos externos ficarão como SOLICITADO.');
+        }
+
+        async function salvarConfigPortalAntecedencia() {
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
+            const el = document.getElementById('cfg-portal-antecedencia');
+            let valor = Number(el?.value ?? 60);
+            if(!Number.isFinite(valor) || valor < 0) valor = 60;
+            valor = Math.floor(valor);
+            cancelamentoPortalAntecedenciaMinutos = valor;
+            if(el) el.value = String(valor);
+            salvarStorage();
+            await persistirConfiguracoesCloud();
+            await registrarAuditoria('CONFIGURACOES','ANTECEDENCIA_PORTAL_ALTERADA',empresaAtual.id,{minutos:valor});
+            alert(`Regra do Portal salva: cancelamento e reagendamento permitidos até ${valor} minuto${valor === 1 ? '' : 's'} antes do atendimento.`);
         }
 
         function rotuloStatusAgendamento(status) {
