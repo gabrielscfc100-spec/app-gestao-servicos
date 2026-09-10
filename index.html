@@ -12742,5 +12742,25 @@ hr{
 })();
 </script>
 
+
+<script id="simpla-pix-empresa-bridge-v31b">
+(function(){
+  function sincronizarEmpresaPix(){
+    try{
+      if(typeof empresaAtual !== 'undefined' && empresaAtual) window.empresaAtual = empresaAtual;
+      if(typeof CloudDB !== 'undefined' && CloudDB) window.CloudDB = CloudDB;
+    }catch(_){ }
+  }
+  sincronizarEmpresaPix();
+  document.addEventListener('DOMContentLoaded', sincronizarEmpresaPix);
+  document.addEventListener('click', function(e){
+    if(e.target.closest('#pix-config-v27, [onclick*="salvarConfiguracaoPixV27"]')) sincronizarEmpresaPix();
+  }, true);
+  let tentativas=0;
+  const timer=setInterval(function(){sincronizarEmpresaPix();if(++tentativas>=60)clearInterval(timer);},500);
+  window.sincronizarEmpresaPixV31=sincronizarEmpresaPix;
+})();
+</script>
+
 </body>
 </html>
