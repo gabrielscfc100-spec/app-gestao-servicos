@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v9-switches-texto-deslocado';
+const CACHE_VERSION = 'simpla-shell-v10-switches-forcados';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
