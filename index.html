@@ -6326,12 +6326,12 @@ hr{
         function verificarBloqueioSlot(dataStr, horarioStr, profissionalId='') {
             const dataAtual = new Date(dataStr + 'T00:00:00');
 
-            return bloqueios.find(b => {
+            const bloqueioParaProfissional = (idProfissional='') => bloqueios.find(b => {
                 if(b.ativo === false) return false;
 
                 // Bloqueios configuráveis v2
                 if(bloqueioEhConfiguravel(b)) {
-                    if(!bloqueioConfiguradoAplicaProfissional(b, profissionalId)) return false;
+                    if(!bloqueioConfiguradoAplicaProfissional(b, idProfissional)) return false;
                     if(!bloqueioConfiguradoAplicaData(b, dataStr)) return false;
                     return bloqueioConfiguradoAplicaHorario(b, horarioStr);
                 }
@@ -6340,7 +6340,7 @@ hr{
                 if (b.horario !== horarioStr) return false;
 
                 // Sem profissional = bloqueio global. Com profissional = aplica somente àquele profissional.
-                if(b.profissionalId && (!profissionalId || String(b.profissionalId) !== String(profissionalId))) {
+                if(b.profissionalId && (!idProfissional || String(b.profissionalId) !== String(idProfissional))) {
                     return false;
                 }
 
@@ -6365,6 +6365,25 @@ hr{
 
                 return false;
             });
+
+            // Quando um profissional está filtrado, mantém a regra individual normal.
+            if(profissionalId) return bloqueioParaProfissional(profissionalId);
+
+            // Na agenda geral, um bloqueio global continua prevalecendo.
+            const bloqueioGlobal = bloqueioParaProfissional('');
+            if(bloqueioGlobal) return bloqueioGlobal;
+
+            // Se TODOS os profissionais ativos estiverem bloqueados no mesmo slot,
+            // a agenda geral também deve mostrar o horário como bloqueado.
+            const profissionaisAtivos = profissionais.filter(p => p.ativo !== false);
+            if(!profissionaisAtivos.length) return null;
+
+            const bloqueiosIndividuais = profissionaisAtivos.map(p => bloqueioParaProfissional(p.id));
+            if(bloqueiosIndividuais.every(Boolean)) {
+                return bloqueiosIndividuais[0] || null;
+            }
+
+            return null;
         }
 
         function obterLinkAgendamentoPublico() {
