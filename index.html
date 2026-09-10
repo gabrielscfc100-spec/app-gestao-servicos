@@ -5551,7 +5551,7 @@ hr{
             try { await marcarNotificacaoComoLida(item); }
             catch(err) { console.error('Falha ao marcar notificação como lida:', err); }
 
-            if(String(item.tipo || '').toUpperCase() === 'NOVO_AGENDAMENTO' && item.agendamento_id) {
+            if(item.agendamento_id) {
                 let agendamento = agendamentos.find(registro => String(registro.id) === String(item.agendamento_id));
                 if(!agendamento && CloudDB) {
                     try {
