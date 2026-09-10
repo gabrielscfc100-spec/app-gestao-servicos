@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v5-layout-mobile-estrutural';
+const CACHE_VERSION = 'simpla-shell-v6-mobile-switches-corrigidos';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
@@ -37,14 +37,9 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
 
   if(request.method !== 'GET') return;
-
-  // Nunca intercepta Supabase, APIs ou CDNs externas.
   if(url.origin !== self.location.origin) return;
-
-  // O próprio service worker nunca deve ser servido por cache antigo.
   if(url.pathname.endsWith('/service-worker.js')) return;
 
-  // HTML/navegação: prioriza sempre a versão mais nova da rede.
   if(request.mode === 'navigate') {
     event.respondWith(
       fetch(request, { cache: 'no-store' })
@@ -62,7 +57,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Manifest e HTML principal: rede primeiro para evitar retenção de versão antiga.
   if(url.pathname.endsWith('/manifest.webmanifest') || url.pathname.endsWith('/index.html')) {
     event.respondWith(
       fetch(request, { cache: 'no-store' })
@@ -78,7 +72,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Assets locais: cache primeiro, rede como fallback.
   event.respondWith(
     caches.match(request).then(cached => {
       if(cached) return cached;
@@ -99,10 +92,6 @@ self.addEventListener('message', event => {
   }
 });
 
-// -----------------------------------------------------------
-// PUSH — cada evento é tratado como notificação independente.
-// Evita que dois novos agendamentos sejam fundidos/substituídos.
-// -----------------------------------------------------------
 self.addEventListener('push', event => {
   event.waitUntil((async () => {
     let payload = {};
