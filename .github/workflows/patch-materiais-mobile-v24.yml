@@ -1,0 +1,27 @@
+name: Corrigir materiais no mobile v24
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-materiais-mobile-v24.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar correção
+        run: python .github/scripts/patch-materiais-mobile-v24.py
+      - name: Validar
+        run: |
+          grep -q 'simpla-materiais-mobile-v24' index.html
+          grep -q 'simpla-shell-v24-materiais-mobile' service-worker.js
+          grep -q 'materiais-v24-table' index.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html service-worker.js
+          git commit -m 'fix: corrigir materiais no mobile' || exit 0
+          git push
