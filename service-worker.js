@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v15-agenda-scroll';
+const CACHE_VERSION = 'simpla-shell-v16-dias-mobile';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
