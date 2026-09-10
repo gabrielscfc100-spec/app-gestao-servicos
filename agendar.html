@@ -340,7 +340,8 @@
   });
 
   const params = new URLSearchParams(window.location.search);
-  const slug = (params.get('empresa') || params.get('slug') || 'simpla-barbearia').trim().toLowerCase();
+  const pathSlug = decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop() || '').trim().toLowerCase();
+  const slug = (params.get('empresa') || params.get('slug') || pathSlug || 'simpla-barbearia').trim().toLowerCase();
 
   const state = {
     empresa:null,
