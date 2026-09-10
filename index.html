@@ -12414,6 +12414,15 @@ hr{
 (function(){
   const estado={empresaId:null,carregado:false,ativo:false,chave:'',nome:'',cidade:''};
   let ultimoPayload='';
+
+  function obterEmpresaPix(){
+    try{ if(typeof empresaAtual!=='undefined' && empresaAtual) return empresaAtual; }catch(_){ }
+    return window.empresaAtual || null;
+  }
+  function obterCloudDBPix(){
+    try{ if(typeof CloudDB!=='undefined' && CloudDB) return CloudDB; }catch(_){ }
+    return window.CloudDB || null;
+  }
   const normTxt=v=>String(v||'').trim();
   const semAcentos=v=>normTxt(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9 .\-]/g,'').toUpperCase();
   const emv=(id,val)=>id+String(val.length).padStart(2,'0')+val;
@@ -12428,13 +12437,14 @@ hr{
   }
   function total(){try{return typeof totalCarrinhoAtual==='function'?Number(totalCarrinhoAtual()||0):0}catch(_){return 0}}
   async function carregar(force=false){
-    const eid=window.empresaAtual?.id||null;
+    const emp=obterEmpresaPix(); const eid=emp?.id||null;
     if(!eid) return estado;
     if(!force && estado.carregado && estado.empresaId===eid) return estado;
     estado.empresaId=eid; estado.carregado=true;
     try{
-      if(window.CloudDB && window.empresaAtual?.cloud){
-        const {data,error}=await CloudDB.from('configuracoes_empresa').select('pix_ativo,pix_chave,pix_nome_recebedor,pix_cidade').eq('empresa_id',eid).maybeSingle();
+      const db=obterCloudDBPix();
+      if(db && emp?.cloud){
+        const {data,error}=await db.from('configuracoes_empresa').select('pix_ativo,pix_chave,pix_nome_recebedor,pix_cidade').eq('empresa_id',eid).maybeSingle();
         if(error) throw error;
         Object.assign(estado,{ativo:!!data?.pix_ativo,chave:data?.pix_chave||'',nome:data?.pix_nome_recebedor||'',cidade:data?.pix_cidade||''});
       }else{
@@ -12483,11 +12493,12 @@ hr{
   }
   window.salvarConfiguracaoPixV27=async function(){
     if(typeof validarAcessoPerfil==='function' && !validarAcessoPerfil('configuracoes','Somente administradores podem alterar os dados Pix.')) return;
-    const eid=window.empresaAtual?.id; if(!eid){alert('Empresa não identificada.');return;}
+    const emp=obterEmpresaPix(); const eid=emp?.id; if(!eid){alert('Empresa não identificada.');return;}
     const cfg={ativo:!!document.getElementById('cfg-pix-ativo')?.checked,chave:normTxt(document.getElementById('cfg-pix-chave')?.value),nome:normTxt(document.getElementById('cfg-pix-nome')?.value),cidade:normTxt(document.getElementById('cfg-pix-cidade')?.value)};
     if(cfg.ativo && (!cfg.chave||!cfg.nome||!cfg.cidade)){alert('Preencha chave Pix, nome do recebedor e cidade.');return;}
     try{
-      if(window.CloudDB && window.empresaAtual?.cloud){const {error}=await CloudDB.from('configuracoes_empresa').upsert({empresa_id:eid,pix_ativo:cfg.ativo,pix_chave:cfg.chave||null,pix_nome_recebedor:cfg.nome||null,pix_cidade:cfg.cidade||null,atualizado_em:new Date().toISOString()},{onConflict:'empresa_id'});if(error)throw error;}
+      const db=obterCloudDBPix();
+      if(db && emp?.cloud){const {error}=await db.from('configuracoes_empresa').upsert({empresa_id:eid,pix_ativo:cfg.ativo,pix_chave:cfg.chave||null,pix_nome_recebedor:cfg.nome||null,pix_cidade:cfg.cidade||null,atualizado_em:new Date().toISOString()},{onConflict:'empresa_id'});if(error)throw error;}
       localStorage.setItem('simpla_pix_'+eid,JSON.stringify(cfg)); Object.assign(estado,cfg,{empresaId:eid,carregado:true}); alert('Dados Pix salvos com sucesso.'); atualizarPixUI(true);
     }catch(e){console.error(e);alert('Não foi possível salvar os dados Pix: '+(e?.message||'erro desconhecido'));}
   };
@@ -12610,5 +12621,6 @@ hr{
 })();
 </script>
 
+<script id="simpla-pix-empresa-v30">/* Corrige acesso à empresa/DB no módulo Pix. */</script>
 </body>
 </html>
