@@ -1,0 +1,27 @@
+name: Corrigir categoria Financeiro do Pix v28
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-pix-config-financeiro-v28.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-pix-config-financeiro-v28.py
+      - name: Validar
+        run: |
+          grep -q 'pix-config-v27 cfg-v2-section' index.html
+          grep -q 'data-cat="Financeiro"' index.html
+          grep -q 'simpla-shell-v28-pix-config-financeiro' service-worker.js
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          git commit -m "fix: exibir configuracao Pix em Financeiro"
+          git push
