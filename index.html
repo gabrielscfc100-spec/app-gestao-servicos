@@ -3463,23 +3463,78 @@ hr{
         }
 
         async function enviarRecuperacaoSenhaCloud() {
-            if(!CloudDB) { exibirMensagemCloud('cloud-auth-message','Não foi possível carregar o Supabase.','error'); return; }
-            const email = document.getElementById('cloud-recuperar-email')?.value.trim();
-            if(!email) { exibirMensagemCloud('cloud-auth-message','Informe o e-mail da sua conta.','error'); return; }
+            if(!CloudDB) {
+                exibirMensagemCloud('cloud-auth-message','Não foi possível carregar o serviço de autenticação. Atualize a página e tente novamente.','error');
+                return;
+            }
+
+            const email = document.getElementById('cloud-recuperar-email')?.value.trim().toLowerCase();
+            if(!email) {
+                exibirMensagemCloud('cloud-auth-message','Informe o e-mail da sua conta.','error');
+                return;
+            }
+
             definirCarregandoCloud('cloud-btn-recuperar', true, 'Enviar link de recuperação');
+
             try {
-                const { error } = await CloudDB.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin
-                });
+                const origem = window.location.origin;
+                const redirectTo = `${origem}/`;
+
+                const { error } = await CloudDB.auth.resetPasswordForEmail(email, { redirectTo });
                 if(error) throw error;
-                exibirMensagemCloud('cloud-auth-message','Se esse e-mail estiver cadastrado, enviaremos um link de recuperação. Verifique também a pasta de spam.','ok');
+
+                exibirMensagemCloud(
+                    'cloud-auth-message',
+                    'Solicitação enviada. Se esse e-mail estiver cadastrado, você receberá um link para criar uma nova senha. Verifique também spam e lixo eletrônico.',
+                    'ok'
+                );
             } catch(err) {
-                console.error(err);
-                exibirMensagemCloud('cloud-auth-message','Não foi possível enviar o link de recuperação. Tente novamente em alguns instantes.','error');
+                console.error('Erro na recuperação de senha:', err);
+
+                const status = Number(err?.status || 0);
+                const code = String(err?.code || '').toLowerCase();
+                const msg = String(err?.message || '').toLowerCase();
+
+                let texto = 'Não foi possível enviar o link de recuperação agora. Tente novamente em alguns instantes.';
+
+                if(
+                    status === 429 ||
+                    code.includes('rate') ||
+                    msg.includes('rate limit') ||
+                    msg.includes('too many') ||
+                    msg.includes('security purposes')
+                ) {
+                    texto = 'Foram feitas muitas tentativas de recuperação em pouco tempo. Aguarde cerca de 1 minuto antes de tentar novamente.';
+                } else if(
+                    msg.includes('redirect') ||
+                    msg.includes('not allowed') ||
+                    msg.includes('url')
+                ) {
+                    texto = 'A recuperação está temporariamente indisponível por uma configuração de segurança do endereço do aplicativo.';
+                } else if(
+                    msg.includes('smtp') ||
+                    msg.includes('email') ||
+                    msg.includes('sending') ||
+                    msg.includes('send')
+                ) {
+                    texto = 'O serviço de envio de e-mail está temporariamente indisponível. Tente novamente em alguns instantes.';
+                } else if(
+                    msg.includes('network') ||
+                    msg.includes('fetch') ||
+                    msg.includes('failed to fetch')
+                ) {
+                    texto = 'Não foi possível conectar ao serviço de autenticação. Verifique sua internet e tente novamente.';
+                }
+
+                exibirMensagemCloud('cloud-auth-message', texto, 'error');
             } finally {
                 definirCarregandoCloud('cloud-btn-recuperar', false, 'Enviar link de recuperação');
             }
         }
+
+        document.getElementById('cloud-recuperar-email')?.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter') enviarRecuperacaoSenhaCloud();
+        });
 
         async function salvarNovaSenhaCloud() {
             if(!CloudDB) {
