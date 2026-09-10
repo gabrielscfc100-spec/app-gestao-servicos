@@ -1,0 +1,29 @@
+name: Trocar dominio do agendamento externo
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-agendamento-domain.yml'
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python scripts/patch-agendamento-domain.py
+      - name: Validar diff
+        run: |
+          git diff -- index.html
+          grep -F 'https://agendamento-simpla.simpla.workers.dev/${encodeURIComponent(slug)}' index.html
+      - name: Commit e limpeza
+        run: |
+          rm -f scripts/patch-agendamento-domain.py .github/workflows/patch-agendamento-domain.yml
+          rmdir scripts 2>/dev/null || true
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat: usar novo dominio da agenda externa'
+          git push
