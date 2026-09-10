@@ -6566,7 +6566,7 @@ hr{
                                 ? '<button class="btn-salvar" disabled style="flex:1 1 100%;font-size:12px;padding:8px;background:#718096;color:white;cursor:not-allowed;"> Finalizado e recebido</button>' : `${agendamentoOcupado.isNaoCadastrado
                                       ? `<button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#805ad5;color:white;" onclick="abrirCadastroClienteAgendamento('${agendamentoOcupado.id}')"> Cadastrar cliente</button>` : ''}
                                    ${String(agendamentoOcupado.status || '').toUpperCase() === 'SOLICITADO' ? `<button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#dd6b20;color:white;" onclick="confirmarAgendamentoSolicitado('${agendamentoOcupado.id}')"> Confirmar solicitação</button>` : `${botaoConfirmacaoWhatsapp}<button class="btn-salvar" style="flex:1 1 100%;font-size:12px;padding:8px;background:#38a169;color:white;" onclick="iniciarRecebimentoAgendamento('${agendamentoOcupado.id}')"> Finalizar atendimento</button>`}
-                                   <button class="btn-salvar" style="flex:1;font-size:12px;padding:6px;background:#3182ce;color:white;" onclick="abrirEdicaoAgendamento('${agendamentoOcupado.id}')">️ Editar</button><button class="btn-excluir-tabela" style="flex:1;font-size:12px;padding:6px;" onclick="cancelarAgendamento('${agendamentoOcupado.id}')">Liberar Horário</button>`}
+                                   <button class="btn-salvar" style="flex:1;font-size:12px;padding:6px;background:#3182ce;color:white;" onclick="abrirEdicaoAgendamento('${agendamentoOcupado.id}')">️ Editar</button><button class="btn-excluir-tabela" style="flex:1;font-size:12px;padding:6px;" onclick="cancelarAgendamento('${agendamentoOcupado.id}')">${String(agendamentoOcupado.status || '').toUpperCase() === 'SOLICITADO' ? 'Recusar solicitação' : 'Liberar Horário'}</button>`}
                         </div>`}
                     `;
                 } else if(horarioPassadoHoje) {
@@ -7336,7 +7336,8 @@ hr{
             if(!validarPermissaoCancelamento('agendamentos','cancelar agendamentos')) return;
             const agendamento = agendamentos.find(a => String(a.id) === String(id));
             if (agendamento && agendamento.data < obterHojeLocal()) { alert('Agendamentos retroativos não podem ser cancelados.'); return; }
-            if(!confirm('Tem certeza que deseja liberar este horário (cancelar agendamento)?')) return;
+            const ehSolicitacao = String(agendamento?.status || '').toUpperCase() === 'SOLICITADO';
+            if(!confirm(ehSolicitacao ? 'Tem certeza que deseja recusar esta solicitação? O horário será liberado.' : 'Tem certeza que deseja liberar este horário (cancelar agendamento)?')) return;
             try {
                 if(AGENDA_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
                     const agoraCancelamento = new Date().toISOString();
