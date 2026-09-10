@@ -4794,7 +4794,7 @@ hr{
 
         const REGRAS_PERFIL = {
             ADMIN: {
-                telas: ['dashboard','clientes','financeiro','agenda','configuracoes'],
+                telas: ['dashboard','clientes','financeiro','agenda','atendimento','configuracoes'],
                 dashboard: true,
                 clientesVisualizar: true,
                 clientesEditar: true,
@@ -4816,7 +4816,7 @@ hr{
                 dashboardFinanceiro: true
             },
             GESTOR: {
-                telas: ['dashboard','clientes','financeiro','agenda'],
+                telas: ['dashboard','clientes','financeiro','agenda','atendimento'],
                 dashboard: true,
                 clientesVisualizar: true,
                 clientesEditar: true,
@@ -4838,7 +4838,7 @@ hr{
                 dashboardFinanceiro: true
             },
             FINANCEIRO: {
-                telas: ['dashboard','clientes','financeiro','agenda'],
+                telas: ['dashboard','clientes','financeiro','agenda','atendimento'],
                 dashboard: true,
                 clientesVisualizar: true,
                 clientesEditar: false,
@@ -4860,7 +4860,7 @@ hr{
                 dashboardFinanceiro: true
             },
             FUNCIONARIO: {
-                telas: ['clientes','financeiro','agenda'],
+                telas: ['clientes','financeiro','agenda','atendimento'],
                 dashboard: false,
                 clientesVisualizar: true,
                 clientesEditar: true,
@@ -11615,7 +11615,7 @@ hr{
     // Espelha a visibilidade operacional do antigo módulo de Receitas.
     const perfil=(typeof obterPerfilAtual==='function' ? obterPerfilAtual() : '') || '';
     const p=String(perfil).toUpperCase();
-    menu.style.display=(p==='FINANCEIRO' ? 'none' : '');
+    menu.style.display=(typeof regraPerfil==='function' && !regraPerfil('financeiroOperar')) ? 'none' : '';
   }
 
   function init(){
@@ -11628,6 +11628,34 @@ hr{
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0));
   else setTimeout(init,0);
+})();
+</script>
+
+
+<script id="simpla-atendimento-permissoes-v19">
+(function(){
+  function sincronizarPermissaoAtendimento(){
+    try{
+      if(typeof REGRAS_PERFIL !== 'undefined'){
+        Object.values(REGRAS_PERFIL).forEach(regra => {
+          if(regra && regra.financeiroOperar && Array.isArray(regra.telas) && !regra.telas.includes('atendimento')){
+            regra.telas.push('atendimento');
+          }
+        });
+      }
+      const pode = (typeof regraPerfil === 'function') ? !!regraPerfil('financeiroOperar') : true;
+      document.querySelectorAll('#menu-btn-atendimento, [data-tela="atendimento"], .bottom-nav-atendimento').forEach(el => {
+        el.style.display = pode ? '' : 'none';
+      });
+    }catch(e){ console.error('SimplA: falha ao sincronizar permissão de atendimento', e); }
+  }
+  sincronizarPermissaoAtendimento();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sincronizarPermissaoAtendimento);
+  document.addEventListener('click', e => {
+    if(e.target.closest('.menu-btn, .simpla-bottom-nav, #simpla-bottom-nav')) setTimeout(sincronizarPermissaoAtendimento, 20);
+  }, true);
+  setTimeout(sincronizarPermissaoAtendimento, 300);
+  setTimeout(sincronizarPermissaoAtendimento, 1200);
 })();
 </script>
 
