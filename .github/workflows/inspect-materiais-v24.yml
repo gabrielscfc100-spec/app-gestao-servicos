@@ -1,0 +1,13 @@
+name: Inspecionar seção materiais v24
+on:
+  push:
+    paths:
+      - '.github/workflows/inspect-materiais-v24.yml'
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspecionar materiais
+        run: python .github/scripts/inspect-materiais-v24.py
