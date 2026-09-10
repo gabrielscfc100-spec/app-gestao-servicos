@@ -1,5 +1,5 @@
 // SimplA Service Worker — Fundação PWA v1
-const CACHE_VERSION = 'simpla-shell-v2-notificacoes';
+const CACHE_VERSION = 'simpla-shell-v3-notificacoes-deeplink';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
@@ -122,7 +122,13 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
 
   event.waitUntil((async () => {
-    const destino = event.notification?.data?.url || './';
+    const dados = event.notification?.data || {};
+    const base = dados.url || './';
+    const destino = new URL(base, self.location.origin);
+
+    if(dados.notificacao_id) destino.searchParams.set('notificacao', dados.notificacao_id);
+    if(dados.agendamento_id) destino.searchParams.set('agendamento', dados.agendamento_id);
+
     const janelas = await clients.matchAll({
       type: 'window',
       includeUncontrolled: true
@@ -131,7 +137,13 @@ self.addEventListener('notificationclick', event => {
     for (const janela of janelas) {
       if('focus' in janela) {
         try {
-          if('navigate' in janela) await janela.navigate(destino);
+          // Se a janela já estiver no app, envia os IDs e evita depender apenas do reload.
+          janela.postMessage({
+            tipo: 'ABRIR_NOTIFICACAO_SIMPLA',
+            notificacao_id: dados.notificacao_id || null,
+            agendamento_id: dados.agendamento_id || null
+          });
+          if('navigate' in janela) await janela.navigate(destino.href);
         } catch (_) {}
         await janela.focus();
         return;
@@ -139,7 +151,7 @@ self.addEventListener('notificationclick', event => {
     }
 
     if(clients.openWindow) {
-      await clients.openWindow(destino);
+      await clients.openWindow(destino.href);
     }
   })());
 });
