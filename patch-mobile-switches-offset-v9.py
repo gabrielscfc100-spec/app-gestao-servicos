@@ -1,0 +1,16 @@
+from pathlib import Path
+p=Path('index.html')
+s=p.read_text(encoding='utf-8')
+marker='simpla-mobile-switch-offset-v9'
+if marker not in s:
+    bloco='''\n<style id="simpla-mobile-switch-offset-v9">\n@media (max-width:768px){\n  /* Solução robusta: reserva espaço fixo à esquerda para o switch */\n  #configuracoes label.simpla-switch-offset-row{\n    position:relative!important;\n    display:block!important;\n    width:100%!important;\n    min-width:0!important;\n    min-height:30px!important;\n    padding-left:58px!important;\n    padding-right:4px!important;\n    margin-top:8px!important;\n    margin-bottom:8px!important;\n    font-size:11.5px!important;\n    line-height:1.35!important;\n    white-space:normal!important;\n    overflow-wrap:anywhere!important;\n    text-align:left!important;\n  }\n  #configuracoes label.simpla-switch-offset-row > input[type="checkbox"]{\n    position:absolute!important;\n    left:0!important;\n    top:50%!important;\n    transform:translateY(-50%)!important;\n    margin:0!important;\n    width:42px!important;\n    min-width:42px!important;\n    max-width:42px!important;\n    height:24px!important;\n    z-index:1!important;\n  }\n  #configuracoes label.simpla-switch-offset-row > span,\n  #configuracoes label.simpla-switch-offset-row > strong,\n  #configuracoes label.simpla-switch-offset-row > b{\n    margin:0!important;\n    padding:0!important;\n    font-size:inherit!important;\n    line-height:inherit!important;\n  }\n}\n@media (max-width:420px){\n  #configuracoes label.simpla-switch-offset-row{\n    padding-left:54px!important;\n    font-size:11px!important;\n    line-height:1.32!important;\n  }\n  #configuracoes label.simpla-switch-offset-row > input[type="checkbox"]{\n    width:40px!important;min-width:40px!important;max-width:40px!important;\n  }\n}\n</style>\n<script id="simpla-mobile-switch-offset-v9-script">\n(function(){\n  function aplicarOffsetSwitches(){\n    const raiz=document.getElementById('configuracoes');\n    if(!raiz) return;\n    raiz.querySelectorAll('label').forEach(label=>{\n      const cb=label.querySelector(':scope > input[type="checkbox"]');\n      if(!cb) return;\n      if(label.classList.contains('profissional-servico-item')) return;\n      if(label.classList.contains('cfg-switch')) return;\n      if(label.querySelector('.cfg-switch-track')) return;\n      label.classList.remove('simpla-mobile-switch-row');\n      label.classList.add('simpla-switch-offset-row');\n    });\n  }\n  document.addEventListener('DOMContentLoaded',()=>{\n    aplicarOffsetSwitches();\n    const raiz=document.getElementById('configuracoes');\n    if(raiz){\n      let timer=null;\n      const obs=new MutationObserver(()=>{\n        clearTimeout(timer);\n        timer=setTimeout(aplicarOffsetSwitches,40);\n      });\n      obs.observe(raiz,{childList:true,subtree:true});\n    }\n  });\n  window.aplicarOffsetSwitchesSimpla=aplicarOffsetSwitches;\n})();\n</script>\n'''
+    s=s.replace('</head>',bloco+'\n</head>',1)
+    p.write_text(s,encoding='utf-8')
+else:
+    print('marker already exists')
+
+sw=Path('service-worker.js')
+t=sw.read_text(encoding='utf-8')
+import re
+t=re.sub(r"const CACHE_VERSION = '[^']+';", "const CACHE_VERSION = 'simpla-shell-v9-switches-texto-deslocado';", t, count=1)
+sw.write_text(t,encoding='utf-8')
