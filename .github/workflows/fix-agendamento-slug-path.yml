@@ -1,0 +1,36 @@
+name: Fix agendamento slug path
+
+on:
+  push:
+    paths:
+      - 'scripts/fix_agendamento_slug_path.py'
+      - '.github/workflows/fix-agendamento-slug-path.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Aplicar patch
+        run: python3 scripts/fix_agendamento_slug_path.py
+
+      - name: Validar diff
+        run: git diff --check
+
+      - name: Commit e limpeza
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add agendar.html
+          git rm scripts/fix_agendamento_slug_path.py .github/workflows/fix-agendamento-slug-path.yml
+          git commit -m "feat: aceitar slug da empresa no caminho da agenda externa"
+          git push origin main
