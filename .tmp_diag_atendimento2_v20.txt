@@ -1,0 +1,5449 @@
+
+
+===== agendamentoEmRecebimentoId =====
+ervalo: 45
+        }
+);
+
+
+        // Configuração do estado dos módulos do sistema
+        let configModulos = DataStore.getJSON('barber_config_modulos', {
+
+            paginas: {
+
+                agenda: true,
+                clientes: true,
+                financeiro: true
+            }
+,
+            recursosClientes: {
+
+                cadastro: true,
+                aniversariantes: true,
+                tabela: true
+            }
+,
+            recursosFinanceiro: {
+
+                cards: true,
+                filtros: true,
+                entradas: true,
+                combos: true,
+                grafico: true,
+                saidas: true
+            }
+,
+            agendamento: {
+
+                confirmacaoAutomatica: true,
+                abrirWhatsappAoConfirmar: true
+            }
+
+        }
+);
+
+
+        let configCancelamentos = Object.assign({
+
+            clientes:true, agendamentos:true, entradas:true, saidas:true, materiais:true, gastosFixos:true, bloqueios:true, servicos:true, produtos:true
+        }
+, DataStore.getJSON('barber_config_cancelamentos', {
+}
+));
+
+
+        let configDashboard = Object.assign({
+
+            kpis:true, fluxo:true, composicao:true, servicos:true, ocupacao:true, clientes:true,
+            agenda:true, aniversariantes:true, materiais:true, comparativo:true, vip:true, insights:true
+        }
+, DataStore.getJSON('barber_config_dashboard', {
+}
+));
+
+
+        // Critérios de relacionamento são armazenados dentro da configuração do Dashboard
+        // (campo JSONB já existente no Supabase), sem necessidade de alterar o banco.
+        configDashboard.fidelizacao = {
+
+            vipAtendimentos: 5,
+            vipGasto: 500,
+            vipModo: 'OU',
+            recorrenteAtendimentos: 3,
+            ...(configDashboard.fidelizacao || {
+}
+)
+        }
+;
+
+
+        let configCampos = DataStore.getJSON('barber_config_campos', {
+
+            sobrenome: true,
+            telefone: true,
+            aniversario: true,
+            email: false,
+            endereco: false,
+            instagram: false,
+            tiktok: false,
+            facebook: false,
+            twitter: false,
+            obs: true
+        }
+);
+
+
+        let carrinho = [];
+
+        let agendamentoEmRecebimentoId = null;
+
+        let clienteParaExcluirId = null;
+
+        let dadosTemporariosNovoCliente = null;
+
+        let graficoPizzaInstance = null;
+
+        let dashGraficoFluxoInstance = null;
+
+        let dashGraficoComposicaoInstance = null;
+
+        let telaAtualId = 'dashboard';
+
+
+        // Funções Auxiliares de Horário
+        function timeToMin(timeStr) {
+
+            if(!timeStr) return 0;
+
+            const [h, m] = timeStr.split(':').map(Number);
+
+            return h * 60 + m;
+
+        }
+
+
+        function minToTime(min) {
+
+            const h = String(Math.floor(min / 60)).padStart(2, '0');
+
+            const m = String(min % 60).padStart(2, '0');
+
+            return `${
+h}
+:${
+m}
+`;
+
+        }
+
+
+        function obterHojeLocal() {
+
+            const agora = new Date();
+
+            return `${
+agora.getFullYear()}
+-${
+String(agora.getMonth() + 1).padStart(2, '0')}
+-${
+String(agora.getDate()).padStart(2, '0')}
+`;
+
+        }
+
+
+        function obterMinutosAgoraLocal() {
+
+            const agora = new Date();
+
+            return agora.getHours() * 60 + agora.getMinutes();
+
+        }
+
+
+        function horarioJaUltrapassado(dataStr, horarioStr) {
+
+            if(!dataStr || !horarioStr) return false;
+
+            const hoje = obterHojeLocal();
+
+            if(dataStr < hoje) return true;
+
+            if(dataStr > hoje) return false;
+
+            return timeToMin(horarioStr) < obterMinutosAgoraLocal();
+
+        }
+
+
+        function formatarNomeCliente(nome) {
+
+            return (nome || '')
+                .trim()
+                .replace(/\s+/g, ' ')
+                .toLocaleLowerCase('pt-BR')
+                .replace(/(^|[\s-])([a-záàâãéêíóôõúç])/gi, (match, separador, letra) => separador + letra.toLocaleUpperCase('pt-BR'));
+
+        }
+
+
+        function formatarNomeCompletoCliente(nome, sobrenome) {
+
+            return [formatarNomeCliente(nome), formatarNomeCliente(sobrenome)]
+                .filter(Boolean)
+                .join(' ')
+                .trim();
+
+        }
+
+
+        function validarDataAgendaFiltro() {
+
+            const input = document.getElementById('agenda-data-filtro');
+
+            if (!input) return false;
+
+            if (!input.value) {
+
+                input.value = obterHojeLocal();
+
+            }
+
+            return true;
+
+        }
+
+
+
+        function clienteCloudParaLocal(row) {
+
+            return {
+
+                id: row.id,
+                empresaId: row.empresa_id,
+                codigo: row.codigo || '',
+                nome: row.nome || '',
+                sobrenome: row.sobrenome || '',
+                telefone: row.telefone || '',
+                aniversario: row.aniversario || '',
+                email: row.email || '',
+                rua: row.rua || '',
+                bairro: row.bairro || '',
+                cidade: row.cidade || '',
+                instagram: row.instagram || '',
+                tiktok: row.tiktok || '',
+                facebook: row.facebook || '',
+                twitter: row.twitter || '',
+                obs: row.observacoes || '',
+                dataCadastro: row.criado_em || '',
+                atualizadoEm: row.atualizado_em || '',
+                cloud: true
+            }
+;
+
+        }
+
+
+        function clienteLocalParaCloud(dados, codigo) {
+
+            return {
+
+                empresa_id: empresaAtual.id,
+                codigo: codigo || dados.codigo || null,
+                nome: formatarNomeCliente(dados.nome),
+                sobrenome: formatarNomeCliente(dados.sobrenome || '') || null,
+                telefone: dados.telefone || null,
+                aniversario: dados.aniversario || null,
+                email: dados.email || null,
+                rua: dados.rua || null,
+                bairro: dados.bairro || null,
+                cidade: dados.cidade || null,
+                instagram: dados.instagram || null,
+                tiktok: dados.tiktok || null,
+                facebook: dados.facebook || null,
+                twitter: dados.twitter || null,
+                observacoes: dados.obs || null,
+                atualizado_em: new Date().toISOString()
+            }
+;
+
+        }
+
+
+        function salvarCacheClientesCloud() {
+
+            DataStore.setJSON('barber_clientes
+
+===== agendamentoEmRecebimentoId =====
+onst numeroCompleto = numeros.startsWith('55') ? numeros : `55${
+numeros}
+`;
+
+
+            const profissionalNome = agendamento.profissionalNome
+                || profissionais.find(p => String(p.id) === String(agendamento.profissionalId))?.nome
+                || 'Não informado';
+
+
+            const dataFmt = agendamento.data
+                ? new Date(`${
+agendamento.data}
+T00:00:00`).toLocaleDateString('pt-BR')
+                : '';
+
+
+            const mensagem = [
+                `Olá, ${
+agendamento.clienteNome || 'cliente'}
+!`,
+                '',
+                `Seu agendamento na ${
+nomeBarbearia || 'empresa'}
+ foi confirmado. `,
+                '',
+                ` Data: ${
+dataFmt}
+`,
+                ` Horário: ${
+agendamento.horario || ''}
+`,
+                ` Profissional: ${
+profissionalNome}
+`,
+                `️ Serviço: ${
+agendamento.servico || ''}
+`,
+                '',
+                'Aguardamos você!' ].join('\n');
+
+
+            return `https://wa.me/${
+numeroCompleto}
+?text=${
+encodeURIComponent(mensagem)}
+`;
+
+        }
+
+
+        /* ===== INTEGRAÇÃO AGENDA -> CLIENTE -> FINANCEIRO ===== */
+        function obterServicoDoAgendamento(agendamento) {
+
+            if(!agendamento) return null;
+
+            return servicos.find(s =>String(s.id) === String(agendamento.servicoId || '') ||
+                String(s.nome || '').toUpperCase() === String(agendamento.servico || '').toUpperCase()
+            ) || null;
+
+        }
+
+
+        function entradaJaGeradaPorAgendamento(agendamentoId) {
+
+            return entradas.some(e => String(e.agendamentoId || '') === String(agendamentoId));
+
+        }
+
+
+        async function iniciarRecebimentoAgendamento(id) {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não possui acesso ao recebimento financeiro.')) return;
+
+            const agendamento = agendamentos.find(a => String(a.id) === String(id));
+
+            if(!agendamento) {
+
+                alert('Agendamento não encontrado.');
+
+                return;
+
+            }
+
+
+            if(entradaJaGeradaPorAgendamento(id)) {
+
+                alert('Este atendimento já foi finalizado e não pode gerar uma segunda receita.');
+
+                return;
+
+            }
+
+
+            agendamentoEmRecebimentoId = agendamento.id;
+
+
+            abrirRegistroAtendimento();
+
+
+            const buscaCliente = document.getElementById('busca-cliente');
+
+            const dataEntrada = document.getElementById('data-entrada');
+
+
+            if(buscaCliente) {
+
+                if(agendamento.clienteId) {
+
+                    const cliente = clientes.find(c => String(c.id) === String(agendamento.clienteId));
+
+                    buscaCliente.value = cliente
+                        ? `${
+cliente.codigo}
+ - ${
+formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)}
+` : (agendamento.clienteNome || '');
+
+                }
+ else {
+
+                    buscaCliente.value = agendamento.clienteNome || '';
+
+                }
+
+            }
+
+
+            if(dataEntrada) dataEntrada.value = agendamento.data || obterHojeLocal();
+
+
+            carrinho = [];
+
+            const servico = obterServicoDoAgendamento(agendamento);
+
+            if(servico) {
+
+                carrinho.push({
+ ...servico, tipoItem:'servico' }
+);
+
+            }
+ else if(agendamento.servico) {
+
+                carrinho.push({
+
+                    id: agendamento.servicoId || `agenda-${
+agendamento.id}
+`,
+                    nome: agendamento.servico,
+                    preco: 0,
+                    tipoItem:'servico' }
+);
+
+            }
+
+
+            atualizarCarrinhoUI();
+
+            atualizarEspelhoClienteFinanceiro?.();
+
+
+            const avisoId = 'aviso-recebimento-agenda';
+
+            document.getElementById(avisoId)?.remove();
+
+            const area = document.querySelector('#aba-entradas .entradas-form-area');
+
+            if(area) {
+
+                const aviso = document.createElement('div');
+
+                aviso.id = avisoId;
+
+                aviso.style.cssText = 'background:#ebf8ff;
+border:1px solid #90cdf4;
+border-left:4px solid #3182ce;
+color:#2a4365;
+padding:10px 12px;
+border-radius:6px;
+margin-bottom:14px;
+font-size:12px;
+line-height:1.45;
+';
+
+                aviso.innerHTML = `<b>Recebimento iniciado pela Agenda</b><br>${
+agendamento.clienteNome || 'Cliente'}
+ • ${
+formatarDataAgenda(agendamento.data)}
+ • ${
+agendamento.horario || ''}
+. Você pode acrescentar serviços ou produtos antes de finalizar.`;
+
+                area.prepend(aviso);
+
+            }
+
+
+            document.getElementById('financeiro')?.scrollIntoView({
+behavior:'smooth', block:'start'}
+);
+
+        }
+
+
+        function concluirAgendamentoAposRecebimento(agendamentoId, entradaGerada) {
+
+            if(!agendamentoId || !entradaGerada) return;
+
+            // A conclusão é determinada pelo vínculo da receita com o agendamento.
+            // Não altera o campo status da tabela agendamentos, evitando conflito
+            // com constraints já existentes no banco.
+            entradaGerada.agendamentoId = agendamentoId;
+
+            renderizarAgenda();
+
+            renderizarDashboard();
+
+        }
+
+
+        async function salvarAgendamento() {
+
+            if(!validarAcessoPerfil('agendaEditar','Seu perfil possui apenas consulta da Agenda.')) return;
+
+            const idEdicao = document.getElementById('agenda-edicao-id').value || null;
+
+            const horaInicio = document.getElementById('agenda-hora-inicio').value || document.getElementById('agenda-slot-hora').value;
+
+            const duracaoMin = parseInt(document.getElementById('agenda-duracao-min').value) || configExpediente.intervalo || 45;
+
+            const data = document.getElementById('agenda-data-filtro').value;
+
+            const buscaVal = document.getElementById('agenda-cliente-busca').value.trim();
+
+            const profissionalId = document.getElementById('agenda-profissional')?.value || '';
+
+            const profissionalObj = profissionais.find(p => String(p.id) === String(profissionalId)) || null;
+
+            const servico = document.getElementById('agenda-servico').value;
+
+            const obs = document.getElementById('agenda-obs').value.trim();
+
+            const telefoneCampo = document.getElementById('agenda-telefone').value.trim();
+
+            const hoje = obterHojeLocal();
+
+
+            if (!data || data < hoje) {
+
+                alert('Não é permitido realizar agendamentos antes da data atual.');
+
+                document.getElementById('agenda-data-fil
+
+===== agendamentoEmRecebimentoId =====
+textContent = '';
+
+                if (telefoneEl) telefoneEl.textContent = '';
+
+                return;
+
+            }
+
+
+            painel.style.display = 'block';
+
+            if (nomeEl) nomeEl.textContent = `${
+formatarNomeCliente(cliente.nome)}
+ ${
+formatarNomeCliente(cliente.sobrenome || '')}
+`.trim();
+
+            if (codigoEl) codigoEl.textContent = cliente.codigo || '';
+
+            if (telefoneEl) telefoneEl.textContent = ` ${
+cliente.telefone || 'Telefone não cadastrado'}
+`;
+
+        }
+
+
+        function sincronizarDadosClientesTodasAsTelas() {
+
+            // A fonte oficial é o Supabase;
+ o array global "clientes" é o espelho em memória da empresa autenticada.
+            // Todas as telas são re-renderizadas imediatamente após qualquer
+            // inclusão, edição ou exclusão de cliente.
+            atualizarTabelaClientes();
+
+            atualizarListaClientesDatalist();
+
+            atualizarAniversariantesDia();
+
+            atualizarAniversariantesMes();
+
+            atualizarEspelhoClienteFinanceiro();
+
+            atualizarTelefoneAgendamento();
+
+
+            if (typeof renderizarAgenda === 'function') renderizarAgenda();
+
+
+            // Se o histórico do cliente estiver aberto, atualiza os dados sem
+            // exigir fechamento/reabertura da tela.
+            if (clienteAtualHistoricoId && document.getElementById('modal-historico-cliente')?.classList.contains('active')) {
+
+                abrirHistoricoCliente(clienteAtualHistoricoId);
+
+            }
+
+        }
+
+
+        async function lancarEntrada() {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar recebimentos.')) return;
+
+            const buscaVal = document.getElementById('busca-cliente').value.trim();
+
+            const dataVal = document.getElementById('data-entrada').value;
+
+            const pagamentoVal = document.getElementById('pag-entrada').value;
+
+            if(!buscaVal) {
+ alert('Informe o cliente para o atendimento!');
+ return;
+ }
+
+            if(carrinho.length === 0) {
+ alert('Adicione pelo menos um serviço ou produto ao carrinho!');
+ return;
+ }
+
+            if(!dataVal) {
+ alert('Informe a data do atendimento!');
+ return;
+ }
+
+
+            const agendamentoOrigemId = agendamentoEmRecebimentoId;
+
+            if(agendamentoOrigemId) {
+
+                const agendamentoOrigem = agendamentos.find(a => String(a.id) === String(agendamentoOrigemId));
+
+                if(!agendamentoOrigem) {
+
+                    agendamentoEmRecebimentoId = null;
+
+                    alert('O agendamento de origem não foi encontrado. Abra novamente o recebimento pela Agenda.');
+
+                    return;
+
+                }
+
+                if(entradaJaGeradaPorAgendamento(agendamentoOrigemId)) {
+
+                    alert('Este agendamento já foi finalizado. Nenhuma receita duplicada foi criada.');
+
+                    return;
+
+                }
+
+            }
+
+
+            const cliEncontrado = obterClienteSelecionado('financeiro');
+
+            const clienteId = cliEncontrado ? cliEncontrado.id : null;
+
+            const clienteNome = cliEncontrado ? formatarNomeCompletoCliente(cliEncontrado.nome, cliEncontrado.sobrenome) : formatarNomeCliente(buscaVal);
+
+            const totalVal = carrinho.reduce((acc, i) => acc + Number(i.preco || 0), 0);
+
+            const agendamentoComissao = agendamentoOrigemId ? agendamentos.find(a => String(a.id) === String(agendamentoOrigemId)) : null;
+
+            const profissionalComissao = agendamentoComissao?.profissionalId ? profissionais.find(p => String(p.id) === String(agendamentoComissao.profissionalId)) : null;
+
+            const percentualComissaoServicos = configComissoes.ativa && profissionalComissao
+                ? Number(profissionalComissao.comissaoPercentualServicos == null ? configComissoes.percentualServicos : profissionalComissao.comissaoPercentualServicos)
+                : null;
+
+            const percentualComissaoProdutos = configComissoes.ativa && profissionalComissao
+                ? Number(profissionalComissao.comissaoPercentualProdutos == null ? configComissoes.percentualProdutos : profissionalComissao.comissaoPercentualProdutos)
+                : null;
+
+            const baseServicosComissao = configComissoes.ativa && configComissoes.sobreServicos
+                ? carrinho.filter(i => i.tipoItem !== 'produto').reduce((acc,i)=>acc+Number(i.preco||0),0) : 0;
+
+            const baseProdutosComissao = configComissoes.ativa && configComissoes.sobreProdutos
+                ? carrinho.filter(i => i.tipoItem === 'produto').reduce((acc,i)=>acc+Number(i.preco||0),0) : 0;
+
+            const valorComissaoServicos = percentualComissaoServicos == null ? 0 : baseServicosComissao * percentualComissaoServicos / 100;
+
+            const valorComissaoProdutos = percentualComissaoProdutos == null ? 0 : baseProdutosComissao * percentualComissaoProdutos / 100;
+
+            const valorComissaoTotal = valorComissaoServicos + valorComissaoProdutos;
+
+
+            if(totalVal <= 0) {
+
+                const confirmarZero = confirm('O total deste atendimento está em R$ 0,00. Deseja finalizar mesmo assim?');
+
+                if(!confirmarZero) return;
+
+            }
+
+
+            try {
+
+                let novaEntrada;
+
+                if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+
+                    const payload = {
+
+                        empresa_id: empresaAtual.id,
+                        cliente_id: clienteId,
+                        agendamento_id: agendamentoOrigemId || null,
+                        cliente_nome: clienteNome,
+                        data: dataVal,
+                        pagamento: pagamentoVal,
+                        total: totalVal,
+                        profissional_id: profissionalComissao?.id || null,
+                        comissao_percentual_aplicado: percentualComissaoServicos,
+                        comissao_percentual_servicos_aplicado: percentualComissaoServicos,
+                        comissao_percentual_produtos_aplicado: percentualComissaoProdutos,
+                        comissao_base_servicos: baseServicosComissao,
+                        comissao_base_produtos: baseProdutosComissao,
+                        comissao_valor_servicos: valorComissaoServicos,
+                        comissao_valor_produtos: valorComissaoProdutos,
+                        comissao_valor_total: valorComissaoTotal,
+                        comissao_status: (configComiss
+
+===== agendamentoEmRecebimentoId =====
+ome)}
+ ${
+formatarNomeCliente(cliente.sobrenome || '')}
+`.trim();
+
+            if (codigoEl) codigoEl.textContent = cliente.codigo || '';
+
+            if (telefoneEl) telefoneEl.textContent = ` ${
+cliente.telefone || 'Telefone não cadastrado'}
+`;
+
+        }
+
+
+        function sincronizarDadosClientesTodasAsTelas() {
+
+            // A fonte oficial é o Supabase;
+ o array global "clientes" é o espelho em memória da empresa autenticada.
+            // Todas as telas são re-renderizadas imediatamente após qualquer
+            // inclusão, edição ou exclusão de cliente.
+            atualizarTabelaClientes();
+
+            atualizarListaClientesDatalist();
+
+            atualizarAniversariantesDia();
+
+            atualizarAniversariantesMes();
+
+            atualizarEspelhoClienteFinanceiro();
+
+            atualizarTelefoneAgendamento();
+
+
+            if (typeof renderizarAgenda === 'function') renderizarAgenda();
+
+
+            // Se o histórico do cliente estiver aberto, atualiza os dados sem
+            // exigir fechamento/reabertura da tela.
+            if (clienteAtualHistoricoId && document.getElementById('modal-historico-cliente')?.classList.contains('active')) {
+
+                abrirHistoricoCliente(clienteAtualHistoricoId);
+
+            }
+
+        }
+
+
+        async function lancarEntrada() {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar recebimentos.')) return;
+
+            const buscaVal = document.getElementById('busca-cliente').value.trim();
+
+            const dataVal = document.getElementById('data-entrada').value;
+
+            const pagamentoVal = document.getElementById('pag-entrada').value;
+
+            if(!buscaVal) {
+ alert('Informe o cliente para o atendimento!');
+ return;
+ }
+
+            if(carrinho.length === 0) {
+ alert('Adicione pelo menos um serviço ou produto ao carrinho!');
+ return;
+ }
+
+            if(!dataVal) {
+ alert('Informe a data do atendimento!');
+ return;
+ }
+
+
+            const agendamentoOrigemId = agendamentoEmRecebimentoId;
+
+            if(agendamentoOrigemId) {
+
+                const agendamentoOrigem = agendamentos.find(a => String(a.id) === String(agendamentoOrigemId));
+
+                if(!agendamentoOrigem) {
+
+                    agendamentoEmRecebimentoId = null;
+
+                    alert('O agendamento de origem não foi encontrado. Abra novamente o recebimento pela Agenda.');
+
+                    return;
+
+                }
+
+                if(entradaJaGeradaPorAgendamento(agendamentoOrigemId)) {
+
+                    alert('Este agendamento já foi finalizado. Nenhuma receita duplicada foi criada.');
+
+                    return;
+
+                }
+
+            }
+
+
+            const cliEncontrado = obterClienteSelecionado('financeiro');
+
+            const clienteId = cliEncontrado ? cliEncontrado.id : null;
+
+            const clienteNome = cliEncontrado ? formatarNomeCompletoCliente(cliEncontrado.nome, cliEncontrado.sobrenome) : formatarNomeCliente(buscaVal);
+
+            const totalVal = carrinho.reduce((acc, i) => acc + Number(i.preco || 0), 0);
+
+            const agendamentoComissao = agendamentoOrigemId ? agendamentos.find(a => String(a.id) === String(agendamentoOrigemId)) : null;
+
+            const profissionalComissao = agendamentoComissao?.profissionalId ? profissionais.find(p => String(p.id) === String(agendamentoComissao.profissionalId)) : null;
+
+            const percentualComissaoServicos = configComissoes.ativa && profissionalComissao
+                ? Number(profissionalComissao.comissaoPercentualServicos == null ? configComissoes.percentualServicos : profissionalComissao.comissaoPercentualServicos)
+                : null;
+
+            const percentualComissaoProdutos = configComissoes.ativa && profissionalComissao
+                ? Number(profissionalComissao.comissaoPercentualProdutos == null ? configComissoes.percentualProdutos : profissionalComissao.comissaoPercentualProdutos)
+                : null;
+
+            const baseServicosComissao = configComissoes.ativa && configComissoes.sobreServicos
+                ? carrinho.filter(i => i.tipoItem !== 'produto').reduce((acc,i)=>acc+Number(i.preco||0),0) : 0;
+
+            const baseProdutosComissao = configComissoes.ativa && configComissoes.sobreProdutos
+                ? carrinho.filter(i => i.tipoItem === 'produto').reduce((acc,i)=>acc+Number(i.preco||0),0) : 0;
+
+            const valorComissaoServicos = percentualComissaoServicos == null ? 0 : baseServicosComissao * percentualComissaoServicos / 100;
+
+            const valorComissaoProdutos = percentualComissaoProdutos == null ? 0 : baseProdutosComissao * percentualComissaoProdutos / 100;
+
+            const valorComissaoTotal = valorComissaoServicos + valorComissaoProdutos;
+
+
+            if(totalVal <= 0) {
+
+                const confirmarZero = confirm('O total deste atendimento está em R$ 0,00. Deseja finalizar mesmo assim?');
+
+                if(!confirmarZero) return;
+
+            }
+
+
+            try {
+
+                let novaEntrada;
+
+                if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+
+                    const payload = {
+
+                        empresa_id: empresaAtual.id,
+                        cliente_id: clienteId,
+                        agendamento_id: agendamentoOrigemId || null,
+                        cliente_nome: clienteNome,
+                        data: dataVal,
+                        pagamento: pagamentoVal,
+                        total: totalVal,
+                        profissional_id: profissionalComissao?.id || null,
+                        comissao_percentual_aplicado: percentualComissaoServicos,
+                        comissao_percentual_servicos_aplicado: percentualComissaoServicos,
+                        comissao_percentual_produtos_aplicado: percentualComissaoProdutos,
+                        comissao_base_servicos: baseServicosComissao,
+                        comissao_base_produtos: baseProdutosComissao,
+                        comissao_valor_servicos: valorComissaoServicos,
+                        comissao_valor_produtos: valorComissaoProdutos,
+                        comissao_valor_total: valorComissaoTotal,
+                        comissao_status: (configComissoes.ativa && profissionalComissao && valorComissaoTotal > 0) ? 'PENDENTE' : null
+                    }
+;
+
+                    const {
+ data: at, error }
+ = await CloudDB.from('atendimentos').insert(payload).select().single();
+
+                 
+
+===== agendamentoEmRecebimentoId =====
+    comissao_valor_total: valorComissaoTotal,
+                        comissao_status: (configComissoes.ativa && profissionalComissao && valorComissaoTotal > 0) ? 'PENDENTE' : null
+                    }
+;
+
+                    const {
+ data: at, error }
+ = await CloudDB.from('atendimentos').insert(payload).select().single();
+
+                    if(error) throw error;
+
+
+                    const itensPayload = carrinho.map(i => ({
+
+                        empresa_id: empresaAtual.id,
+                        atendimento_id: at.id,
+                        tipo: i.tipoItem === 'produto' ? 'PRODUTO' : 'SERVICO',
+                        item_origem_id: (typeof i.id === 'string' && i.id.includes('-')) ? i.id : null,
+                        nome: i.nome,
+                        quantidade: 1,
+                        valor_unitario: Number(i.preco||0),
+                        valor_total: Number(i.preco||0)
+                    }
+));
+
+                    const {
+ data: itensSalvos, error: itensErro }
+ = await CloudDB.from('itens_atendimento').insert(itensPayload).select();
+
+                    if(itensErro) {
+
+                        await CloudDB.from('atendimentos').delete().eq('id',at.id);
+
+                        throw itensErro;
+
+                    }
+
+                    novaEntrada = entradaCloudParaLocal(at, itensSalvos || []);
+
+                    if(agendamentoOrigemId) novaEntrada.agendamentoId = agendamentoOrigemId;
+
+                }
+ else {
+
+                    novaEntrada = {
+
+                        id:Date.now(),
+                        clienteId,
+                        clienteNome,
+                        data:dataVal,
+                        pagamento:pagamentoVal,
+                        itens:[...carrinho],
+                        total:totalVal,
+                        agendamentoId: agendamentoOrigemId || null
+                    }
+;
+
+                }
+
+
+                entradas.push(novaEntrada);
+
+
+                if(agendamentoOrigemId) {
+
+                    concluirAgendamentoAposRecebimento(agendamentoOrigemId, novaEntrada);
+
+                }
+
+
+                salvarCacheFinanceiroCloud();
+
+                salvarStorage();
+
+
+                carrinho = [];
+
+                agendamentoEmRecebimentoId = null;
+
+                document.getElementById('busca-cliente').value = '';
+
+                delete document.getElementById('busca-cliente').dataset.clienteId;
+
+                document.getElementById('aviso-recebimento-agenda')?.remove();
+
+
+                atualizarEspelhoClienteFinanceiro?.();
+
+                atualizarCarrinhoUI();
+
+                atualizarDadosFinanceiros();
+
+                atualizarTabelaClientes();
+
+                renderizarDashboard();
+
+                renderizarAgenda();
+
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_REGISTRADO',novaEntrada?.id || null,{
+cliente:clienteNome,valor:totalVal,data:dataVal,pagamento:pagamentoVal,agendamento_id:agendamentoOrigemId || null}
+);
+
+                alert(agendamentoOrigemId
+                    ? 'Atendimento finalizado e receita registrada com sucesso!' : 'Atendimento lançado com sucesso!');
+
+            }
+ catch(err) {
+
+                console.error(err);
+
+                alert(`Não foi possível lançar o atendimento: ${
+err?.message || 'erro desconhecido'}
+`);
+
+            }
+
+        }
+
+
+        async function excluirEntrada(id) {
+
+            if(!validarPermissaoCancelamento('entradas','excluir atendimentos/entradas')) return;
+
+
+            const entrada = entradas.find(e => String(e.id) === String(id));
+
+            if(!entrada) {
+
+                alert('Lançamento não encontrado.');
+
+                return;
+
+            }
+
+
+            const vinculadaAgenda = !!entrada.agendamentoId;
+
+            const agendamentoVinculado = vinculadaAgenda
+                ? agendamentos.find(a => String(a.id) === String(entrada.agendamentoId))
+                : null;
+
+
+            const mensagem = vinculadaAgenda
+                ? `Este recebimento veio da Agenda${
+agendamentoVinculado ? ` (${
+agendamentoVinculado.clienteNome}
+ • ${
+formatarDataAgenda(agendamentoVinculado.data)}
+ ${
+agendamentoVinculado.horario || ''}
+)` : ''}
+.\n\nAo excluir a receita, o atendimento voltará a aparecer como NÃO FINALIZADO na Agenda e poderá ser recebido novamente.\n\nDeseja continuar?` : 'Tem certeza que deseja excluir este lançamento de entrada?';
+
+
+            if(!confirm(mensagem)) return;
+
+
+            try {
+
+                if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+
+                    const {
+ error }
+ = await CloudDB
+                        .from('atendimentos')
+                        .delete()
+                        .eq('id', id)
+                        .eq('empresa_id', empresaAtual.id);
+
+                    if(error) throw error;
+
+                }
+
+
+                entradas = entradas.filter(e => String(e.id) !== String(id));
+
+                salvarCacheFinanceiroCloud();
+
+                salvarStorage();
+
+
+                atualizarDadosFinanceiros();
+
+                atualizarTabelaClientes();
+
+                renderizarDashboard();
+
+                renderizarAgenda();
+
+
+                if(clienteAtualHistoricoId && entrada.clienteId && String(clienteAtualHistoricoId) === String(entrada.clienteId)) {
+
+                    abrirHistoricoCliente(clienteAtualHistoricoId);
+
+                }
+
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_EXCLUIDO',id,{
+cliente:entrada.clienteNome,valor:entrada.total,data:entrada.data,agendamento_id:entrada.agendamentoId || null}
+);
+
+                alert(vinculadaAgenda
+                    ? 'Receita excluída. O atendimento foi reaberto na Agenda.' : 'Lançamento excluído com sucesso.');
+
+            }
+ catch(err) {
+
+                console.error(err);
+
+                alert(`Não foi possível excluir o atendimento: ${
+err?.message || 'erro desconhecido'}
+`);
+
+            }
+
+        }
+
+
+        async function lancarSaida() {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar despesas.')) return;
+
+            const desc=document.getElementById('saida-descricao').value.trim(), valor=parseFloat(document.getElementById('saida-valor').value), data=document.getElementById('saida-data').value;
+
+            if(!desc){
+alert('Informe a descrição da despesa!');
+return;
+}
+ if(isNaN(valor)||valor<=0){
+alert('Informe um valor válido!');
+return;
+}
+ if(!data){
+alert('Informe a data!');
+return;
+}
+
+            try {
+
+ 
+
+===== concluirAgendamentoAposRecebimento =====
+       const dataEntrada = document.getElementById('data-entrada');
+
+
+            if(buscaCliente) {
+
+                if(agendamento.clienteId) {
+
+                    const cliente = clientes.find(c => String(c.id) === String(agendamento.clienteId));
+
+                    buscaCliente.value = cliente
+                        ? `${
+cliente.codigo}
+ - ${
+formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)}
+` : (agendamento.clienteNome || '');
+
+                }
+ else {
+
+                    buscaCliente.value = agendamento.clienteNome || '';
+
+                }
+
+            }
+
+
+            if(dataEntrada) dataEntrada.value = agendamento.data || obterHojeLocal();
+
+
+            carrinho = [];
+
+            const servico = obterServicoDoAgendamento(agendamento);
+
+            if(servico) {
+
+                carrinho.push({
+ ...servico, tipoItem:'servico' }
+);
+
+            }
+ else if(agendamento.servico) {
+
+                carrinho.push({
+
+                    id: agendamento.servicoId || `agenda-${
+agendamento.id}
+`,
+                    nome: agendamento.servico,
+                    preco: 0,
+                    tipoItem:'servico' }
+);
+
+            }
+
+
+            atualizarCarrinhoUI();
+
+            atualizarEspelhoClienteFinanceiro?.();
+
+
+            const avisoId = 'aviso-recebimento-agenda';
+
+            document.getElementById(avisoId)?.remove();
+
+            const area = document.querySelector('#aba-entradas .entradas-form-area');
+
+            if(area) {
+
+                const aviso = document.createElement('div');
+
+                aviso.id = avisoId;
+
+                aviso.style.cssText = 'background:#ebf8ff;
+border:1px solid #90cdf4;
+border-left:4px solid #3182ce;
+color:#2a4365;
+padding:10px 12px;
+border-radius:6px;
+margin-bottom:14px;
+font-size:12px;
+line-height:1.45;
+';
+
+                aviso.innerHTML = `<b>Recebimento iniciado pela Agenda</b><br>${
+agendamento.clienteNome || 'Cliente'}
+ • ${
+formatarDataAgenda(agendamento.data)}
+ • ${
+agendamento.horario || ''}
+. Você pode acrescentar serviços ou produtos antes de finalizar.`;
+
+                area.prepend(aviso);
+
+            }
+
+
+            document.getElementById('financeiro')?.scrollIntoView({
+behavior:'smooth', block:'start'}
+);
+
+        }
+
+
+        function concluirAgendamentoAposRecebimento(agendamentoId, entradaGerada) {
+
+            if(!agendamentoId || !entradaGerada) return;
+
+            // A conclusão é determinada pelo vínculo da receita com o agendamento.
+            // Não altera o campo status da tabela agendamentos, evitando conflito
+            // com constraints já existentes no banco.
+            entradaGerada.agendamentoId = agendamentoId;
+
+            renderizarAgenda();
+
+            renderizarDashboard();
+
+        }
+
+
+        async function salvarAgendamento() {
+
+            if(!validarAcessoPerfil('agendaEditar','Seu perfil possui apenas consulta da Agenda.')) return;
+
+            const idEdicao = document.getElementById('agenda-edicao-id').value || null;
+
+            const horaInicio = document.getElementById('agenda-hora-inicio').value || document.getElementById('agenda-slot-hora').value;
+
+            const duracaoMin = parseInt(document.getElementById('agenda-duracao-min').value) || configExpediente.intervalo || 45;
+
+            const data = document.getElementById('agenda-data-filtro').value;
+
+            const buscaVal = document.getElementById('agenda-cliente-busca').value.trim();
+
+            const profissionalId = document.getElementById('agenda-profissional')?.value || '';
+
+            const profissionalObj = profissionais.find(p => String(p.id) === String(profissionalId)) || null;
+
+            const servico = document.getElementById('agenda-servico').value;
+
+            const obs = document.getElementById('agenda-obs').value.trim();
+
+            const telefoneCampo = document.getElementById('agenda-telefone').value.trim();
+
+            const hoje = obterHojeLocal();
+
+
+            if (!data || data < hoje) {
+
+                alert('Não é permitido realizar agendamentos antes da data atual.');
+
+                document.getElementById('agenda-data-filtro').value = hoje;
+
+                fecharModalAgendamento();
+
+                renderizarAgenda();
+
+                return;
+
+            }
+
+            if(!horaInicio) {
+ alert('Informe o horário inicial do agendamento!');
+ return;
+ }
+
+            if(horarioJaUltrapassado(data, horaInicio)) {
+
+                alert('O horário informado já foi ultrapassado. Escolha um horário futuro.');
+
+                renderizarAgenda();
+
+                return;
+
+            }
+
+            if(!duracaoMin || duracaoMin <= 0) {
+ alert('Informe uma duração válida em minutos!');
+ return;
+ }
+
+            if(!buscaVal) {
+ alert('Informe o cliente para o agendamento!');
+ return;
+ }
+
+            if(!profissionalId || !profissionalObj) {
+ alert('Selecione o profissional do atendimento!');
+ return;
+ }
+
+            if(!servico) {
+ alert('Selecione o serviço do atendimento!');
+ return;
+ }
+
+
+            const inicioNovo = timeToMin(horaInicio);
+
+            const fimNovo = inicioNovo + duracaoMin;
+
+
+            // Validação crítica: todo o atendimento precisa caber dentro do expediente.
+            const inicioExpediente = timeToMin(configExpediente.abertura);
+
+            const fimExpediente = timeToMin(configExpediente.fechamento);
+
+
+            if (inicioNovo < inicioExpediente || fimNovo > fimExpediente) {
+
+                alert(
+                    `️ HORÁRIO FORA DO EXPEDIENTE!\n\n` +
+                    `Este atendimento seria realizado das ${
+horaInicio}
+ às ${
+minToTime(fimNovo)}
+.\n\n` +
+                    `O expediente da empresa é das ${
+configExpediente.abertura}
+ às ${
+configExpediente.fechamento}
+.\n\n` +
+                    `Escolha um horário em que todo o atendimento caiba dentro do expediente.` );
+
+                return;
+
+            }
+
+            const conflitoAgendamento = agendamentos.find(a => {
+
+                if(a.data !== data) return false;
+
+                if(String(a.profissionalId || '') !== String(profissionalId)) return false;
+
+                if(idEdicao && String(a.id) === String(idEdicao)) return false;
+
+                const iniExistente = timeToMin(a.horario);
+
+                const durExistente = a.duracao || configExpediente.intervalo || 45;
+
+                return inicioNovo < (iniExistente + durExistente) && fimNovo > iniExistente;
+
+            }
+);
+
+            if(conflitoAgendamento) {
+
+                const iniConfFmt = conflitoAgendamento.horario;
+
+            
+
+===== concluirAgendamentoAposRecebimento =====
+      comissao_base_produtos: baseProdutosComissao,
+                        comissao_valor_servicos: valorComissaoServicos,
+                        comissao_valor_produtos: valorComissaoProdutos,
+                        comissao_valor_total: valorComissaoTotal,
+                        comissao_status: (configComissoes.ativa && profissionalComissao && valorComissaoTotal > 0) ? 'PENDENTE' : null
+                    }
+;
+
+                    const {
+ data: at, error }
+ = await CloudDB.from('atendimentos').insert(payload).select().single();
+
+                    if(error) throw error;
+
+
+                    const itensPayload = carrinho.map(i => ({
+
+                        empresa_id: empresaAtual.id,
+                        atendimento_id: at.id,
+                        tipo: i.tipoItem === 'produto' ? 'PRODUTO' : 'SERVICO',
+                        item_origem_id: (typeof i.id === 'string' && i.id.includes('-')) ? i.id : null,
+                        nome: i.nome,
+                        quantidade: 1,
+                        valor_unitario: Number(i.preco||0),
+                        valor_total: Number(i.preco||0)
+                    }
+));
+
+                    const {
+ data: itensSalvos, error: itensErro }
+ = await CloudDB.from('itens_atendimento').insert(itensPayload).select();
+
+                    if(itensErro) {
+
+                        await CloudDB.from('atendimentos').delete().eq('id',at.id);
+
+                        throw itensErro;
+
+                    }
+
+                    novaEntrada = entradaCloudParaLocal(at, itensSalvos || []);
+
+                    if(agendamentoOrigemId) novaEntrada.agendamentoId = agendamentoOrigemId;
+
+                }
+ else {
+
+                    novaEntrada = {
+
+                        id:Date.now(),
+                        clienteId,
+                        clienteNome,
+                        data:dataVal,
+                        pagamento:pagamentoVal,
+                        itens:[...carrinho],
+                        total:totalVal,
+                        agendamentoId: agendamentoOrigemId || null
+                    }
+;
+
+                }
+
+
+                entradas.push(novaEntrada);
+
+
+                if(agendamentoOrigemId) {
+
+                    concluirAgendamentoAposRecebimento(agendamentoOrigemId, novaEntrada);
+
+                }
+
+
+                salvarCacheFinanceiroCloud();
+
+                salvarStorage();
+
+
+                carrinho = [];
+
+                agendamentoEmRecebimentoId = null;
+
+                document.getElementById('busca-cliente').value = '';
+
+                delete document.getElementById('busca-cliente').dataset.clienteId;
+
+                document.getElementById('aviso-recebimento-agenda')?.remove();
+
+
+                atualizarEspelhoClienteFinanceiro?.();
+
+                atualizarCarrinhoUI();
+
+                atualizarDadosFinanceiros();
+
+                atualizarTabelaClientes();
+
+                renderizarDashboard();
+
+                renderizarAgenda();
+
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_REGISTRADO',novaEntrada?.id || null,{
+cliente:clienteNome,valor:totalVal,data:dataVal,pagamento:pagamentoVal,agendamento_id:agendamentoOrigemId || null}
+);
+
+                alert(agendamentoOrigemId
+                    ? 'Atendimento finalizado e receita registrada com sucesso!' : 'Atendimento lançado com sucesso!');
+
+            }
+ catch(err) {
+
+                console.error(err);
+
+                alert(`Não foi possível lançar o atendimento: ${
+err?.message || 'erro desconhecido'}
+`);
+
+            }
+
+        }
+
+
+        async function excluirEntrada(id) {
+
+            if(!validarPermissaoCancelamento('entradas','excluir atendimentos/entradas')) return;
+
+
+            const entrada = entradas.find(e => String(e.id) === String(id));
+
+            if(!entrada) {
+
+                alert('Lançamento não encontrado.');
+
+                return;
+
+            }
+
+
+            const vinculadaAgenda = !!entrada.agendamentoId;
+
+            const agendamentoVinculado = vinculadaAgenda
+                ? agendamentos.find(a => String(a.id) === String(entrada.agendamentoId))
+                : null;
+
+
+            const mensagem = vinculadaAgenda
+                ? `Este recebimento veio da Agenda${
+agendamentoVinculado ? ` (${
+agendamentoVinculado.clienteNome}
+ • ${
+formatarDataAgenda(agendamentoVinculado.data)}
+ ${
+agendamentoVinculado.horario || ''}
+)` : ''}
+.\n\nAo excluir a receita, o atendimento voltará a aparecer como NÃO FINALIZADO na Agenda e poderá ser recebido novamente.\n\nDeseja continuar?` : 'Tem certeza que deseja excluir este lançamento de entrada?';
+
+
+            if(!confirm(mensagem)) return;
+
+
+            try {
+
+                if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+
+                    const {
+ error }
+ = await CloudDB
+                        .from('atendimentos')
+                        .delete()
+                        .eq('id', id)
+                        .eq('empresa_id', empresaAtual.id);
+
+                    if(error) throw error;
+
+                }
+
+
+                entradas = entradas.filter(e => String(e.id) !== String(id));
+
+                salvarCacheFinanceiroCloud();
+
+                salvarStorage();
+
+
+                atualizarDadosFinanceiros();
+
+                atualizarTabelaClientes();
+
+                renderizarDashboard();
+
+                renderizarAgenda();
+
+
+                if(clienteAtualHistoricoId && entrada.clienteId && String(clienteAtualHistoricoId) === String(entrada.clienteId)) {
+
+                    abrirHistoricoCliente(clienteAtualHistoricoId);
+
+                }
+
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_EXCLUIDO',id,{
+cliente:entrada.clienteNome,valor:entrada.total,data:entrada.data,agendamento_id:entrada.agendamentoId || null}
+);
+
+                alert(vinculadaAgenda
+                    ? 'Receita excluída. O atendimento foi reaberto na Agenda.' : 'Lançamento excluído com sucesso.');
+
+            }
+ catch(err) {
+
+                console.error(err);
+
+                alert(`Não foi possível excluir o atendimento: ${
+err?.message || 'erro desconhecido'}
+`);
+
+            }
+
+        }
+
+
+        async function lancarSaida() {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar despesas.')) return;
+
+            const desc=document.getElementById('saida-descricao').value.trim(), valor=parseFloat(document.getElementById('saida-valor').value), data=document.getElementById('saida-dat
+
+===== RecebimentoAgendamento =====
+           <span class="slot-badge ocupado">${
+durAppt}
+ MIN</span></div></div><div class="slot-body"><b>Cliente:</b> ${
+agendamentoOcupado.clienteNome}
+<br><b>Profissional:</b> ${
+agendamentoOcupado.profissionalNome || profissionais.find(p => String(p.id)===String(agendamentoOcupado.profissionalId))?.nome || 'Não informado'}
+<br><b>Telefone:</b> ${
+whatsappHtml}
+<br>${
+agendamentoOcupado.clienteEmail ? `<b>E-mail:</b> ${
+agendamentoOcupado.clienteEmail}
+<br>` : ''}
+
+                                <b>Serviço:</b> ${
+agendamentoOcupado.servico}
+<br>${
+(() => {
+
+                                    const rec = entradas.find(e => String(e.agendamentoId || '') === String(agendamentoOcupado.id));
+
+                                    return rec ? `<b>Recebido:</b> R$ ${
+Number(rec.total || 0).toFixed(2)}
+ • ${
+rec.pagamento || '-'}
+<br>` : '';
+
+                                }
+)()}
+
+                                <b>Obs:</b> ${
+agendamentoOcupado.obs || '-'}
+
+                            </div></div>${
+dataRetroativa ? '<div style="font-size:12px;
+color:#718096;
+text-align:center;
+">Consulta histórica — sem ações de alteração</div>' : ` <div style="display:flex;
+ gap:6px;
+ flex-wrap:wrap;
+">${
+entradaJaGeradaPorAgendamento(agendamentoOcupado.id)
+                                ? '<button class="btn-salvar" disabled style="flex:1 1 100%;
+font-size:12px;
+padding:8px;
+background:#718096;
+color:white;
+cursor:not-allowed;
+"> Finalizado e recebido</button>' : `${
+agendamentoOcupado.isNaoCadastrado
+                                      ? `<button class="btn-salvar" style="flex:1 1 100%;
+font-size:12px;
+padding:8px;
+background:#805ad5;
+color:white;
+" onclick="abrirCadastroClienteAgendamento('${
+agendamentoOcupado.id}
+')"> Cadastrar cliente</button>` : ''}
+
+                                   ${
+String(agendamentoOcupado.status || '').toUpperCase() === 'SOLICITADO' ? `<button class="btn-salvar" style="flex:1 1 100%;
+font-size:12px;
+padding:8px;
+background:#dd6b20;
+color:white;
+" onclick="confirmarAgendamentoSolicitado('${
+agendamentoOcupado.id}
+')"> Confirmar solicitação</button>` : `${
+botaoConfirmacaoWhatsapp}
+<button class="btn-salvar" style="flex:1 1 100%;
+font-size:12px;
+padding:8px;
+background:#38a169;
+color:white;
+" onclick="iniciarRecebimentoAgendamento('${
+agendamentoOcupado.id}
+')"> Finalizar atendimento</button>`}
+
+                                   <button class="btn-salvar" style="flex:1;
+font-size:12px;
+padding:6px;
+background:#3182ce;
+color:white;
+" onclick="abrirEdicaoAgendamento('${
+agendamentoOcupado.id}
+')">️ Editar</button><button class="btn-excluir-tabela" style="flex:1;
+font-size:12px;
+padding:6px;
+" onclick="cancelarAgendamento('${
+agendamentoOcupado.id}
+')">${
+String(agendamentoOcupado.status || '').toUpperCase() === 'SOLICITADO' ? 'Recusar solicitação' : 'Liberar Horário'}
+</button>`}
+
+                        </div>`}
+
+                    `;
+
+                }
+ else if(horarioPassadoHoje) {
+
+                    card.className = 'slot-card';
+
+                    card.style.borderLeft = '5px solid #a0aec0';
+
+                    card.style.background = '#f7fafc';
+
+                    card.style.opacity = '0.78';
+
+                    card.innerHTML = ` <div><div class="slot-header"><span class="slot-horario">${
+horarioStr}
+</span><span class="slot-badge" style="background:#e2e8f0;
+color:#4a5568;
+">ENCERRADO</span></div><div class="slot-body" style="font-style:italic;
+color:#718096;
+">Este horário já foi ultrapassado e não aceita novos agendamentos.
+                            </div></div>`;
+
+                }
+ else {
+
+                    card.className = 'slot-card vago';
+
+                    card.innerHTML = ` <div><div class="slot-header"><span class="slot-horario">${
+horarioStr}
+</span><span class="slot-badge vago">Disponível</span></div><div class="slot-body" style="font-style: italic;
+ color: #a0aec0;
+">Horário livre para marcação.
+                            </div></div>${
+dataRetroativa ? '<div style="font-size:12px;
+color:#718096;
+text-align:center;
+">Horário histórico — nenhuma nova marcação permitida</div>' : ` <div style="display: flex;
+ gap: 6px;
+"><button class="btn-salvar" style="flex: 2;
+ font-size: 12px;
+ padding: 6px;
+ background: #38a169;
+ color: white;
+" onclick="abrirModalAgendamento('${
+horarioStr}
+')">+ Agendar</button><button class="btn-salvar" style="flex: 1;
+ font-size: 12px;
+ padding: 6px;
+ background: #e53e3e;
+ color: white;
+" onclick="abrirModalBloqueio('${
+horarioStr}
+')"> Bloquear</button></div>`}
+
+                    `;
+
+                }
+
+                grid.appendChild(card);
+
+                minutosAtuais += intervalo;
+
+            }
+
+
+            if(agendamentoDestaqueNotificacaoId) {
+
+                const idPendente = agendamentoDestaqueNotificacaoId;
+
+                requestAnimationFrame(() => {
+
+                    if(destacarAgendamentoDaNotificacao(idPendente)) {
+
+                        agendamentoDestaqueNotificacaoId = null;
+
+                    }
+
+                }
+);
+
+            }
+
+        }
+
+
+        function obterAgendamentosDaDataSelecionada() {
+
+            const data = document.getElementById('agenda-data-filtro')?.value;
+
+            if(!data) return [];
+
+            return agendamentos
+                .filter(a => a.data === data)
+                .sort((a,b) => timeToMin(a.horario) - timeToMin(b.horario));
+
+        }
+
+
+        function formatarDataAgenda(data) {
+
+            return data ? new Date(data + 'T00:00:00').toLocaleDateString('pt-BR') : '-';
+
+        }
+
+
+        function obterReceitaDoAgendamento(agendamentoId) {
+
+            return entradas.find(e => String(e.agendamentoId || '') === String(agendamentoId)) || null;
+
+        }
+
+
+        function montarDadosExportacaoAgenda() {
+
+            if(!validarAcessoPerfil('agendaExportar','Seu perfil não pode exportar documentos da Agenda.')) return;
+
+            return obterAgendamentosDaDataSelecionada().map(a => {
+
+                const receita = obterReceitaDoAgendamento(a.id);
+
+                const fim = minToTime(timeToMin(a.horario) + (a.duracao || configExpediente.intervalo || 45));
+
+                return {
+
+                    agendamento: a,
+                    receita,
+                    horarioFim: fim,
+                    status: receita ? 'FINALIZADO / RECEBIDO' : 'AGENDADO',
+                    valorRecebido: receita ? Number(receita.total || 0) : 0,
+                    pagamento: receita?.pagamento || '' }
+;
+
+            }
+);
+
+        }
+
+
+        function exportarAgendaDiaExcel() {
+
+            if(!validarAce
+
+===== RecebimentoAgendamento =====
+           .replace(/\[BARBEARIA\]/gi, nomeBarbearia || 'Barbearia');
+
+
+            return `https://wa.me/${
+numeroCompleto}
+?text=${
+encodeURIComponent(mensagem)}
+`;
+
+        }
+
+
+
+        function gerarLinkWhatsAppConfirmacaoAgendamento(agendamento) {
+
+            if(!agendamento) return '';
+
+
+            const telefone = agendamento.telefone
+                || (clientes.find(c => String(c.id) === String(agendamento.clienteId))?.telefone || '');
+
+
+            const numeros = String(telefone || '').replace(/\D/g,'');
+
+            if(!numeros) return '';
+
+
+            const numeroCompleto = numeros.startsWith('55') ? numeros : `55${
+numeros}
+`;
+
+
+            const profissionalNome = agendamento.profissionalNome
+                || profissionais.find(p => String(p.id) === String(agendamento.profissionalId))?.nome
+                || 'Não informado';
+
+
+            const dataFmt = agendamento.data
+                ? new Date(`${
+agendamento.data}
+T00:00:00`).toLocaleDateString('pt-BR')
+                : '';
+
+
+            const mensagem = [
+                `Olá, ${
+agendamento.clienteNome || 'cliente'}
+!`,
+                '',
+                `Seu agendamento na ${
+nomeBarbearia || 'empresa'}
+ foi confirmado. `,
+                '',
+                ` Data: ${
+dataFmt}
+`,
+                ` Horário: ${
+agendamento.horario || ''}
+`,
+                ` Profissional: ${
+profissionalNome}
+`,
+                `️ Serviço: ${
+agendamento.servico || ''}
+`,
+                '',
+                'Aguardamos você!' ].join('\n');
+
+
+            return `https://wa.me/${
+numeroCompleto}
+?text=${
+encodeURIComponent(mensagem)}
+`;
+
+        }
+
+
+        /* ===== INTEGRAÇÃO AGENDA -> CLIENTE -> FINANCEIRO ===== */
+        function obterServicoDoAgendamento(agendamento) {
+
+            if(!agendamento) return null;
+
+            return servicos.find(s =>String(s.id) === String(agendamento.servicoId || '') ||
+                String(s.nome || '').toUpperCase() === String(agendamento.servico || '').toUpperCase()
+            ) || null;
+
+        }
+
+
+        function entradaJaGeradaPorAgendamento(agendamentoId) {
+
+            return entradas.some(e => String(e.agendamentoId || '') === String(agendamentoId));
+
+        }
+
+
+        async function iniciarRecebimentoAgendamento(id) {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não possui acesso ao recebimento financeiro.')) return;
+
+            const agendamento = agendamentos.find(a => String(a.id) === String(id));
+
+            if(!agendamento) {
+
+                alert('Agendamento não encontrado.');
+
+                return;
+
+            }
+
+
+            if(entradaJaGeradaPorAgendamento(id)) {
+
+                alert('Este atendimento já foi finalizado e não pode gerar uma segunda receita.');
+
+                return;
+
+            }
+
+
+            agendamentoEmRecebimentoId = agendamento.id;
+
+
+            abrirRegistroAtendimento();
+
+
+            const buscaCliente = document.getElementById('busca-cliente');
+
+            const dataEntrada = document.getElementById('data-entrada');
+
+
+            if(buscaCliente) {
+
+                if(agendamento.clienteId) {
+
+                    const cliente = clientes.find(c => String(c.id) === String(agendamento.clienteId));
+
+                    buscaCliente.value = cliente
+                        ? `${
+cliente.codigo}
+ - ${
+formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)}
+` : (agendamento.clienteNome || '');
+
+                }
+ else {
+
+                    buscaCliente.value = agendamento.clienteNome || '';
+
+                }
+
+            }
+
+
+            if(dataEntrada) dataEntrada.value = agendamento.data || obterHojeLocal();
+
+
+            carrinho = [];
+
+            const servico = obterServicoDoAgendamento(agendamento);
+
+            if(servico) {
+
+                carrinho.push({
+ ...servico, tipoItem:'servico' }
+);
+
+            }
+ else if(agendamento.servico) {
+
+                carrinho.push({
+
+                    id: agendamento.servicoId || `agenda-${
+agendamento.id}
+`,
+                    nome: agendamento.servico,
+                    preco: 0,
+                    tipoItem:'servico' }
+);
+
+            }
+
+
+            atualizarCarrinhoUI();
+
+            atualizarEspelhoClienteFinanceiro?.();
+
+
+            const avisoId = 'aviso-recebimento-agenda';
+
+            document.getElementById(avisoId)?.remove();
+
+            const area = document.querySelector('#aba-entradas .entradas-form-area');
+
+            if(area) {
+
+                const aviso = document.createElement('div');
+
+                aviso.id = avisoId;
+
+                aviso.style.cssText = 'background:#ebf8ff;
+border:1px solid #90cdf4;
+border-left:4px solid #3182ce;
+color:#2a4365;
+padding:10px 12px;
+border-radius:6px;
+margin-bottom:14px;
+font-size:12px;
+line-height:1.45;
+';
+
+                aviso.innerHTML = `<b>Recebimento iniciado pela Agenda</b><br>${
+agendamento.clienteNome || 'Cliente'}
+ • ${
+formatarDataAgenda(agendamento.data)}
+ • ${
+agendamento.horario || ''}
+. Você pode acrescentar serviços ou produtos antes de finalizar.`;
+
+                area.prepend(aviso);
+
+            }
+
+
+            document.getElementById('financeiro')?.scrollIntoView({
+behavior:'smooth', block:'start'}
+);
+
+        }
+
+
+        function concluirAgendamentoAposRecebimento(agendamentoId, entradaGerada) {
+
+            if(!agendamentoId || !entradaGerada) return;
+
+            // A conclusão é determinada pelo vínculo da receita com o agendamento.
+            // Não altera o campo status da tabela agendamentos, evitando conflito
+            // com constraints já existentes no banco.
+            entradaGerada.agendamentoId = agendamentoId;
+
+            renderizarAgenda();
+
+            renderizarDashboard();
+
+        }
+
+
+        async function salvarAgendamento() {
+
+            if(!validarAcessoPerfil('agendaEditar','Seu perfil possui apenas consulta da Agenda.')) return;
+
+            const idEdicao = document.getElementById('agenda-edicao-id').value || null;
+
+            const horaInicio = document.getElementById('agenda-hora-inicio').value || document.getElementById('agenda-slot-hora').value;
+
+            const duracaoMin = parseInt(document.getElementById('agenda-duracao-min').value) || configExpediente.intervalo || 45;
+
+            const data = document.getElementById('agenda-data-filtro').value;
+
+            const buscaVal = document.getElementById('agenda-cliente-busca').value.trim();
+
+            const profissionalId = document.getElementById('agenda-profissional')?.value || '';
+
+            cons
+
+===== abrirRegistroAtendimento =====
+ `55${
+numeros}
+`;
+
+
+            const profissionalNome = agendamento.profissionalNome
+                || profissionais.find(p => String(p.id) === String(agendamento.profissionalId))?.nome
+                || 'Não informado';
+
+
+            const dataFmt = agendamento.data
+                ? new Date(`${
+agendamento.data}
+T00:00:00`).toLocaleDateString('pt-BR')
+                : '';
+
+
+            const mensagem = [
+                `Olá, ${
+agendamento.clienteNome || 'cliente'}
+!`,
+                '',
+                `Seu agendamento na ${
+nomeBarbearia || 'empresa'}
+ foi confirmado. `,
+                '',
+                ` Data: ${
+dataFmt}
+`,
+                ` Horário: ${
+agendamento.horario || ''}
+`,
+                ` Profissional: ${
+profissionalNome}
+`,
+                `️ Serviço: ${
+agendamento.servico || ''}
+`,
+                '',
+                'Aguardamos você!' ].join('\n');
+
+
+            return `https://wa.me/${
+numeroCompleto}
+?text=${
+encodeURIComponent(mensagem)}
+`;
+
+        }
+
+
+        /* ===== INTEGRAÇÃO AGENDA -> CLIENTE -> FINANCEIRO ===== */
+        function obterServicoDoAgendamento(agendamento) {
+
+            if(!agendamento) return null;
+
+            return servicos.find(s =>String(s.id) === String(agendamento.servicoId || '') ||
+                String(s.nome || '').toUpperCase() === String(agendamento.servico || '').toUpperCase()
+            ) || null;
+
+        }
+
+
+        function entradaJaGeradaPorAgendamento(agendamentoId) {
+
+            return entradas.some(e => String(e.agendamentoId || '') === String(agendamentoId));
+
+        }
+
+
+        async function iniciarRecebimentoAgendamento(id) {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não possui acesso ao recebimento financeiro.')) return;
+
+            const agendamento = agendamentos.find(a => String(a.id) === String(id));
+
+            if(!agendamento) {
+
+                alert('Agendamento não encontrado.');
+
+                return;
+
+            }
+
+
+            if(entradaJaGeradaPorAgendamento(id)) {
+
+                alert('Este atendimento já foi finalizado e não pode gerar uma segunda receita.');
+
+                return;
+
+            }
+
+
+            agendamentoEmRecebimentoId = agendamento.id;
+
+
+            abrirRegistroAtendimento();
+
+
+            const buscaCliente = document.getElementById('busca-cliente');
+
+            const dataEntrada = document.getElementById('data-entrada');
+
+
+            if(buscaCliente) {
+
+                if(agendamento.clienteId) {
+
+                    const cliente = clientes.find(c => String(c.id) === String(agendamento.clienteId));
+
+                    buscaCliente.value = cliente
+                        ? `${
+cliente.codigo}
+ - ${
+formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)}
+` : (agendamento.clienteNome || '');
+
+                }
+ else {
+
+                    buscaCliente.value = agendamento.clienteNome || '';
+
+                }
+
+            }
+
+
+            if(dataEntrada) dataEntrada.value = agendamento.data || obterHojeLocal();
+
+
+            carrinho = [];
+
+            const servico = obterServicoDoAgendamento(agendamento);
+
+            if(servico) {
+
+                carrinho.push({
+ ...servico, tipoItem:'servico' }
+);
+
+            }
+ else if(agendamento.servico) {
+
+                carrinho.push({
+
+                    id: agendamento.servicoId || `agenda-${
+agendamento.id}
+`,
+                    nome: agendamento.servico,
+                    preco: 0,
+                    tipoItem:'servico' }
+);
+
+            }
+
+
+            atualizarCarrinhoUI();
+
+            atualizarEspelhoClienteFinanceiro?.();
+
+
+            const avisoId = 'aviso-recebimento-agenda';
+
+            document.getElementById(avisoId)?.remove();
+
+            const area = document.querySelector('#aba-entradas .entradas-form-area');
+
+            if(area) {
+
+                const aviso = document.createElement('div');
+
+                aviso.id = avisoId;
+
+                aviso.style.cssText = 'background:#ebf8ff;
+border:1px solid #90cdf4;
+border-left:4px solid #3182ce;
+color:#2a4365;
+padding:10px 12px;
+border-radius:6px;
+margin-bottom:14px;
+font-size:12px;
+line-height:1.45;
+';
+
+                aviso.innerHTML = `<b>Recebimento iniciado pela Agenda</b><br>${
+agendamento.clienteNome || 'Cliente'}
+ • ${
+formatarDataAgenda(agendamento.data)}
+ • ${
+agendamento.horario || ''}
+. Você pode acrescentar serviços ou produtos antes de finalizar.`;
+
+                area.prepend(aviso);
+
+            }
+
+
+            document.getElementById('financeiro')?.scrollIntoView({
+behavior:'smooth', block:'start'}
+);
+
+        }
+
+
+        function concluirAgendamentoAposRecebimento(agendamentoId, entradaGerada) {
+
+            if(!agendamentoId || !entradaGerada) return;
+
+            // A conclusão é determinada pelo vínculo da receita com o agendamento.
+            // Não altera o campo status da tabela agendamentos, evitando conflito
+            // com constraints já existentes no banco.
+            entradaGerada.agendamentoId = agendamentoId;
+
+            renderizarAgenda();
+
+            renderizarDashboard();
+
+        }
+
+
+        async function salvarAgendamento() {
+
+            if(!validarAcessoPerfil('agendaEditar','Seu perfil possui apenas consulta da Agenda.')) return;
+
+            const idEdicao = document.getElementById('agenda-edicao-id').value || null;
+
+            const horaInicio = document.getElementById('agenda-hora-inicio').value || document.getElementById('agenda-slot-hora').value;
+
+            const duracaoMin = parseInt(document.getElementById('agenda-duracao-min').value) || configExpediente.intervalo || 45;
+
+            const data = document.getElementById('agenda-data-filtro').value;
+
+            const buscaVal = document.getElementById('agenda-cliente-busca').value.trim();
+
+            const profissionalId = document.getElementById('agenda-profissional')?.value || '';
+
+            const profissionalObj = profissionais.find(p => String(p.id) === String(profissionalId)) || null;
+
+            const servico = document.getElementById('agenda-servico').value;
+
+            const obs = document.getElementById('agenda-obs').value.trim();
+
+            const telefoneCampo = document.getElementById('agenda-telefone').value.trim();
+
+            const hoje = obterHojeLocal();
+
+
+            if (!data || data < hoje) {
+
+                alert('Não é permitido realizar agendamentos antes da data atual.');
+
+                document.getElementById('agenda-data-filtro').value = hoje;
+
+                fecharModalAgendamento
+
+===== abrirRegistroAtendimento =====
+tant}
+
+  #atendimento input,#atendimento select,#atendimento textarea{
+width:100%!important;
+min-width:0!important;
+font-size:16px}
+
+  #atendimento .combo-grid{
+grid-template-columns:repeat(2,minmax(0,1fr))!important}
+
+  #atendimento #lista-carrinho + div{
+display:flex!important;
+flex-direction:column!important;
+align-items:stretch!important;
+gap:10px!important}
+
+  #atendimento .btn-salvar{
+min-height:48px;
+white-space:normal}
+
+}
+
+@media(max-width:420px){
+#atendimento .combo-grid{
+grid-template-columns:1fr!important}
+}
+
+</style>
+<script id="simpla-registro-atendimento-v18-script">
+(function(){
+
+  function podeOperar(){
+
+    try{
+
+      if(typeof validarAcessoPerfil==='function') return validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar atendimentos.');
+
+    }
+catch(e){
+}
+
+    return true;
+
+  }
+
+
+  function garantirEstrutura(){
+
+    const main=document.querySelector('.main-content');
+
+    const financeiro=document.getElementById('financeiro');
+
+    const aba=document.getElementById('aba-entradas');
+
+    if(!main||!financeiro||!aba) return false;
+
+
+    let tela=document.getElementById('atendimento');
+
+    if(!tela){
+
+      tela=document.createElement('div');
+
+      tela.id='atendimento';
+
+      tela.className='screen atendimento-screen';
+
+      tela.innerHTML='<div class="registro-atendimento-header"><h1>Registro de Atendimento</h1><p>Registre o atendimento realizado. Ao finalizar, o recebimento será lançado automaticamente no Financeiro.</p></div><div id="registro-atendimento-host"></div>';
+
+      financeiro.parentNode.insertBefore(tela,financeiro);
+
+    }
+
+    const host=document.getElementById('registro-atendimento-host');
+
+    if(host && aba.parentNode!==host) host.appendChild(aba);
+
+
+    const tabReceitas=document.getElementById('tab-header-entradas');
+
+    if(tabReceitas) tabReceitas.style.display='none';
+
+
+    let menu=document.getElementById('menu-btn-atendimento');
+
+    const menuFin=document.getElementById('menu-btn-financeiro');
+
+    if(!menu && menuFin){
+
+      menu=document.createElement('button');
+
+      menu.className='menu-btn';
+
+      menu.id='menu-btn-atendimento';
+
+      menu.type='button';
+
+      menu.innerHTML='Registro de Atendimento';
+
+      menu.onclick=function(ev){
+ window.abrirRegistroAtendimento(ev);
+ }
+;
+
+      menuFin.parentNode.insertBefore(menu,menuFin);
+
+    }
+
+
+    // Financeiro passa a abrir em Despesas quando Receitas era a aba ativa.
+    const tabSaidas=document.getElementById('tab-header-saidas');
+
+    const abaSaidas=document.getElementById('aba-saidas');
+
+    if(financeiro.classList.contains('active') && (!document.querySelector('#financeiro .aba-content.active'))){
+
+      document.querySelectorAll('#financeiro .aba-content').forEach(x=>x.classList.remove('active'));
+
+      document.querySelectorAll('#financeiro .tab').forEach(x=>x.classList.remove('active'));
+
+      abaSaidas?.classList.add('active');
+ tabSaidas?.classList.add('active');
+
+    }
+
+    return true;
+
+  }
+
+
+  window.abrirRegistroAtendimento=function(ev){
+
+    if(!podeOperar()) return;
+
+    garantirEstrutura();
+
+    if(typeof mudarTela==='function') mudarTela('atendimento',ev||null);
+
+    const aba=document.getElementById('aba-entradas');
+
+    if(aba) aba.classList.add('active');
+
+    try{
+ renderizarCombos?.();
+ }
+catch(e){
+}
+
+    try{
+ atualizarCarrinhoUI?.();
+ }
+catch(e){
+}
+
+    try{
+ atualizarEspelhoClienteFinanceiro?.();
+ }
+catch(e){
+}
+
+    window.scrollTo({
+top:0,behavior:'smooth'}
+);
+
+    setTimeout(sincronizarBottomNav,50);
+
+  }
+;
+
+
+  function ajustarFinanceiro(){
+
+    const fin=document.getElementById('financeiro');
+
+    if(!fin?.classList.contains('active')) return;
+
+    const ativa=fin.querySelector('.aba-content.active');
+
+    if(!ativa){
+
+      try{
+ mudarAba('aba-saidas');
+ }
+catch(e){
+
+        document.getElementById('aba-saidas')?.classList.add('active');
+
+        document.getElementById('tab-header-saidas')?.classList.add('active');
+
+      }
+
+    }
+
+  }
+
+
+  function sincronizarBottomNav(){
+
+    const nav=document.querySelector('.simpla-bottom-nav, #simpla-bottom-nav, [data-bottom-nav]');
+
+    if(!nav) return;
+
+    const botoes=[...nav.querySelectorAll('button')];
+
+    const fin=botoes.find(b=>/financeiro/i.test(b.textContent||''));
+
+    if(fin) fin.style.display='none';
+
+    let at=nav.querySelector('[data-tela="atendimento"], .bottom-nav-atendimento');
+
+    if(!at){
+
+      at=document.createElement('button');
+
+      at.type='button';
+ at.className='bottom-nav-atendimento';
+ at.dataset.tela='atendimento';
+
+      at.innerHTML='<span style="font-size:18px;
+line-height:1">+</span><small>Atender</small>';
+
+      at.onclick=()=>window.abrirRegistroAtendimento();
+
+      const agenda=botoes.find(b=>/agenda/i.test(b.textContent||''));
+
+      if(agenda) nav.insertBefore(at,agenda);
+ else nav.appendChild(at);
+
+    }
+
+    const ativo=document.getElementById('atendimento')?.classList.contains('active');
+
+    at.classList.toggle('active',!!ativo);
+
+  }
+
+
+  function aplicarPermissaoMenu(){
+
+    const menu=document.getElementById('menu-btn-atendimento');
+
+    if(!menu) return;
+
+    // Espelha a visibilidade operacional do antigo módulo de Receitas.
+    const perfil=(typeof obterPerfilAtual==='function' ? obterPerfilAtual() : '') || '';
+
+    const p=String(perfil).toUpperCase();
+
+    menu.style.display=(typeof regraPerfil==='function' && !regraPerfil('financeiroOperar')) ? 'none' : '';
+
+  }
+
+
+  function init(){
+
+    if(!garantirEstrutura()) return;
+
+    aplicarPermissaoMenu();
+
+    ajustarFinanceiro();
+
+    sincronizarBottomNav();
+
+    const obs=new MutationObserver(()=>{
+ aplicarPermissaoMenu();
+ sincronizarBottomNav();
+ ajustarFinanceiro();
+ }
+);
+
+    obs.observe(document.body,{
+subtree:true,childList:true,attributes:true,attributeFilter:['class','style']}
+);
+
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0));
+
+  else setTimeout(init,0);
+
+}
+)();
+
+</script>
+
+
+<script id="simpla-atendimento-permissoes-v19">
+(function(){
+
+  function sincronizarPermissaoAtendimento(){
+
+    try{
+
+      if(typeof REGRAS_PERFIL !== 'undefined'){
+
+        Object.values(REGRAS_PERFIL).forEach(regra => {
+
+          if(regra && regra.financeiroOperar && Array.isArray(regra.telas) && !regra.telas.includes('atendimento')){
+
+            regra.telas.push('atendimento');
+
+          }
+
+        }
+);
+
+      }
+
+      const pode = (typeof regraPerfil === 'function') ? !!regraPerfil('financeiroOperar') : true;
+
+      document.querySelectorAll('#menu-btn-atendimento, [data-tela="atendimento"], .bottom-nav
+
+===== abrirRegistroAtendimento =====
+fil não pode registrar atendimentos.');
+
+    }
+catch(e){
+}
+
+    return true;
+
+  }
+
+
+  function garantirEstrutura(){
+
+    const main=document.querySelector('.main-content');
+
+    const financeiro=document.getElementById('financeiro');
+
+    const aba=document.getElementById('aba-entradas');
+
+    if(!main||!financeiro||!aba) return false;
+
+
+    let tela=document.getElementById('atendimento');
+
+    if(!tela){
+
+      tela=document.createElement('div');
+
+      tela.id='atendimento';
+
+      tela.className='screen atendimento-screen';
+
+      tela.innerHTML='<div class="registro-atendimento-header"><h1>Registro de Atendimento</h1><p>Registre o atendimento realizado. Ao finalizar, o recebimento será lançado automaticamente no Financeiro.</p></div><div id="registro-atendimento-host"></div>';
+
+      financeiro.parentNode.insertBefore(tela,financeiro);
+
+    }
+
+    const host=document.getElementById('registro-atendimento-host');
+
+    if(host && aba.parentNode!==host) host.appendChild(aba);
+
+
+    const tabReceitas=document.getElementById('tab-header-entradas');
+
+    if(tabReceitas) tabReceitas.style.display='none';
+
+
+    let menu=document.getElementById('menu-btn-atendimento');
+
+    const menuFin=document.getElementById('menu-btn-financeiro');
+
+    if(!menu && menuFin){
+
+      menu=document.createElement('button');
+
+      menu.className='menu-btn';
+
+      menu.id='menu-btn-atendimento';
+
+      menu.type='button';
+
+      menu.innerHTML='Registro de Atendimento';
+
+      menu.onclick=function(ev){
+ window.abrirRegistroAtendimento(ev);
+ }
+;
+
+      menuFin.parentNode.insertBefore(menu,menuFin);
+
+    }
+
+
+    // Financeiro passa a abrir em Despesas quando Receitas era a aba ativa.
+    const tabSaidas=document.getElementById('tab-header-saidas');
+
+    const abaSaidas=document.getElementById('aba-saidas');
+
+    if(financeiro.classList.contains('active') && (!document.querySelector('#financeiro .aba-content.active'))){
+
+      document.querySelectorAll('#financeiro .aba-content').forEach(x=>x.classList.remove('active'));
+
+      document.querySelectorAll('#financeiro .tab').forEach(x=>x.classList.remove('active'));
+
+      abaSaidas?.classList.add('active');
+ tabSaidas?.classList.add('active');
+
+    }
+
+    return true;
+
+  }
+
+
+  window.abrirRegistroAtendimento=function(ev){
+
+    if(!podeOperar()) return;
+
+    garantirEstrutura();
+
+    if(typeof mudarTela==='function') mudarTela('atendimento',ev||null);
+
+    const aba=document.getElementById('aba-entradas');
+
+    if(aba) aba.classList.add('active');
+
+    try{
+ renderizarCombos?.();
+ }
+catch(e){
+}
+
+    try{
+ atualizarCarrinhoUI?.();
+ }
+catch(e){
+}
+
+    try{
+ atualizarEspelhoClienteFinanceiro?.();
+ }
+catch(e){
+}
+
+    window.scrollTo({
+top:0,behavior:'smooth'}
+);
+
+    setTimeout(sincronizarBottomNav,50);
+
+  }
+;
+
+
+  function ajustarFinanceiro(){
+
+    const fin=document.getElementById('financeiro');
+
+    if(!fin?.classList.contains('active')) return;
+
+    const ativa=fin.querySelector('.aba-content.active');
+
+    if(!ativa){
+
+      try{
+ mudarAba('aba-saidas');
+ }
+catch(e){
+
+        document.getElementById('aba-saidas')?.classList.add('active');
+
+        document.getElementById('tab-header-saidas')?.classList.add('active');
+
+      }
+
+    }
+
+  }
+
+
+  function sincronizarBottomNav(){
+
+    const nav=document.querySelector('.simpla-bottom-nav, #simpla-bottom-nav, [data-bottom-nav]');
+
+    if(!nav) return;
+
+    const botoes=[...nav.querySelectorAll('button')];
+
+    const fin=botoes.find(b=>/financeiro/i.test(b.textContent||''));
+
+    if(fin) fin.style.display='none';
+
+    let at=nav.querySelector('[data-tela="atendimento"], .bottom-nav-atendimento');
+
+    if(!at){
+
+      at=document.createElement('button');
+
+      at.type='button';
+ at.className='bottom-nav-atendimento';
+ at.dataset.tela='atendimento';
+
+      at.innerHTML='<span style="font-size:18px;
+line-height:1">+</span><small>Atender</small>';
+
+      at.onclick=()=>window.abrirRegistroAtendimento();
+
+      const agenda=botoes.find(b=>/agenda/i.test(b.textContent||''));
+
+      if(agenda) nav.insertBefore(at,agenda);
+ else nav.appendChild(at);
+
+    }
+
+    const ativo=document.getElementById('atendimento')?.classList.contains('active');
+
+    at.classList.toggle('active',!!ativo);
+
+  }
+
+
+  function aplicarPermissaoMenu(){
+
+    const menu=document.getElementById('menu-btn-atendimento');
+
+    if(!menu) return;
+
+    // Espelha a visibilidade operacional do antigo módulo de Receitas.
+    const perfil=(typeof obterPerfilAtual==='function' ? obterPerfilAtual() : '') || '';
+
+    const p=String(perfil).toUpperCase();
+
+    menu.style.display=(typeof regraPerfil==='function' && !regraPerfil('financeiroOperar')) ? 'none' : '';
+
+  }
+
+
+  function init(){
+
+    if(!garantirEstrutura()) return;
+
+    aplicarPermissaoMenu();
+
+    ajustarFinanceiro();
+
+    sincronizarBottomNav();
+
+    const obs=new MutationObserver(()=>{
+ aplicarPermissaoMenu();
+ sincronizarBottomNav();
+ ajustarFinanceiro();
+ }
+);
+
+    obs.observe(document.body,{
+subtree:true,childList:true,attributes:true,attributeFilter:['class','style']}
+);
+
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0));
+
+  else setTimeout(init,0);
+
+}
+)();
+
+</script>
+
+
+<script id="simpla-atendimento-permissoes-v19">
+(function(){
+
+  function sincronizarPermissaoAtendimento(){
+
+    try{
+
+      if(typeof REGRAS_PERFIL !== 'undefined'){
+
+        Object.values(REGRAS_PERFIL).forEach(regra => {
+
+          if(regra && regra.financeiroOperar && Array.isArray(regra.telas) && !regra.telas.includes('atendimento')){
+
+            regra.telas.push('atendimento');
+
+          }
+
+        }
+);
+
+      }
+
+      const pode = (typeof regraPerfil === 'function') ? !!regraPerfil('financeiroOperar') : true;
+
+      document.querySelectorAll('#menu-btn-atendimento, [data-tela="atendimento"], .bottom-nav-atendimento').forEach(el => {
+
+        el.style.display = pode ? '' : 'none';
+
+      }
+);
+
+    }
+catch(e){
+ console.error('SimplA: falha ao sincronizar permissão de atendimento', e);
+ }
+
+  }
+
+  sincronizarPermissaoAtendimento();
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sincronizarPermissaoAtendimento);
+
+  document.addEventListener('click', e => {
+
+    if(e.target.closest('.menu-btn, .simpla-bottom-nav, #simpla-bottom-nav')) setTimeout(sincronizarPermissaoAtendimento, 20);
+
+  }
+, true);
+
+  setTimeout(sincronizarPermissaoAtendimento, 300);
+
+  setTimeout(sincronizarPermissaoAtendimento, 1200);
+
+}
+)();
+
+</script>
+
+</body>
+</html>
+
+
+===== abrirRegistroAtendimento =====
+m Despesas quando Receitas era a aba ativa.
+    const tabSaidas=document.getElementById('tab-header-saidas');
+
+    const abaSaidas=document.getElementById('aba-saidas');
+
+    if(financeiro.classList.contains('active') && (!document.querySelector('#financeiro .aba-content.active'))){
+
+      document.querySelectorAll('#financeiro .aba-content').forEach(x=>x.classList.remove('active'));
+
+      document.querySelectorAll('#financeiro .tab').forEach(x=>x.classList.remove('active'));
+
+      abaSaidas?.classList.add('active');
+ tabSaidas?.classList.add('active');
+
+    }
+
+    return true;
+
+  }
+
+
+  window.abrirRegistroAtendimento=function(ev){
+
+    if(!podeOperar()) return;
+
+    garantirEstrutura();
+
+    if(typeof mudarTela==='function') mudarTela('atendimento',ev||null);
+
+    const aba=document.getElementById('aba-entradas');
+
+    if(aba) aba.classList.add('active');
+
+    try{
+ renderizarCombos?.();
+ }
+catch(e){
+}
+
+    try{
+ atualizarCarrinhoUI?.();
+ }
+catch(e){
+}
+
+    try{
+ atualizarEspelhoClienteFinanceiro?.();
+ }
+catch(e){
+}
+
+    window.scrollTo({
+top:0,behavior:'smooth'}
+);
+
+    setTimeout(sincronizarBottomNav,50);
+
+  }
+;
+
+
+  function ajustarFinanceiro(){
+
+    const fin=document.getElementById('financeiro');
+
+    if(!fin?.classList.contains('active')) return;
+
+    const ativa=fin.querySelector('.aba-content.active');
+
+    if(!ativa){
+
+      try{
+ mudarAba('aba-saidas');
+ }
+catch(e){
+
+        document.getElementById('aba-saidas')?.classList.add('active');
+
+        document.getElementById('tab-header-saidas')?.classList.add('active');
+
+      }
+
+    }
+
+  }
+
+
+  function sincronizarBottomNav(){
+
+    const nav=document.querySelector('.simpla-bottom-nav, #simpla-bottom-nav, [data-bottom-nav]');
+
+    if(!nav) return;
+
+    const botoes=[...nav.querySelectorAll('button')];
+
+    const fin=botoes.find(b=>/financeiro/i.test(b.textContent||''));
+
+    if(fin) fin.style.display='none';
+
+    let at=nav.querySelector('[data-tela="atendimento"], .bottom-nav-atendimento');
+
+    if(!at){
+
+      at=document.createElement('button');
+
+      at.type='button';
+ at.className='bottom-nav-atendimento';
+ at.dataset.tela='atendimento';
+
+      at.innerHTML='<span style="font-size:18px;
+line-height:1">+</span><small>Atender</small>';
+
+      at.onclick=()=>window.abrirRegistroAtendimento();
+
+      const agenda=botoes.find(b=>/agenda/i.test(b.textContent||''));
+
+      if(agenda) nav.insertBefore(at,agenda);
+ else nav.appendChild(at);
+
+    }
+
+    const ativo=document.getElementById('atendimento')?.classList.contains('active');
+
+    at.classList.toggle('active',!!ativo);
+
+  }
+
+
+  function aplicarPermissaoMenu(){
+
+    const menu=document.getElementById('menu-btn-atendimento');
+
+    if(!menu) return;
+
+    // Espelha a visibilidade operacional do antigo módulo de Receitas.
+    const perfil=(typeof obterPerfilAtual==='function' ? obterPerfilAtual() : '') || '';
+
+    const p=String(perfil).toUpperCase();
+
+    menu.style.display=(typeof regraPerfil==='function' && !regraPerfil('financeiroOperar')) ? 'none' : '';
+
+  }
+
+
+  function init(){
+
+    if(!garantirEstrutura()) return;
+
+    aplicarPermissaoMenu();
+
+    ajustarFinanceiro();
+
+    sincronizarBottomNav();
+
+    const obs=new MutationObserver(()=>{
+ aplicarPermissaoMenu();
+ sincronizarBottomNav();
+ ajustarFinanceiro();
+ }
+);
+
+    obs.observe(document.body,{
+subtree:true,childList:true,attributes:true,attributeFilter:['class','style']}
+);
+
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0));
+
+  else setTimeout(init,0);
+
+}
+)();
+
+</script>
+
+
+<script id="simpla-atendimento-permissoes-v19">
+(function(){
+
+  function sincronizarPermissaoAtendimento(){
+
+    try{
+
+      if(typeof REGRAS_PERFIL !== 'undefined'){
+
+        Object.values(REGRAS_PERFIL).forEach(regra => {
+
+          if(regra && regra.financeiroOperar && Array.isArray(regra.telas) && !regra.telas.includes('atendimento')){
+
+            regra.telas.push('atendimento');
+
+          }
+
+        }
+);
+
+      }
+
+      const pode = (typeof regraPerfil === 'function') ? !!regraPerfil('financeiroOperar') : true;
+
+      document.querySelectorAll('#menu-btn-atendimento, [data-tela="atendimento"], .bottom-nav-atendimento').forEach(el => {
+
+        el.style.display = pode ? '' : 'none';
+
+      }
+);
+
+    }
+catch(e){
+ console.error('SimplA: falha ao sincronizar permissão de atendimento', e);
+ }
+
+  }
+
+  sincronizarPermissaoAtendimento();
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sincronizarPermissaoAtendimento);
+
+  document.addEventListener('click', e => {
+
+    if(e.target.closest('.menu-btn, .simpla-bottom-nav, #simpla-bottom-nav')) setTimeout(sincronizarPermissaoAtendimento, 20);
+
+  }
+, true);
+
+  setTimeout(sincronizarPermissaoAtendimento, 300);
+
+  setTimeout(sincronizarPermissaoAtendimento, 1200);
+
+}
+)();
+
+</script>
+
+</body>
+</html>
+
+
+===== busca-cliente =====
+portant;
+
+                min-width:0 !important;
+
+            }
+
+
+            /* Login / recuperação */
+            .cloud-auth-overlay {
+
+                padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom)) !important;
+
+            }
+
+            .cloud-auth-card {
+ width:100% !important;
+ max-width:430px !important;
+ }
+
+            .cloud-auth-body {
+ padding:20px 18px 22px !important;
+ }
+
+            .cloud-auth-brand {
+ padding:22px 18px 18px !important;
+ }
+
+            .cloud-auth-brand strong {
+ font-size:21px !important;
+ }
+
+
+            /* Mantém tudo dentro da viewport */
+            [style*="min-width: 360px"],
+            [style*="min-width:360px"],
+            [style*="min-width: 300px"],
+            [style*="min-width:300px"] {
+
+                min-width:0 !important;
+
+            }
+
+        }
+
+
+        @media (max-width: 430px) {
+
+            .main-content {
+ padding-left:12px !important;
+ padding-right:12px !important;
+ }
+
+            .mobile-brand {
+ font-size:14px !important;
+ }
+
+            #configuracoes > .header h1,
+            .header h1 {
+ font-size:20px !important;
+ }
+
+            #configuracoes h3 {
+ font-size:17px !important;
+ }
+
+            #configuracoes .section-box-cfg label {
+ font-size:12px !important;
+ }
+
+            #financeiro .tabs {
+ grid-template-columns:1fr 1fr !important;
+ }
+
+            .btn-salvar {
+ font-size:13px !important;
+ }
+
+        }
+
+
+    
+        /* ===== PATCH MOBILE: FINANCEIRO + CONFIGURAÇÕES ===== */
+        @media (max-width: 768px) {
+
+
+            /* ---------- FINANCEIRO / ENTRADAS ----------
+               Ordem mobile:
+               1 Busca de cliente
+               2 Data
+               3 Combos / produtos
+               4 Forma de pagamento
+               5 Finalizar e receber
+               6 Histórico
+               7 Gráfico comparativo
+            */
+            #financeiro #aba-entradas .entradas-layout {
+
+                display:flex !important;
+
+                flex-direction:column !important;
+
+            }
+
+
+            #financeiro #aba-entradas .entradas-form-area {
+
+                display:contents !important;
+
+            }
+
+
+            #financeiro #aba-entradas .entradas-form-area > .form-group:has(#busca-cliente) {
+
+                order:1 !important;
+
+                width:100% !important;
+
+            }
+
+
+            #financeiro #aba-entradas .entradas-form-area > .form-group:has(#data-entrada) {
+
+                order:2 !important;
+
+                width:100% !important;
+
+            }
+
+
+            #financeiro #sec-fin-combos {
+
+                order:3 !important;
+
+                width:100% !important;
+
+                margin:0 0 16px !important;
+
+                padding:16px !important;
+
+                background:#f8fafc;
+
+                border:1px solid #e2e8f0;
+
+                border-radius:8px;
+
+            }
+
+
+            #financeiro #sec-fin-combos .fin-sidebar-header {
+
+                margin-top:0 !important;
+
+                padding-bottom:9px !important;
+
+            }
+
+
+            #financeiro #sec-fin-combos .combo-grid {
+
+                display:grid !important;
+
+                grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+
+                gap:10px !important;
+
+            }
+
+
+            #financeiro #sec-fin-combos .combo-item {
+
+                min-width:0 !important;
+
+                width:100% !important;
+
+            }
+
+
+            #financeiro #aba-entradas .entradas-form-area > div:has(#lista-carrinho) {
+
+                order:4 !important;
+
+                width:100% !important;
+
+                margin-bottom:14px !important;
+
+            }
+
+
+            #financeiro #aba-entradas .entradas-form-area > div:has(#lista-carrinho) > div:last-child {
+
+                display:grid !important;
+
+                grid-template-columns:1fr !important;
+
+                gap:12px !important;
+
+                align-items:stretch !important;
+
+            }
+
+
+            #financeiro #aba-entradas #pag-entrada {
+
+                width:100% !important;
+
+                min-height:46px !important;
+
+            }
+
+
+            #financeiro #aba-entradas #total-carrinho {
+
+                display:inline-block;
+
+                margin-top:4px;
+
+            }
+
+
+            #financeiro #aba-entradas .entradas-form-area > button[onclick="lancarEntrada()"] {
+
+                order:5 !important;
+
+                width:100% !important;
+
+                margin-bottom:18px !important;
+
+            }
+
+
+            #financeiro #aba-entradas .entradas-form-area > table {
+
+                order:6 !important;
+
+                width:100% !important;
+
+                margin-top:0 !important;
+
+                min-width:680px !important;
+
+            }
+
+
+            #financeiro #sec-fin-grafico {
+
+                order:7 !important;
+
+                width:100% !important;
+
+                margin-top:18px !important;
+
+                margin-bottom:0 !important;
+
+            }
+
+
+            /* ---------- FINANCEIRO / SAÍDAS ---------- */
+            #financeiro #aba-saidas {
+
+                overflow:hidden !important;
+
+            }
+
+
+            #financeiro #aba-saidas > div:first-child {
+
+                display:grid !important;
+
+                grid-template-columns:1fr !important;
+
+                gap:14px !important;
+
+                width:100% !important;
+
+            }
+
+
+            #financeiro #aba-saidas > div:first-child > div {
+
+                width:100% !important;
+
+                min-width:0 !important;
+
+                padding:16px !important;
+
+            }
+
+
+            /* Cadastro de material: campo em cima, botão embaixo */
+            #financeiro #aba-saidas > div:first-child > div:first-child > div[style*="display: flex"] {
+
+                display:grid !important;
+
+                grid-template-columns:1fr !important;
+
+                gap:10px !important;
+
+            }
+
+
+            #financeiro #aba-saidas > div:first-child > div:first-child .btn-salvar {
+
+                width:100% !important;
+
+                align-self:stretch !important;
+
+            }
+
+
+            /* Compra de material */
+            #financeiro #aba-saidas > div:first-child > div:nth-child(2) > div[style*="grid-template-columns"] {
+
+                display:grid !important;
+
+                grid-template-columns:1fr !important;
+
+                gap:10px !important;
+
+            }
+
+
+            /* Gastos fixos */
+            #financeiro #aba-saidas > div:first-child > div:nth-child(3) > div[style*="grid-template-co
+
+===== busca-cliente =====
+<div class="fin-filter-actions">
+      <button onclick="definirHoje()">Hoje</button>
+      <button class="active-soft" onclick="definirMesAtual()">Mês atual</button>
+    </div>
+  </section>
+
+  <section class="fin-kpi-grid" id="sec-fin-cards">
+    <article class="fin-kpi-card">
+      <div class="fin-kpi-label">Entradas</div>
+      <div class="fin-kpi-value success" id="sum-entradas">R$ 0,00</div>
+      <div class="fin-kpi-caption">Receitas registradas no período</div>
+    </article>
+    <article class="fin-kpi-card">
+      <div class="fin-kpi-label">Saídas</div>
+      <div class="fin-kpi-value danger" id="sum-saidas">R$ 0,00</div>
+      <div class="fin-kpi-caption">Materiais e despesas registradas</div>
+    </article>
+    <article class="fin-kpi-card fin-kpi-primary">
+      <div class="fin-kpi-label">Resultado líquido</div>
+      <div class="fin-kpi-value primary" id="sum-lucro">R$ 0,00</div>
+      <div class="fin-kpi-caption">Entradas menos saídas do período</div>
+    </article>
+  </section>
+
+  <section class="fin-workspace">
+    <div class="fin-workspace-head">
+      <div>
+        <h2>Movimentações</h2>
+        <p>Registre e acompanhe as movimentações financeiras da empresa.</p>
+      </div>
+      <div class="tabs fin-tabs">
+        <div class="tab active" id="tab-header-entradas" onclick="mudarAba('aba-entradas', event)">Receitas</div>
+        <div class="tab" id="tab-header-saidas" onclick="mudarAba('aba-saidas', event)">Despesas</div>
+        <div class="tab" id="tab-header-comissoes" onclick="mudarAba('aba-comissoes', event)">Comissões</div>
+        <div class="tab" id="tab-header-caixa" onclick="mudarAba('aba-caixa', event)">Caixa</div>
+      </div>
+    </div>
+
+    <div id="aba-entradas" class="aba-content active">
+      <div class="fin-receita-grid">
+        <div class="fin-panel">
+          <div class="fin-panel-head">
+            <div>
+              <h3>Nova receita</h3>
+              <p>Associe o recebimento ao cliente e aos serviços ou produtos vendidos.</p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Cliente</label>
+            <div class="cliente-autocomplete-wrap">
+              <input type="text" id="busca-cliente" placeholder="Busque pelo nome ou código do cliente" autocomplete="off"
+                oninput="this.value = this.value.toUpperCase();
+ limparSelecaoCliente('financeiro');
+ atualizarSugestoesCliente('financeiro');
+ atualizarEspelhoClienteFinanceiro();
+"
+                onfocus="atualizarSugestoesCliente('financeiro');
+">
+              <div id="financeiro-cliente-sugestoes" class="cliente-sugestoes"></div>
+            </div>
+            <div id="financeiro-cliente-espelho" class="fin-cliente-localizado" style="display:none;
+">
+              <b>Cliente localizado:</b>
+              <span id="financeiro-cliente-nome"></span>
+              <span id="financeiro-cliente-codigo"></span>
+              <span id="financeiro-cliente-telefone"></span>
+            </div>
+          </div>
+
+          <div class="fin-two-cols">
+            <div class="form-group">
+              <label>Data do atendimento / recebimento</label>
+              <input type="date" id="data-entrada">
+            </div>
+            <div class="form-group">
+              <label>Forma de pagamento</label>
+              <select id="pag-entrada">
+                <option>PIX</option>
+                <option>DINHEIRO</option>
+                <option>CARTÃO CRÉDITO</option>
+                <option>CARTÃO DÉBITO</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fin-carrinho-card">
+            <div class="fin-carrinho-head">
+              <div>
+                <h4>Itens da receita</h4>
+                <p>Selecione serviços ou produtos no painel ao lado.</p>
+              </div>
+              <div class="fin-total-box">
+                <span>Total</span>
+                <strong id="total-carrinho">R$ 0,00</strong>
+              </div>
+            </div>
+            <div id="lista-carrinho" class="fin-carrinho-lista">
+              <span class="fin-empty">Nenhum item adicionado.</span>
+            </div>
+          </div>
+
+          <button class="btn-salvar fin-btn-full" onclick="lancarEntrada()">Finalizar recebimento</button>
+        </div>
+
+        <aside class="fin-panel fin-catalog-panel" id="sec-fin-combos">
+          <div class="fin-catalog-section">
+            <div class="fin-sidebar-header">
+              <div>
+                <h3>Serviços</h3>
+                <p>Adicione um serviço à receita.</p>
+              </div>
+              <button class="btn-add-plus" onclick="adicionarNovoComboPrompt('servicos')" title="Adicionar Serviço">+</button>
+            </div>
+            <div class="combo-grid" id="grid-servicos"></div>
+          </div>
+
+          <div class="fin-catalog-section">
+            <div class="fin-sidebar-header">
+              <div>
+                <h3>Produtos</h3>
+                <p>Inclua produtos revendidos ao cliente.</p>
+              </div>
+              <button class="btn-add-plus" onclick="adicionarNovoComboPrompt('produtos')" title="Adicionar Produto">+</button>
+            </div>
+            <div class="combo-grid" id="grid-produtos"></div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="fin-bottom-grid">
+        <div class="fin-panel fin-table-panel">
+          <div class="fin-panel-head">
+            <div>
+              <h3>Receitas registradas</h3>
+              <p>Histórico de recebimentos no período selecionado.</p>
+            </div>
+          </div>
+          <div class="fin-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Cliente</th>
+                  <th>Serviços contratados</th>
+                  <th>Pagamento</th>
+                  <th>Valor total</th>
+                  <th style="text-align:center;
+">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-entradas-corpo"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="fin-panel fin-chart-panel chart-box" id="sec-fin-grafico">
+          <div class="fin-panel-head">
+            <div>
+              <h3>Resumo do período</h3>
+              <p>Comparativo entre entradas e saídas.</p>
+            </div>
+          </div>
+          <div class="fin-chart-canvas"><canvas id
+
+===== busca-cliente =====
+fgTemaEl = document.getElementById('cfg-tema');
+
+            if(cfgTemaEl) cfgTemaEl.value = DataStore.getText('barber_tema', 'padrao');
+
+            carregarConfigCamposUI();
+
+            aplicarVisibilidadeCampos();
+
+            carregarConfigModulosUI();
+
+            aplicarVisibilidadeModulos();
+
+            aplicarNomeBarbearia();
+
+            carregarConfigExpedienteUI();
+
+            carregarConfigDashboardUI();
+
+            aplicarVisibilidadeDashboard();
+
+            carregarConfigCancelamentosUI();
+
+
+            // Garantir que a data atual seja carregada de imediato
+            const hojeStr = obterHojeLocal();
+
+            if(document.getElementById('data-entrada')) document.getElementById('data-entrada').value = hojeStr;
+
+            if(document.getElementById('saida-data')) document.getElementById('saida-data').value = hojeStr;
+
+            if(document.getElementById('saida-data-material')) document.getElementById('saida-data-material').value = hojeStr;
+
+            if(document.getElementById('agenda-data-filtro')) {
+
+                document.getElementById('agenda-data-filtro').value = hojeStr;
+
+            }
+
+            definirPeriodoDashboard('mes', false);
+
+
+            preencherSelectProfissionaisAgenda();
+
+            renderizarAgenda();
+
+            renderizarDashboard();
+
+            preencherSelectServicosAgenda();
+
+
+            const cfgMsgEl = document.getElementById('cfg-msg-aniversario');
+
+            if(cfgMsgEl) cfgMsgEl.value = mensagemAniversario;
+
+
+            const cfgMsgConfirmacaoEl = document.getElementById('cfg-msg-confirmacao-agendamento');
+
+            if(cfgMsgConfirmacaoEl) cfgMsgConfirmacaoEl.value = mensagemConfirmacaoAgendamento;
+
+
+            const cfgMsgAniversarioMesEl = document.getElementById('cfg-msg-aniversario-mes');
+
+            if(cfgMsgAniversarioMesEl) cfgMsgAniversarioMesEl.value = mensagemAniversarioMes;
+
+
+            const cfgNomeEl = document.getElementById('cfg-nome-barbearia');
+
+            if(cfgNomeEl) cfgNomeEl.value = nomeBarbearia;
+
+
+            carregarConfigEmpresaV2UI();
+
+
+            // Sincronização em tempo real entre Cliente, Financeiro e Agendamentos.
+            const campoFinanceiroCliente = document.getElementById('busca-cliente');
+
+            if (campoFinanceiroCliente) {
+
+                campoFinanceiroCliente.addEventListener('input', atualizarEspelhoClienteFinanceiro);
+
+                campoFinanceiroCliente.addEventListener('change', atualizarEspelhoClienteFinanceiro);
+
+                campoFinanceiroCliente.addEventListener('blur', atualizarEspelhoClienteFinanceiro);
+
+            }
+
+
+            const campoAgendaCliente = document.getElementById('agenda-cliente-busca');
+
+            if(campoAgendaCliente) {
+
+                campoAgendaCliente.addEventListener('keydown', (e) => {
+
+                    if(e.key === 'Escape') fecharSugestoesCliente('agenda');
+
+                }
+);
+
+            }
+
+
+            if(campoFinanceiroCliente) {
+
+                campoFinanceiroCliente.addEventListener('keydown', (e) => {
+
+                    if(e.key === 'Escape') fecharSugestoesCliente('financeiro');
+
+                }
+);
+
+            }
+
+
+            document.addEventListener('click', (e) => {
+
+                if(!e.target.closest('.cliente-autocomplete-wrap')) {
+
+                    fecharSugestoesCliente('agenda');
+
+                    fecharSugestoesCliente('financeiro');
+
+                }
+
+            }
+);
+
+
+            sincronizarDadosClientesTodasAsTelas();
+
+
+            // Mantém os horários elegíveis sincronizados com o relógio sem exigir recarga.
+            setInterval(() => {
+
+                if(document.getElementById('agenda')?.classList.contains('active')) {
+
+                    renderizarAgenda();
+
+                }
+
+            }
+, 60000);
+
+        }
+);
+
+
+        function salvarStorage() {
+
+            DataStore.setJSON('barber_clientes', clientes);
+
+            DataStore.setJSON('barber_entradas', entradas);
+
+            DataStore.setJSON('barber_saidas', saidas);
+
+            DataStore.setJSON('barber_materiais', materiais);
+
+            DataStore.setJSON('barber_gastos_fixos', gastosFixos);
+
+            DataStore.setJSON('barber_agendamentos', agendamentos);
+
+            DataStore.setJSON('barber_bloqueios', bloqueios);
+
+            DataStore.setJSON('barber_servicos', servicos);
+
+            DataStore.setJSON('barber_produtos', produtos);
+
+            DataStore.setJSON('barber_config_campos', configCampos);
+
+            DataStore.setJSON('barber_config_modulos', configModulos);
+
+            DataStore.setJSON('barber_config_dashboard', configDashboard);
+
+            DataStore.setJSON('barber_config_cancelamentos', configCancelamentos);
+
+            DataStore.setJSON('barber_config_expediente', configExpediente);
+
+            DataStore.setText('barber_msg_aniversario', mensagemAniversario);
+
+            DataStore.setText('barber_msg_confirmacao_agendamento', mensagemConfirmacaoAgendamento);
+
+            DataStore.setText('barber_msg_aniversario_mes', mensagemAniversarioMes);
+
+            DataStore.setText('barber_nome_barbearia', nomeBarbearia);
+
+            DataStore.setJSON('app_empresa_atual', empresaAtual);
+
+            DataStore.setJSON('app_usuario_atual', usuarioAtual);
+
+            if(document.getElementById('dashboard')) renderizarDashboard();
+
+        }
+
+
+        function carregarConfigEmpresaV2UI() {
+
+            const nomeEl = document.getElementById('cfg-empresa-nome');
+
+            const tipoEl = document.getElementById('cfg-empresa-tipo');
+
+            const badge = document.getElementById('cloud-mode-badge');
+
+            if(nomeEl) nomeEl.value = empresaAtual.nome || nomeBarbearia || '';
+
+            if(tipoEl) tipoEl.value = empresaAtual.tipoNegocio || 'BARBEARIA';
+
+            if(badge && !sessaoCloud) badge.textContent = 'V2 • AGUARDANDO LOGIN';
+
+        }
+
+
+        async function salvarConfigEmpresaV2() {
+
+            if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
+
+            const nome = document.getElementById('cfg-empresa-nome')?.value.trim();
+
+            const tipo = document.getElementById('cfg-empresa-tipo')?.value || 'OUTRO';
+
+            empresaAtual = {
+ ...empresaAtual, nome: nome || nomeBarbearia || 'Meu Negócio', tipoNegocio: tipo, atualizadoEm: new Date().toISOString() }
+;
+
+            if(nome) {
+
+                nomeBarbearia = nome;
+
+                const cfgNome = document.getElementById('cfg-n
+
+===== busca-cliente =====
+             || profissionais.find(p => String(p.id) === String(agendamento.profissionalId))?.nome
+                || 'Não informado';
+
+
+            const dataFmt = agendamento.data
+                ? new Date(`${
+agendamento.data}
+T00:00:00`).toLocaleDateString('pt-BR')
+                : '';
+
+
+            const mensagem = [
+                `Olá, ${
+agendamento.clienteNome || 'cliente'}
+!`,
+                '',
+                `Seu agendamento na ${
+nomeBarbearia || 'empresa'}
+ foi confirmado. `,
+                '',
+                ` Data: ${
+dataFmt}
+`,
+                ` Horário: ${
+agendamento.horario || ''}
+`,
+                ` Profissional: ${
+profissionalNome}
+`,
+                `️ Serviço: ${
+agendamento.servico || ''}
+`,
+                '',
+                'Aguardamos você!' ].join('\n');
+
+
+            return `https://wa.me/${
+numeroCompleto}
+?text=${
+encodeURIComponent(mensagem)}
+`;
+
+        }
+
+
+        /* ===== INTEGRAÇÃO AGENDA -> CLIENTE -> FINANCEIRO ===== */
+        function obterServicoDoAgendamento(agendamento) {
+
+            if(!agendamento) return null;
+
+            return servicos.find(s =>String(s.id) === String(agendamento.servicoId || '') ||
+                String(s.nome || '').toUpperCase() === String(agendamento.servico || '').toUpperCase()
+            ) || null;
+
+        }
+
+
+        function entradaJaGeradaPorAgendamento(agendamentoId) {
+
+            return entradas.some(e => String(e.agendamentoId || '') === String(agendamentoId));
+
+        }
+
+
+        async function iniciarRecebimentoAgendamento(id) {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não possui acesso ao recebimento financeiro.')) return;
+
+            const agendamento = agendamentos.find(a => String(a.id) === String(id));
+
+            if(!agendamento) {
+
+                alert('Agendamento não encontrado.');
+
+                return;
+
+            }
+
+
+            if(entradaJaGeradaPorAgendamento(id)) {
+
+                alert('Este atendimento já foi finalizado e não pode gerar uma segunda receita.');
+
+                return;
+
+            }
+
+
+            agendamentoEmRecebimentoId = agendamento.id;
+
+
+            abrirRegistroAtendimento();
+
+
+            const buscaCliente = document.getElementById('busca-cliente');
+
+            const dataEntrada = document.getElementById('data-entrada');
+
+
+            if(buscaCliente) {
+
+                if(agendamento.clienteId) {
+
+                    const cliente = clientes.find(c => String(c.id) === String(agendamento.clienteId));
+
+                    buscaCliente.value = cliente
+                        ? `${
+cliente.codigo}
+ - ${
+formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)}
+` : (agendamento.clienteNome || '');
+
+                }
+ else {
+
+                    buscaCliente.value = agendamento.clienteNome || '';
+
+                }
+
+            }
+
+
+            if(dataEntrada) dataEntrada.value = agendamento.data || obterHojeLocal();
+
+
+            carrinho = [];
+
+            const servico = obterServicoDoAgendamento(agendamento);
+
+            if(servico) {
+
+                carrinho.push({
+ ...servico, tipoItem:'servico' }
+);
+
+            }
+ else if(agendamento.servico) {
+
+                carrinho.push({
+
+                    id: agendamento.servicoId || `agenda-${
+agendamento.id}
+`,
+                    nome: agendamento.servico,
+                    preco: 0,
+                    tipoItem:'servico' }
+);
+
+            }
+
+
+            atualizarCarrinhoUI();
+
+            atualizarEspelhoClienteFinanceiro?.();
+
+
+            const avisoId = 'aviso-recebimento-agenda';
+
+            document.getElementById(avisoId)?.remove();
+
+            const area = document.querySelector('#aba-entradas .entradas-form-area');
+
+            if(area) {
+
+                const aviso = document.createElement('div');
+
+                aviso.id = avisoId;
+
+                aviso.style.cssText = 'background:#ebf8ff;
+border:1px solid #90cdf4;
+border-left:4px solid #3182ce;
+color:#2a4365;
+padding:10px 12px;
+border-radius:6px;
+margin-bottom:14px;
+font-size:12px;
+line-height:1.45;
+';
+
+                aviso.innerHTML = `<b>Recebimento iniciado pela Agenda</b><br>${
+agendamento.clienteNome || 'Cliente'}
+ • ${
+formatarDataAgenda(agendamento.data)}
+ • ${
+agendamento.horario || ''}
+. Você pode acrescentar serviços ou produtos antes de finalizar.`;
+
+                area.prepend(aviso);
+
+            }
+
+
+            document.getElementById('financeiro')?.scrollIntoView({
+behavior:'smooth', block:'start'}
+);
+
+        }
+
+
+        function concluirAgendamentoAposRecebimento(agendamentoId, entradaGerada) {
+
+            if(!agendamentoId || !entradaGerada) return;
+
+            // A conclusão é determinada pelo vínculo da receita com o agendamento.
+            // Não altera o campo status da tabela agendamentos, evitando conflito
+            // com constraints já existentes no banco.
+            entradaGerada.agendamentoId = agendamentoId;
+
+            renderizarAgenda();
+
+            renderizarDashboard();
+
+        }
+
+
+        async function salvarAgendamento() {
+
+            if(!validarAcessoPerfil('agendaEditar','Seu perfil possui apenas consulta da Agenda.')) return;
+
+            const idEdicao = document.getElementById('agenda-edicao-id').value || null;
+
+            const horaInicio = document.getElementById('agenda-hora-inicio').value || document.getElementById('agenda-slot-hora').value;
+
+            const duracaoMin = parseInt(document.getElementById('agenda-duracao-min').value) || configExpediente.intervalo || 45;
+
+            const data = document.getElementById('agenda-data-filtro').value;
+
+            const buscaVal = document.getElementById('agenda-cliente-busca').value.trim();
+
+            const profissionalId = document.getElementById('agenda-profissional')?.value || '';
+
+            const profissionalObj = profissionais.find(p => String(p.id) === String(profissionalId)) || null;
+
+            const servico = document.getElementById('agenda-servico').value;
+
+            const obs = document.getElementById('agenda-obs').value.trim();
+
+            const telefoneCampo = document.getElementById('agenda-telefone').value.trim();
+
+            const hoje = obterHojeLocal();
+
+
+            if (!data || data < hoje) {
+
+                alert('Não é permitido realizar agendamentos antes da data atual.');
+
+                document.getElementById('agenda-data-filtro').value = hoje;
+
+                fecharModalAgendamento();
+
+                renderizarAgenda();
+
+                return;
+
+            }
+
+         
+
+===== busca-cliente =====
+f(atendimentosCli.length > 0) {
+
+                    atendimentosCli.sort((a,b) => new Date(b.data) - new Date(a.data));
+
+                    ultimoCorte = new Date(atendimentosCli[0].data + 'T00:00:00').toLocaleDateString('pt-BR');
+
+                }
+
+
+                let aniversarioFmt = c.aniversario ? new Date(c.aniversario + 'T00:00:00').toLocaleDateString('pt-BR', {
+day: '2-digit', month: '2-digit'}
+) : '-';
+
+
+                let telFmt = c.telefone || '-';
+
+                let telZap = c.telefone ? c.telefone.replace(/\D/g, '') : '';
+
+                let msgTexto = mensagemAniversario.replace(/\[NOME\]/g, c.nome);
+
+                let linkZap = telZap ? `https://wa.me/55${
+telZap}
+?text=${
+encodeURIComponent(msgTexto)}
+` : '#';
+
+                let telColuna = telZap ? `<a href="${
+linkZap}
+" target="_blank" style="color: #38a169;
+ font-weight: bold;
+ text-decoration: none;
+ display: inline-flex;
+ align-items: center;
+ gap: 4px;
+"><span></span> ${
+telFmt}
+</a>` : '-';
+
+
+                let tr = document.createElement('tr');
+
+                tr.innerHTML = ` <td><b>${
+c.codigo}
+</b></td><td><a href="#" onclick="abrirHistoricoCliente('${
+c.id}
+');
+ return false;
+" style="color: #3182ce;
+ font-weight: bold;
+ text-decoration: none;
+">${
+c.nome}
+ ${
+c.sobrenome || ''}
+</a></td><td>${
+telColuna}
+</td><td>${
+aniversarioFmt}
+</td><td>${
+ultimoCorte}
+</td><td>${
+c.obs || '-'}
+</td>`;
+
+                tbody.appendChild(tr);
+
+            }
+);
+
+        }
+
+
+        function atualizarListaClientesDatalist() {
+
+            // Mantida por compatibilidade com chamadas antigas.
+            // A seleção agora usa dropdown controlado pelo app.
+            atualizarSugestoesCliente('financeiro', false);
+
+            atualizarSugestoesCliente('agenda', false);
+
+        }
+
+
+        function normalizarBuscaCliente(valor) {
+
+            return String(valor || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toUpperCase()
+                .replace(/\s+/g, ' ')
+                .trim();
+
+        }
+
+
+        function obterCampoClientePorContexto(contexto) {
+
+            return contexto === 'agenda' ? document.getElementById('agenda-cliente-busca')
+                : document.getElementById('busca-cliente');
+
+        }
+
+
+        function obterListaClientePorContexto(contexto) {
+
+            return contexto === 'agenda' ? document.getElementById('agenda-cliente-sugestoes')
+                : document.getElementById('financeiro-cliente-sugestoes');
+
+        }
+
+
+        function limparSelecaoCliente(contexto) {
+
+            const campo = obterCampoClientePorContexto(contexto);
+
+            if(!campo) return;
+
+            delete campo.dataset.clienteId;
+
+            if(contexto === 'agenda') {
+
+                const telefone = document.getElementById('agenda-telefone');
+
+                if(telefone && (document.getElementById('agenda-tipo-cliente')?.value || 'cadastrado') === 'cadastrado') {
+
+                    telefone.value = '';
+
+                }
+
+            }
+
+        }
+
+
+        function filtrarClientesBusca(termo) {
+
+            const busca = normalizarBuscaCliente(termo);
+
+            if(!busca) return clientes.slice(0, 12);
+
+
+            return clientes.filter(c => {
+
+                const codigo = normalizarBuscaCliente(c.codigo || '');
+
+                const nomeCompleto = normalizarBuscaCliente(`${
+c.nome || ''}
+ ${
+c.sobrenome || ''}
+`);
+
+                const telefone = normalizarBuscaCliente(c.telefone || '');
+
+                return codigo.includes(busca) || nomeCompleto.includes(busca) || telefone.includes(busca);
+
+            }
+).slice(0, 20);
+
+        }
+
+
+        function atualizarSugestoesCliente(contexto, abrir = true) {
+
+            const campo = obterCampoClientePorContexto(contexto);
+
+            const lista = obterListaClientePorContexto(contexto);
+
+            if(!campo || !lista) return;
+
+
+            if(contexto === 'agenda' && (document.getElementById('agenda-tipo-cliente')?.value || 'cadastrado') === 'avulso') {
+
+                lista.classList.remove('aberta');
+
+                lista.innerHTML = '';
+
+                return;
+
+            }
+
+
+            const termo = campo.value || '';
+
+            const resultados = filtrarClientesBusca(termo);
+
+
+            if(!resultados.length) {
+
+                lista.innerHTML = '<div class="cliente-sugestoes-vazio">Nenhum cliente encontrado.</div>';
+
+            }
+ else {
+
+                lista.innerHTML = resultados.map(c => {
+
+                    const nome = formatarNomeCompletoCliente(c.nome, c.sobrenome);
+
+                    const tel = c.telefone || 'Telefone não cadastrado';
+
+                    return `<button type="button" class="cliente-sugestao-item" onclick="selecionarClienteBusca('${
+contexto}
+','${
+c.id}
+')"><span class="cliente-sugestao-nome">${
+c.codigo || ''}
+ — ${
+nome}
+</span><span class="cliente-sugestao-meta">${
+tel}
+</span></button>`;
+
+                }
+).join('');
+
+            }
+
+
+            if(abrir) lista.classList.add('aberta');
+
+        }
+
+
+        function fecharSugestoesCliente(contexto) {
+
+            const lista = obterListaClientePorContexto(contexto);
+
+            if(lista) lista.classList.remove('aberta');
+
+        }
+
+
+        function selecionarClienteBusca(contexto, clienteId) {
+
+            const campo = obterCampoClientePorContexto(contexto);
+
+            const cliente = clientes.find(c => String(c.id) === String(clienteId));
+
+            if(!campo || !cliente) return;
+
+
+            const nome = formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome);
+
+            campo.value = `${
+cliente.codigo || ''}
+ - ${
+nome}
+`.trim();
+
+            campo.dataset.clienteId = String(cliente.id);
+
+            fecharSugestoesCliente(contexto);
+
+
+            if(contexto === 'agenda') {
+
+                const telefone = document.getElementById('agenda-telefone');
+
+                if(telefone) telefone.value = cliente.telefone || '';
+
+            }
+ else {
+
+                atualizarEspelhoClienteFinanceiro();
+
+            }
+
+        }
+
+
+        function obterClienteSelecionado(contexto) {
+
+            const campo = obterCampoClientePorContexto(contexto);
+
+            if(!campo) return null;
+
+            const id = campo.dataset.clienteId;
+
+            if(id) {
+
+                return clientes.find(c => String(c.id) === String(id)) || null;
+
+            }
+
+
+            // Permite nomes/códigos digitados exatamente, mas nunca correspondência parcial.
+            const busca = normalizarBuscaCliente(campo.value);
+
+
+
+===== busca-cliente =====
+f(carrinho.length === 0) {
+
+                container.innerHTML = `<span style="color: #a0aec0;
+ font-size: 14px;
+">Nenhum serviço adicionado. Clique nos combos ao lado para selecionar.</span>`;
+
+                totalSpan.innerText = 'R$ 0,00';
+
+                return;
+
+            }
+
+
+            let total = 0;
+
+            carrinho.forEach((item, idx) => {
+
+                total += item.preco;
+
+                let div = document.createElement('div');
+
+                div.style.cssText = 'display: flex;
+ justify-content: space-between;
+ align-items: center;
+ background: white;
+ padding: 6px 12px;
+ border-radius: 4px;
+ border: 1px solid #cbd5e0;
+ font-size: 13px;
+';
+
+                div.innerHTML = ` <span><b>${
+item.nome}
+</b> (${
+item.tipoItem}
+)</span><div style="display: flex;
+ align-items: center;
+ gap: 12px;
+"><span style="color: #38a169;
+ font-weight: bold;
+">R$ ${
+item.preco.toFixed(2)}
+</span><button onclick="removerDoCarrinho(${
+idx}
+)" style="background: none;
+ border: none;
+ color: #e53e3e;
+ cursor: pointer;
+ font-weight: bold;
+"></button></div>`;
+
+                container.appendChild(div);
+
+            }
+);
+
+
+            totalSpan.innerText = `R$ ${
+total.toFixed(2)}
+`;
+
+        }
+
+
+        function localizarClienteUniversal(valor) {
+
+            const busca = (valor || '').trim().toUpperCase();
+
+            if (!busca) return null;
+
+
+            if (busca.startsWith('#')) {
+
+                const codigoPart = busca.split(' ')[0];
+
+                return clientes.find(c => (c.codigo || '').toUpperCase() === codigoPart);
+
+            }
+
+
+            const normalizado = busca.replace(/\\s+/g, ' ').trim();
+
+            return clientes.find(c => {
+
+                const nomeCompleto = `${
+c.nome || ''}
+ ${
+c.sobrenome || ''}
+`.toUpperCase().replace(/\\s+/g, ' ').trim();
+
+                const codigoNome = `${
+c.codigo || ''}
+ - ${
+nomeCompleto}
+`;
+
+                return nomeCompleto === normalizado ||
+                    (c.nome || '').toUpperCase() === normalizado ||
+                    codigoNome.includes(normalizado) ||
+                    normalizado.includes(codigoNome);
+
+            }
+) || null;
+
+        }
+
+
+        function atualizarEspelhoClienteFinanceiro() {
+
+            const campo = document.getElementById('busca-cliente');
+
+            const painel = document.getElementById('financeiro-cliente-espelho');
+
+            const nomeEl = document.getElementById('financeiro-cliente-nome');
+
+            const codigoEl = document.getElementById('financeiro-cliente-codigo');
+
+            const telefoneEl = document.getElementById('financeiro-cliente-telefone');
+
+            if (!campo || !painel) return;
+
+
+            const cliente = obterClienteSelecionado('financeiro');
+
+            if (!cliente) {
+
+                painel.style.display = 'none';
+
+                if (nomeEl) nomeEl.textContent = '';
+
+                if (codigoEl) codigoEl.textContent = '';
+
+                if (telefoneEl) telefoneEl.textContent = '';
+
+                return;
+
+            }
+
+
+            painel.style.display = 'block';
+
+            if (nomeEl) nomeEl.textContent = `${
+formatarNomeCliente(cliente.nome)}
+ ${
+formatarNomeCliente(cliente.sobrenome || '')}
+`.trim();
+
+            if (codigoEl) codigoEl.textContent = cliente.codigo || '';
+
+            if (telefoneEl) telefoneEl.textContent = ` ${
+cliente.telefone || 'Telefone não cadastrado'}
+`;
+
+        }
+
+
+        function sincronizarDadosClientesTodasAsTelas() {
+
+            // A fonte oficial é o Supabase;
+ o array global "clientes" é o espelho em memória da empresa autenticada.
+            // Todas as telas são re-renderizadas imediatamente após qualquer
+            // inclusão, edição ou exclusão de cliente.
+            atualizarTabelaClientes();
+
+            atualizarListaClientesDatalist();
+
+            atualizarAniversariantesDia();
+
+            atualizarAniversariantesMes();
+
+            atualizarEspelhoClienteFinanceiro();
+
+            atualizarTelefoneAgendamento();
+
+
+            if (typeof renderizarAgenda === 'function') renderizarAgenda();
+
+
+            // Se o histórico do cliente estiver aberto, atualiza os dados sem
+            // exigir fechamento/reabertura da tela.
+            if (clienteAtualHistoricoId && document.getElementById('modal-historico-cliente')?.classList.contains('active')) {
+
+                abrirHistoricoCliente(clienteAtualHistoricoId);
+
+            }
+
+        }
+
+
+        async function lancarEntrada() {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar recebimentos.')) return;
+
+            const buscaVal = document.getElementById('busca-cliente').value.trim();
+
+            const dataVal = document.getElementById('data-entrada').value;
+
+            const pagamentoVal = document.getElementById('pag-entrada').value;
+
+            if(!buscaVal) {
+ alert('Informe o cliente para o atendimento!');
+ return;
+ }
+
+            if(carrinho.length === 0) {
+ alert('Adicione pelo menos um serviço ou produto ao carrinho!');
+ return;
+ }
+
+            if(!dataVal) {
+ alert('Informe a data do atendimento!');
+ return;
+ }
+
+
+            const agendamentoOrigemId = agendamentoEmRecebimentoId;
+
+            if(agendamentoOrigemId) {
+
+                const agendamentoOrigem = agendamentos.find(a => String(a.id) === String(agendamentoOrigemId));
+
+                if(!agendamentoOrigem) {
+
+                    agendamentoEmRecebimentoId = null;
+
+                    alert('O agendamento de origem não foi encontrado. Abra novamente o recebimento pela Agenda.');
+
+                    return;
+
+                }
+
+                if(entradaJaGeradaPorAgendamento(agendamentoOrigemId)) {
+
+                    alert('Este agendamento já foi finalizado. Nenhuma receita duplicada foi criada.');
+
+                    return;
+
+                }
+
+            }
+
+
+            const cliEncontrado = obterClienteSelecionado('financeiro');
+
+            const clienteId = cliEncontrado ? cliEncontrado.id : null;
+
+            const clienteNome = cliEncontrado ? formatarNomeCompletoCliente(cliEncontrado.nome, cliEncontrado.sobrenome) : formatarNomeCliente(buscaVal);
+
+            const totalVal = carrinho.reduce((acc, i) => acc + Number(i.preco || 0), 0);
+
+            const agendamentoComissao = agendamentoOrigemId ? agendamentos.find(a => String(a.id) === String(agendamentoOrigemId)) : null;
+
+            const profissionalComissao = agendamentoComissao?.profissionalId ? profissionais.find(p => String(p.id) === String(agendamentoComissao.profissionalId)) : null;
+
+  
+
+===== busca-cliente =====
+l = document.getElementById('financeiro-cliente-nome');
+
+            const codigoEl = document.getElementById('financeiro-cliente-codigo');
+
+            const telefoneEl = document.getElementById('financeiro-cliente-telefone');
+
+            if (!campo || !painel) return;
+
+
+            const cliente = obterClienteSelecionado('financeiro');
+
+            if (!cliente) {
+
+                painel.style.display = 'none';
+
+                if (nomeEl) nomeEl.textContent = '';
+
+                if (codigoEl) codigoEl.textContent = '';
+
+                if (telefoneEl) telefoneEl.textContent = '';
+
+                return;
+
+            }
+
+
+            painel.style.display = 'block';
+
+            if (nomeEl) nomeEl.textContent = `${
+formatarNomeCliente(cliente.nome)}
+ ${
+formatarNomeCliente(cliente.sobrenome || '')}
+`.trim();
+
+            if (codigoEl) codigoEl.textContent = cliente.codigo || '';
+
+            if (telefoneEl) telefoneEl.textContent = ` ${
+cliente.telefone || 'Telefone não cadastrado'}
+`;
+
+        }
+
+
+        function sincronizarDadosClientesTodasAsTelas() {
+
+            // A fonte oficial é o Supabase;
+ o array global "clientes" é o espelho em memória da empresa autenticada.
+            // Todas as telas são re-renderizadas imediatamente após qualquer
+            // inclusão, edição ou exclusão de cliente.
+            atualizarTabelaClientes();
+
+            atualizarListaClientesDatalist();
+
+            atualizarAniversariantesDia();
+
+            atualizarAniversariantesMes();
+
+            atualizarEspelhoClienteFinanceiro();
+
+            atualizarTelefoneAgendamento();
+
+
+            if (typeof renderizarAgenda === 'function') renderizarAgenda();
+
+
+            // Se o histórico do cliente estiver aberto, atualiza os dados sem
+            // exigir fechamento/reabertura da tela.
+            if (clienteAtualHistoricoId && document.getElementById('modal-historico-cliente')?.classList.contains('active')) {
+
+                abrirHistoricoCliente(clienteAtualHistoricoId);
+
+            }
+
+        }
+
+
+        async function lancarEntrada() {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar recebimentos.')) return;
+
+            const buscaVal = document.getElementById('busca-cliente').value.trim();
+
+            const dataVal = document.getElementById('data-entrada').value;
+
+            const pagamentoVal = document.getElementById('pag-entrada').value;
+
+            if(!buscaVal) {
+ alert('Informe o cliente para o atendimento!');
+ return;
+ }
+
+            if(carrinho.length === 0) {
+ alert('Adicione pelo menos um serviço ou produto ao carrinho!');
+ return;
+ }
+
+            if(!dataVal) {
+ alert('Informe a data do atendimento!');
+ return;
+ }
+
+
+            const agendamentoOrigemId = agendamentoEmRecebimentoId;
+
+            if(agendamentoOrigemId) {
+
+                const agendamentoOrigem = agendamentos.find(a => String(a.id) === String(agendamentoOrigemId));
+
+                if(!agendamentoOrigem) {
+
+                    agendamentoEmRecebimentoId = null;
+
+                    alert('O agendamento de origem não foi encontrado. Abra novamente o recebimento pela Agenda.');
+
+                    return;
+
+                }
+
+                if(entradaJaGeradaPorAgendamento(agendamentoOrigemId)) {
+
+                    alert('Este agendamento já foi finalizado. Nenhuma receita duplicada foi criada.');
+
+                    return;
+
+                }
+
+            }
+
+
+            const cliEncontrado = obterClienteSelecionado('financeiro');
+
+            const clienteId = cliEncontrado ? cliEncontrado.id : null;
+
+            const clienteNome = cliEncontrado ? formatarNomeCompletoCliente(cliEncontrado.nome, cliEncontrado.sobrenome) : formatarNomeCliente(buscaVal);
+
+            const totalVal = carrinho.reduce((acc, i) => acc + Number(i.preco || 0), 0);
+
+            const agendamentoComissao = agendamentoOrigemId ? agendamentos.find(a => String(a.id) === String(agendamentoOrigemId)) : null;
+
+            const profissionalComissao = agendamentoComissao?.profissionalId ? profissionais.find(p => String(p.id) === String(agendamentoComissao.profissionalId)) : null;
+
+            const percentualComissaoServicos = configComissoes.ativa && profissionalComissao
+                ? Number(profissionalComissao.comissaoPercentualServicos == null ? configComissoes.percentualServicos : profissionalComissao.comissaoPercentualServicos)
+                : null;
+
+            const percentualComissaoProdutos = configComissoes.ativa && profissionalComissao
+                ? Number(profissionalComissao.comissaoPercentualProdutos == null ? configComissoes.percentualProdutos : profissionalComissao.comissaoPercentualProdutos)
+                : null;
+
+            const baseServicosComissao = configComissoes.ativa && configComissoes.sobreServicos
+                ? carrinho.filter(i => i.tipoItem !== 'produto').reduce((acc,i)=>acc+Number(i.preco||0),0) : 0;
+
+            const baseProdutosComissao = configComissoes.ativa && configComissoes.sobreProdutos
+                ? carrinho.filter(i => i.tipoItem === 'produto').reduce((acc,i)=>acc+Number(i.preco||0),0) : 0;
+
+            const valorComissaoServicos = percentualComissaoServicos == null ? 0 : baseServicosComissao * percentualComissaoServicos / 100;
+
+            const valorComissaoProdutos = percentualComissaoProdutos == null ? 0 : baseProdutosComissao * percentualComissaoProdutos / 100;
+
+            const valorComissaoTotal = valorComissaoServicos + valorComissaoProdutos;
+
+
+            if(totalVal <= 0) {
+
+                const confirmarZero = confirm('O total deste atendimento está em R$ 0,00. Deseja finalizar mesmo assim?');
+
+                if(!confirmarZero) return;
+
+            }
+
+
+            try {
+
+                let novaEntrada;
+
+                if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+
+                    const payload = {
+
+                        empresa_id: empresaAtual.id,
+                        cliente_id: clienteId,
+                        agendamento_id: agendamentoOrigemId || null,
+                        cliente_nome: clienteNome,
+                        data: dataVal,
+                        pagamento: pagamentoVal,
+                        total: totalVal,
+                        profissional_id: profissionalComissao?.id || null,
+                        comissao_percentual_aplicado: percentualComissaoServicos,
+                        comissao_percentual_servicos_aplicado: percentualComissaoS
+
+===== busca-cliente =====
+ao_status: (configComissoes.ativa && profissionalComissao && valorComissaoTotal > 0) ? 'PENDENTE' : null
+                    }
+;
+
+                    const {
+ data: at, error }
+ = await CloudDB.from('atendimentos').insert(payload).select().single();
+
+                    if(error) throw error;
+
+
+                    const itensPayload = carrinho.map(i => ({
+
+                        empresa_id: empresaAtual.id,
+                        atendimento_id: at.id,
+                        tipo: i.tipoItem === 'produto' ? 'PRODUTO' : 'SERVICO',
+                        item_origem_id: (typeof i.id === 'string' && i.id.includes('-')) ? i.id : null,
+                        nome: i.nome,
+                        quantidade: 1,
+                        valor_unitario: Number(i.preco||0),
+                        valor_total: Number(i.preco||0)
+                    }
+));
+
+                    const {
+ data: itensSalvos, error: itensErro }
+ = await CloudDB.from('itens_atendimento').insert(itensPayload).select();
+
+                    if(itensErro) {
+
+                        await CloudDB.from('atendimentos').delete().eq('id',at.id);
+
+                        throw itensErro;
+
+                    }
+
+                    novaEntrada = entradaCloudParaLocal(at, itensSalvos || []);
+
+                    if(agendamentoOrigemId) novaEntrada.agendamentoId = agendamentoOrigemId;
+
+                }
+ else {
+
+                    novaEntrada = {
+
+                        id:Date.now(),
+                        clienteId,
+                        clienteNome,
+                        data:dataVal,
+                        pagamento:pagamentoVal,
+                        itens:[...carrinho],
+                        total:totalVal,
+                        agendamentoId: agendamentoOrigemId || null
+                    }
+;
+
+                }
+
+
+                entradas.push(novaEntrada);
+
+
+                if(agendamentoOrigemId) {
+
+                    concluirAgendamentoAposRecebimento(agendamentoOrigemId, novaEntrada);
+
+                }
+
+
+                salvarCacheFinanceiroCloud();
+
+                salvarStorage();
+
+
+                carrinho = [];
+
+                agendamentoEmRecebimentoId = null;
+
+                document.getElementById('busca-cliente').value = '';
+
+                delete document.getElementById('busca-cliente').dataset.clienteId;
+
+                document.getElementById('aviso-recebimento-agenda')?.remove();
+
+
+                atualizarEspelhoClienteFinanceiro?.();
+
+                atualizarCarrinhoUI();
+
+                atualizarDadosFinanceiros();
+
+                atualizarTabelaClientes();
+
+                renderizarDashboard();
+
+                renderizarAgenda();
+
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_REGISTRADO',novaEntrada?.id || null,{
+cliente:clienteNome,valor:totalVal,data:dataVal,pagamento:pagamentoVal,agendamento_id:agendamentoOrigemId || null}
+);
+
+                alert(agendamentoOrigemId
+                    ? 'Atendimento finalizado e receita registrada com sucesso!' : 'Atendimento lançado com sucesso!');
+
+            }
+ catch(err) {
+
+                console.error(err);
+
+                alert(`Não foi possível lançar o atendimento: ${
+err?.message || 'erro desconhecido'}
+`);
+
+            }
+
+        }
+
+
+        async function excluirEntrada(id) {
+
+            if(!validarPermissaoCancelamento('entradas','excluir atendimentos/entradas')) return;
+
+
+            const entrada = entradas.find(e => String(e.id) === String(id));
+
+            if(!entrada) {
+
+                alert('Lançamento não encontrado.');
+
+                return;
+
+            }
+
+
+            const vinculadaAgenda = !!entrada.agendamentoId;
+
+            const agendamentoVinculado = vinculadaAgenda
+                ? agendamentos.find(a => String(a.id) === String(entrada.agendamentoId))
+                : null;
+
+
+            const mensagem = vinculadaAgenda
+                ? `Este recebimento veio da Agenda${
+agendamentoVinculado ? ` (${
+agendamentoVinculado.clienteNome}
+ • ${
+formatarDataAgenda(agendamentoVinculado.data)}
+ ${
+agendamentoVinculado.horario || ''}
+)` : ''}
+.\n\nAo excluir a receita, o atendimento voltará a aparecer como NÃO FINALIZADO na Agenda e poderá ser recebido novamente.\n\nDeseja continuar?` : 'Tem certeza que deseja excluir este lançamento de entrada?';
+
+
+            if(!confirm(mensagem)) return;
+
+
+            try {
+
+                if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+
+                    const {
+ error }
+ = await CloudDB
+                        .from('atendimentos')
+                        .delete()
+                        .eq('id', id)
+                        .eq('empresa_id', empresaAtual.id);
+
+                    if(error) throw error;
+
+                }
+
+
+                entradas = entradas.filter(e => String(e.id) !== String(id));
+
+                salvarCacheFinanceiroCloud();
+
+                salvarStorage();
+
+
+                atualizarDadosFinanceiros();
+
+                atualizarTabelaClientes();
+
+                renderizarDashboard();
+
+                renderizarAgenda();
+
+
+                if(clienteAtualHistoricoId && entrada.clienteId && String(clienteAtualHistoricoId) === String(entrada.clienteId)) {
+
+                    abrirHistoricoCliente(clienteAtualHistoricoId);
+
+                }
+
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_EXCLUIDO',id,{
+cliente:entrada.clienteNome,valor:entrada.total,data:entrada.data,agendamento_id:entrada.agendamentoId || null}
+);
+
+                alert(vinculadaAgenda
+                    ? 'Receita excluída. O atendimento foi reaberto na Agenda.' : 'Lançamento excluído com sucesso.');
+
+            }
+ catch(err) {
+
+                console.error(err);
+
+                alert(`Não foi possível excluir o atendimento: ${
+err?.message || 'erro desconhecido'}
+`);
+
+            }
+
+        }
+
+
+        async function lancarSaida() {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar despesas.')) return;
+
+            const desc=document.getElementById('saida-descricao').value.trim(), valor=parseFloat(document.getElementById('saida-valor').value), data=document.getElementById('saida-data').value;
+
+            if(!desc){
+alert('Informe a descrição da despesa!');
+return;
+}
+ if(isNaN(valor)||valor<=0){
+alert('Informe um valor válido!');
+return;
+}
+ if(!data){
+alert('Informe a data!');
+return;
+}
+
+            try {
+
+                let nova;
+
+                if(FINANCEIRO_CLOUD_ATIVO && CloudD
+
+===== busca-cliente =====
+tal > 0) ? 'PENDENTE' : null
+                    }
+;
+
+                    const {
+ data: at, error }
+ = await CloudDB.from('atendimentos').insert(payload).select().single();
+
+                    if(error) throw error;
+
+
+                    const itensPayload = carrinho.map(i => ({
+
+                        empresa_id: empresaAtual.id,
+                        atendimento_id: at.id,
+                        tipo: i.tipoItem === 'produto' ? 'PRODUTO' : 'SERVICO',
+                        item_origem_id: (typeof i.id === 'string' && i.id.includes('-')) ? i.id : null,
+                        nome: i.nome,
+                        quantidade: 1,
+                        valor_unitario: Number(i.preco||0),
+                        valor_total: Number(i.preco||0)
+                    }
+));
+
+                    const {
+ data: itensSalvos, error: itensErro }
+ = await CloudDB.from('itens_atendimento').insert(itensPayload).select();
+
+                    if(itensErro) {
+
+                        await CloudDB.from('atendimentos').delete().eq('id',at.id);
+
+                        throw itensErro;
+
+                    }
+
+                    novaEntrada = entradaCloudParaLocal(at, itensSalvos || []);
+
+                    if(agendamentoOrigemId) novaEntrada.agendamentoId = agendamentoOrigemId;
+
+                }
+ else {
+
+                    novaEntrada = {
+
+                        id:Date.now(),
+                        clienteId,
+                        clienteNome,
+                        data:dataVal,
+                        pagamento:pagamentoVal,
+                        itens:[...carrinho],
+                        total:totalVal,
+                        agendamentoId: agendamentoOrigemId || null
+                    }
+;
+
+                }
+
+
+                entradas.push(novaEntrada);
+
+
+                if(agendamentoOrigemId) {
+
+                    concluirAgendamentoAposRecebimento(agendamentoOrigemId, novaEntrada);
+
+                }
+
+
+                salvarCacheFinanceiroCloud();
+
+                salvarStorage();
+
+
+                carrinho = [];
+
+                agendamentoEmRecebimentoId = null;
+
+                document.getElementById('busca-cliente').value = '';
+
+                delete document.getElementById('busca-cliente').dataset.clienteId;
+
+                document.getElementById('aviso-recebimento-agenda')?.remove();
+
+
+                atualizarEspelhoClienteFinanceiro?.();
+
+                atualizarCarrinhoUI();
+
+                atualizarDadosFinanceiros();
+
+                atualizarTabelaClientes();
+
+                renderizarDashboard();
+
+                renderizarAgenda();
+
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_REGISTRADO',novaEntrada?.id || null,{
+cliente:clienteNome,valor:totalVal,data:dataVal,pagamento:pagamentoVal,agendamento_id:agendamentoOrigemId || null}
+);
+
+                alert(agendamentoOrigemId
+                    ? 'Atendimento finalizado e receita registrada com sucesso!' : 'Atendimento lançado com sucesso!');
+
+            }
+ catch(err) {
+
+                console.error(err);
+
+                alert(`Não foi possível lançar o atendimento: ${
+err?.message || 'erro desconhecido'}
+`);
+
+            }
+
+        }
+
+
+        async function excluirEntrada(id) {
+
+            if(!validarPermissaoCancelamento('entradas','excluir atendimentos/entradas')) return;
+
+
+            const entrada = entradas.find(e => String(e.id) === String(id));
+
+            if(!entrada) {
+
+                alert('Lançamento não encontrado.');
+
+                return;
+
+            }
+
+
+            const vinculadaAgenda = !!entrada.agendamentoId;
+
+            const agendamentoVinculado = vinculadaAgenda
+                ? agendamentos.find(a => String(a.id) === String(entrada.agendamentoId))
+                : null;
+
+
+            const mensagem = vinculadaAgenda
+                ? `Este recebimento veio da Agenda${
+agendamentoVinculado ? ` (${
+agendamentoVinculado.clienteNome}
+ • ${
+formatarDataAgenda(agendamentoVinculado.data)}
+ ${
+agendamentoVinculado.horario || ''}
+)` : ''}
+.\n\nAo excluir a receita, o atendimento voltará a aparecer como NÃO FINALIZADO na Agenda e poderá ser recebido novamente.\n\nDeseja continuar?` : 'Tem certeza que deseja excluir este lançamento de entrada?';
+
+
+            if(!confirm(mensagem)) return;
+
+
+            try {
+
+                if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+
+                    const {
+ error }
+ = await CloudDB
+                        .from('atendimentos')
+                        .delete()
+                        .eq('id', id)
+                        .eq('empresa_id', empresaAtual.id);
+
+                    if(error) throw error;
+
+                }
+
+
+                entradas = entradas.filter(e => String(e.id) !== String(id));
+
+                salvarCacheFinanceiroCloud();
+
+                salvarStorage();
+
+
+                atualizarDadosFinanceiros();
+
+                atualizarTabelaClientes();
+
+                renderizarDashboard();
+
+                renderizarAgenda();
+
+
+                if(clienteAtualHistoricoId && entrada.clienteId && String(clienteAtualHistoricoId) === String(entrada.clienteId)) {
+
+                    abrirHistoricoCliente(clienteAtualHistoricoId);
+
+                }
+
+
+                await registrarAuditoria('FINANCEIRO','RECEBIMENTO_EXCLUIDO',id,{
+cliente:entrada.clienteNome,valor:entrada.total,data:entrada.data,agendamento_id:entrada.agendamentoId || null}
+);
+
+                alert(vinculadaAgenda
+                    ? 'Receita excluída. O atendimento foi reaberto na Agenda.' : 'Lançamento excluído com sucesso.');
+
+            }
+ catch(err) {
+
+                console.error(err);
+
+                alert(`Não foi possível excluir o atendimento: ${
+err?.message || 'erro desconhecido'}
+`);
+
+            }
+
+        }
+
+
+        async function lancarSaida() {
+
+            if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar despesas.')) return;
+
+            const desc=document.getElementById('saida-descricao').value.trim(), valor=parseFloat(document.getElementById('saida-valor').value), data=document.getElementById('saida-data').value;
+
+            if(!desc){
+alert('Informe a descrição da despesa!');
+return;
+}
+ if(isNaN(valor)||valor<=0){
+alert('Informe um valor válido!');
+return;
+}
+ if(!data){
+alert('Informe a data!');
+return;
+}
+
+            try {
+
+                let nova;
+
+                if(FINANCEIRO_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud) {
+
+                    const {
+data:row,error}
+=await
