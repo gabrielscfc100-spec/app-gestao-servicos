@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v25-materiais-form-mobile';
+const CACHE_VERSION = 'simpla-shell-v26-pagamento-dividido';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [

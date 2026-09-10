@@ -2776,12 +2776,28 @@ hr{
             </div>
             <div class="form-group">
               <label>Forma de pagamento</label>
-              <select id="pag-entrada">
+              <select id="pag-entrada" onchange="atualizarPagamentoDivididoUI()">
                 <option>PIX</option>
                 <option>DINHEIRO</option>
                 <option>CARTÃO CRÉDITO</option>
                 <option>CARTÃO DÉBITO</option>
+                <option value="DIVIDIDO">PAGAMENTO DIVIDIDO</option>
               </select>
+              <div id="pagamento-dividido-box" class="pagamento-dividido-box" style="display:none;">
+                <div class="pagamento-dividido-linha">
+                  <select id="pag-div-forma-1" onchange="atualizarResumoPagamentoDividido()">
+                    <option>PIX</option><option>DINHEIRO</option><option>CARTÃO CRÉDITO</option><option>CARTÃO DÉBITO</option>
+                  </select>
+                  <input type="number" id="pag-div-valor-1" min="0.01" step="0.01" placeholder="R$ 0,00" oninput="atualizarResumoPagamentoDividido()">
+                </div>
+                <div class="pagamento-dividido-linha">
+                  <select id="pag-div-forma-2" onchange="atualizarResumoPagamentoDividido()">
+                    <option>DINHEIRO</option><option>PIX</option><option>CARTÃO CRÉDITO</option><option>CARTÃO DÉBITO</option>
+                  </select>
+                  <input type="number" id="pag-div-valor-2" min="0.01" step="0.01" placeholder="R$ 0,00" oninput="atualizarResumoPagamentoDividido()">
+                </div>
+                <small id="pag-div-resumo">Informe duas formas de pagamento. A soma deve ser igual ao total do atendimento.</small>
+              </div>
             </div>
           </div>
 
@@ -9283,6 +9299,65 @@ hr{
             });
 
             totalSpan.innerText = `R$ ${total.toFixed(2)}`;
+            atualizarResumoPagamentoDividido();
+        }
+
+        function atualizarPagamentoDivididoUI() {
+            const sel = document.getElementById('pag-entrada');
+            const box = document.getElementById('pagamento-dividido-box');
+            if(!sel || !box) return;
+            box.style.display = sel.value === 'DIVIDIDO' ? 'block' : 'none';
+            atualizarResumoPagamentoDividido();
+        }
+
+        function totalCarrinhoAtual() {
+            return carrinho.reduce((acc, i) => acc + Number(i.preco || 0), 0);
+        }
+
+        function atualizarResumoPagamentoDividido() {
+            const box = document.getElementById('pagamento-dividido-box');
+            const resumo = document.getElementById('pag-div-resumo');
+            if(!box || box.style.display === 'none' || !resumo) return;
+            const v1 = Number(document.getElementById('pag-div-valor-1')?.value || 0);
+            const v2 = Number(document.getElementById('pag-div-valor-2')?.value || 0);
+            const total = totalCarrinhoAtual();
+            const soma = v1 + v2;
+            const dif = total - soma;
+            resumo.textContent = Math.abs(dif) < 0.01
+                ? `Pagamento fechado em R$ ${soma.toFixed(2)}.`
+                : `Informado: R$ ${soma.toFixed(2)} • Total do atendimento: R$ ${total.toFixed(2)} • Diferença: R$ ${dif.toFixed(2)}`;
+        }
+
+        function montarPagamentoDividido(total) {
+            const f1 = document.getElementById('pag-div-forma-1')?.value || '';
+            const f2 = document.getElementById('pag-div-forma-2')?.value || '';
+            const v1 = Number(document.getElementById('pag-div-valor-1')?.value || 0);
+            const v2 = Number(document.getElementById('pag-div-valor-2')?.value || 0);
+            if(!f1 || !f2 || f1 === f2) throw new Error('Escolha duas formas de pagamento diferentes.');
+            if(v1 <= 0 || v2 <= 0) throw new Error('Informe valores maiores que zero para as duas formas de pagamento.');
+            if(Math.abs((v1 + v2) - total) >= 0.01) throw new Error('A soma do pagamento dividido deve ser igual ao total do atendimento.');
+            return `DIVIDIDO|${f1}:${v1.toFixed(2)}|${f2}:${v2.toFixed(2)}`;
+        }
+
+        function formatarPagamentoAtendimento(valor) {
+            const raw = String(valor || '');
+            if(!raw.startsWith('DIVIDIDO|')) return raw;
+            return raw.split('|').slice(1).map(parte => {
+                const pos = parte.lastIndexOf(':');
+                if(pos < 0) return parte;
+                const forma = parte.slice(0,pos);
+                const val = Number(parte.slice(pos+1) || 0);
+                return `${forma} ${val.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}`;
+            }).join(' + ');
+        }
+
+        function decomporPagamentoCaixa(entrada){
+            const raw = String(entrada?.pagamento || '');
+            if(!raw.startsWith('DIVIDIDO|')) return [{forma:normalizarFormaPagamentoCaixa(raw), valor:Number(entrada?.total||0)}];
+            return raw.split('|').slice(1).map(parte=>{
+                const pos=parte.lastIndexOf(':');
+                return {forma:normalizarFormaPagamentoCaixa(parte.slice(0,pos)), valor:Number(parte.slice(pos+1)||0)};
+            }).filter(x=>x.forma && x.valor>0);
         }
 
         function localizarClienteUniversal(valor) {
@@ -9352,7 +9427,7 @@ hr{
             if(!validarAcessoPerfil('financeiroOperar','Seu perfil não pode registrar recebimentos.')) return;
             const buscaVal = document.getElementById('busca-cliente').value.trim();
             const dataVal = document.getElementById('data-entrada').value;
-            const pagamentoVal = document.getElementById('pag-entrada').value;
+            let pagamentoVal = document.getElementById('pag-entrada').value;
             if(!buscaVal) { alert('Informe o cliente para o atendimento!'); return; }
             if(carrinho.length === 0) { alert('Adicione pelo menos um serviço ou produto ao carrinho!'); return; }
             if(!dataVal) { alert('Informe a data do atendimento!'); return; }
@@ -9375,6 +9450,10 @@ hr{
             const clienteId = cliEncontrado ? cliEncontrado.id : null;
             const clienteNome = cliEncontrado ? formatarNomeCompletoCliente(cliEncontrado.nome, cliEncontrado.sobrenome) : formatarNomeCliente(buscaVal);
             const totalVal = carrinho.reduce((acc, i) => acc + Number(i.preco || 0), 0);
+            if(pagamentoVal === 'DIVIDIDO') {
+                try { pagamentoVal = montarPagamentoDividido(totalVal); }
+                catch(err) { alert(err.message); return; }
+            }
             const agendamentoComissao = agendamentoOrigemId ? agendamentos.find(a => String(a.id) === String(agendamentoOrigemId)) : null;
             const profissionalComissao = agendamentoComissao?.profissionalId ? profissionais.find(p => String(p.id) === String(agendamentoComissao.profissionalId)) : null;
             const percentualComissaoServicos = configComissoes.ativa && profissionalComissao
@@ -9464,6 +9543,9 @@ hr{
                 agendamentoEmRecebimentoId = null;
                 document.getElementById('busca-cliente').value = '';
                 delete document.getElementById('busca-cliente').dataset.clienteId;
+                const pagSel=document.getElementById('pag-entrada'); if(pagSel){pagSel.value='PIX'; atualizarPagamentoDivididoUI();}
+                const pv1=document.getElementById('pag-div-valor-1'); if(pv1) pv1.value='';
+                const pv2=document.getElementById('pag-div-valor-2'); if(pv2) pv2.value='';
                 document.getElementById('aviso-recebimento-agenda')?.remove();
 
                 atualizarEspelhoClienteFinanceiro?.();
@@ -9674,10 +9756,11 @@ hr{
 
             const totalRecebido = receitasDia.reduce((a,e)=>a+Number(e.total||0),0);
             const totalDespesas = despesasDia.reduce((a,e)=>a+Number(e.valor||0),0);
-            const totalDinheiro = receitasDia.filter(e=>normalizarFormaPagamentoCaixa(e.pagamento)==='DINHEIRO').reduce((a,e)=>a+Number(e.total||0),0);
-            const totalPix = receitasDia.filter(e=>normalizarFormaPagamentoCaixa(e.pagamento)==='PIX').reduce((a,e)=>a+Number(e.total||0),0);
-            const totalCredito = receitasDia.filter(e=>normalizarFormaPagamentoCaixa(e.pagamento).includes('CRÉDITO') || normalizarFormaPagamentoCaixa(e.pagamento).includes('CREDITO')).reduce((a,e)=>a+Number(e.total||0),0);
-            const totalDebito = receitasDia.filter(e=>normalizarFormaPagamentoCaixa(e.pagamento).includes('DÉBITO') || normalizarFormaPagamentoCaixa(e.pagamento).includes('DEBITO')).reduce((a,e)=>a+Number(e.total||0),0);
+            const parcelasPagamento = receitasDia.flatMap(decomporPagamentoCaixa);
+            const totalDinheiro = parcelasPagamento.filter(x=>x.forma==='DINHEIRO').reduce((a,x)=>a+Number(x.valor||0),0);
+            const totalPix = parcelasPagamento.filter(x=>x.forma==='PIX').reduce((a,x)=>a+Number(x.valor||0),0);
+            const totalCredito = parcelasPagamento.filter(x=>x.forma.includes('CRÉDITO') || x.forma.includes('CREDITO')).reduce((a,x)=>a+Number(x.valor||0),0);
+            const totalDebito = parcelasPagamento.filter(x=>x.forma.includes('DÉBITO') || x.forma.includes('DEBITO')).reduce((a,x)=>a+Number(x.valor||0),0);
 
             const setMoney=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); };
             setMoney('caixa-total-recebido',totalRecebido);
@@ -9691,10 +9774,12 @@ hr{
 
             const grupos = {};
             receitasDia.forEach(e=>{
-                const forma=normalizarFormaPagamentoCaixa(e.pagamento);
-                if(!grupos[forma]) grupos[forma]={qtd:0,total:0};
-                grupos[forma].qtd++;
-                grupos[forma].total+=Number(e.total||0);
+                decomporPagamentoCaixa(e).forEach(parcela=>{
+                    const forma=parcela.forma;
+                    if(!grupos[forma]) grupos[forma]={qtd:0,total:0};
+                    grupos[forma].qtd++;
+                    grupos[forma].total+=Number(parcela.valor||0);
+                });
             });
 
             const corpoFormas=document.getElementById('tabela-caixa-formas');
@@ -9707,7 +9792,7 @@ hr{
             }
 
             const movimentos = [
-                ...receitasDia.map(e=>({tipo:'RECEITA',descricao:e.clienteNome||'Atendimento',forma:normalizarFormaPagamentoCaixa(e.pagamento),valor:Number(e.total||0)})),
+                ...receitasDia.map(e=>({tipo:'RECEITA',descricao:e.clienteNome||'Atendimento',forma:formatarPagamentoAtendimento(e.pagamento),valor:Number(e.total||0)})),
                 ...despesasDia.map(e=>({tipo:'DESPESA',descricao:e.descricao||e.tipo||'Despesa',forma:'—',valor:-Math.abs(Number(e.valor||0))}))
             ];
 
@@ -9828,7 +9913,7 @@ hr{
                         let itensStr = e.itens ? e.itens.map(i => i.nome).join(', ') : '-';
                         let dataFmt = new Date(e.data + 'T00:00:00').toLocaleDateString('pt-BR');
                         let tr = document.createElement('tr');
-                        tr.innerHTML = ` <td>${dataFmt}</td><td><b>${e.clienteNome}</b></td><td>${itensStr}</td><td>${e.pagamento}</td><td style="color: #38a169; font-weight: bold;">R$ ${e.total.toFixed(2)}</td><td style="text-align: center;"><button class="btn-salvar" style="padding:6px 10px;font-size:12px;background:#3182ce;color:white;" onclick='abrirEdicaoEntrada(${JSON.stringify(String(e.id))})'>️ Editar</button><button class="btn-excluir-tabela" onclick='excluirEntrada(${JSON.stringify(String(e.id))})'>Excluir</button></td>`;
+                        tr.innerHTML = ` <td>${dataFmt}</td><td><b>${e.clienteNome}</b></td><td>${itensStr}</td><td>${formatarPagamentoAtendimento(e.pagamento)}</td><td style="color: #38a169; font-weight: bold;">R$ ${e.total.toFixed(2)}</td><td style="text-align: center;"><button class="btn-salvar" style="padding:6px 10px;font-size:12px;background:#3182ce;color:white;" onclick='abrirEdicaoEntrada(${JSON.stringify(String(e.id))})'>️ Editar</button><button class="btn-excluir-tabela" onclick='excluirEntrada(${JSON.stringify(String(e.id))})'>Excluir</button></td>`;
                         tbEntradas.appendChild(tr);
                     });
                 }
@@ -12313,5 +12398,9 @@ hr{
 })();
 </script>
 
+
+<style id="simpla-pagamento-dividido-v26">
+.pagamento-dividido-box{margin-top:10px;padding:12px;border:1px solid #dbe4ee;border-radius:8px;background:#f8fafc}.pagamento-dividido-linha{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:8px;margin-bottom:8px}.pagamento-dividido-box small{display:block;color:#718096;line-height:1.4;text-transform:none}@media(max-width:768px){.pagamento-dividido-linha{grid-template-columns:1fr}.pagamento-dividido-linha select,.pagamento-dividido-linha input{width:100%;min-width:0}}
+</style>
 </body>
 </html>
