@@ -1,0 +1,27 @@
+name: Presenca no horario v36
+on:
+  push:
+    paths:
+      - '.github/scripts/patch-presenca-horario-v36.py'
+      - '.github/workflows/patch-presenca-horario-v36.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-presenca-horario-v36.py
+      - name: Validar
+        run: |
+          grep -q "simpla-presenca-horario-v36" index.html
+          grep -q "simpla-shell-v36-presenca-horario" service-worker.js
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          git diff --cached --quiet || git commit -m "feat: notificar presenca no horario do atendimento"
+          git push
