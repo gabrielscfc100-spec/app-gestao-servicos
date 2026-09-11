@@ -1,0 +1,34 @@
+name: Dashboard agenda v47
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-dashboard-gestao-v47.yml'
+      - '.github/scripts/patch-dashboard-gestao-v47.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-dashboard-gestao-v47.py
+      - name: Validar
+        run: |
+          grep -F 'simpla-dashboard-agenda-v47' index.html
+          grep -F 'TAXA DE NO-SHOW' index.html
+          grep -F 'TAXA DE COMPARECIMENTO' index.html
+          grep -F "simpla-shell-v47-dashboard-agenda" service-worker.js
+          ! grep -F "setInterval(" .github/scripts/patch-dashboard-gestao-v47.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          if git diff --cached --quiet; then
+            echo 'Sem alteracoes'
+            exit 0
+          fi
+          git commit -m 'feat: adicionar indicadores de agenda ao dashboard'
+          git push
