@@ -3228,7 +3228,7 @@ hr{
                     </label></div><button class="btn-salvar" style="margin-bottom: 24px;" onclick="salvarConfigCampos()"> Salvar Campos do Cadastro</button><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3>Personalização de Tema</h3><p style="font-size: 13px; color: #718096; margin-bottom: 16px;">Escolha o estilo visual do sistema:</p><div style="display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;"><select id="cfg-tema" style="max-width: 260px;"><option value="padrao">Clássico Ouro</option><option value="azul">Azul Executivo</option><option value="verde">Verde Barbeiro</option></select><button class="btn-salvar" onclick="salvarConfigTema()"> Salvar Tema</button></div><p style="font-size: 12px; color: #718096; margin-bottom: 24px;">A alteração visual será aplicada somente após clicar em salvar.</p><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3>Nome da Barbearia</h3><p style="font-size: 13px; color: #718096; margin-bottom: 12px;">Altere o nome exibido no canto superior esquerdo do sistema:</p><div class="form-group" style="margin-bottom: 24px;"><input type="text" id="cfg-nome-barbearia" style="text-transform: none;" placeholder="Ex: BarberManager"></div><button class="btn-salvar" style="margin-bottom: 24px;" onclick="salvarNomeBarbearia()"> Salvar Nome da Barbearia</button><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3>️ Preparação para Nuvem (Versão 2)</h3><p style="font-size: 13px; color: #718096; margin-bottom: 14px; text-transform:none; line-height:1.5;">Esta versão já usa uma camada central de dados preparada para migração. Enquanto o Supabase não estiver conectado, o aplicativo continua funcionando localmente normalmente.</p><div class="section-box-cfg" style="text-transform:none;"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px;"><div><label style="font-size:12px;font-weight:bold;display:block;margin-bottom:6px;">Modo de dados</label><input id="cfg-cloud-mode" type="text" value="LOCAL / PREPARAÇÃO" readonly style="background:#edf2f7;text-transform:none;"></div><div><label style="font-size:12px;font-weight:bold;display:block;margin-bottom:6px;">Versão da estrutura</label><input id="cfg-app-version" type="text" value="2.0 CLOUD READY" readonly style="background:#edf2f7;text-transform:none;"></div></div><div class="form-group"><label>Nome da empresa / negócio</label><input type="text" id="cfg-empresa-nome" style="text-transform:none;" placeholder="Ex: Studio João"></div><div class="form-group"><label>Tipo de negócio</label><select id="cfg-empresa-tipo" style="text-transform:none;"><option value="BARBEARIA">Barbearia</option><option value="SALAO">Salão de beleza</option><option value="CLINICA">Clínica / consultório</option><option value="ESTUDIO">Estúdio</option><option value="AUTONOMO">Profissional autônomo</option><option value="OUTRO">Outro serviço</option></select></div><button class="btn-salvar" onclick="salvarConfigEmpresaV2()"> Salvar Identidade do Negócio</button><div style="margin-top:14px;padding:12px;border-radius:6px;background:#ebf8ff;border:1px solid #bee3f8;font-size:12px;color:#2c5282;line-height:1.5;text-transform:none;"><b>Próxima etapa:</b> conectar este aplicativo ao Supabase. A URL do projeto e a chave publicável serão usadas no navegador; uma chave secreta de serviço nunca deverá ser colocada neste HTML.
                     </div></div><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3 style="color: var(--cor-accent);"> Usuários e Acessos</h3><p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">Cada pessoa usa seu próprio acesso. O administrador cria um ID e uma senha inicial para usuários operacionais; administradores continuam usando e-mail e senha.
                 </p><div class="section-box-cfg" id="box-cfg-usuarios"><div id="usuarios-acesso-admin"><h4>Criar usuário / acesso</h4><div class="cfg-usuarios-grid cfg-usuarios-grid-criacao"><div class="form-group" style="margin-bottom:0;"><label>ID de acesso</label><input type="text" id="cfg-login-id" maxlength="24" placeholder="Ex.: BARBEIRO01" oninput="normalizarCampoLoginId(this)"></div><div class="form-group" style="margin-bottom:0;"><label>Senha inicial</label><div style="position:relative;"><input type="password" id="cfg-login-senha" minlength="8" placeholder="Mínimo 8 caracteres" style="padding-right:42px;"><button type="button" onclick="alternarSenhaCampo('cfg-login-senha', this)" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);border:0;background:transparent;padding:5px;cursor:pointer;">️</button></div></div><div class="form-group" style="margin-bottom:0;"><label>Perfil de acesso</label><select id="cfg-usuario-perfil"><option value="FUNCIONARIO">Operacional / Funcionário</option><option value="FINANCEIRO">Financeiro</option><option value="GESTOR">Gestor</option><option value="ADMIN">Administrador</option></select></div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-salvar" id="btn-criar-acesso" onclick="criarAcessoOperacional()"> Criar Acesso</button><button onclick="carregarUsuariosEmpresa()" style="padding:9px 12px;">↻ Atualizar Lista</button></div><div style="margin-top:10px;padding:10px;border-radius:6px;background:#ebf8ff;border:1px solid #bee3f8;font-size:11px;color:#2c5282;line-height:1.5;text-transform:none;">Usuários criados pelo administrador usarão somente <b>ID + senha</b>. O e-mail técnico criado internamente não será exibido.
-                        </div><div class="perfis-resumo-grid"><div><b>ADMIN</b><span>Acesso total ao sistema, configurações, usuários, relatórios e cadastros.</span></div><div><b>GESTOR</b><span>Dashboard, clientes, financeiro, agenda e catálogo; sem Configurações e gestão de usuários.</span></div><div><b>OPERACIONAL</b><span>Clientes, própria agenda e lançamentos operacionais; sem Dashboard, relatórios, exportações ou exclusões.</span></div><div><b>FINANCEIRO</b><span>Dashboard e financeiro completos; clientes e agenda somente para consulta; sem catálogo ou Configurações.</span></div></div></div><div id="usuarios-acesso-nao-admin" style="display:none;padding:12px;border-radius:6px;background:#fffaf0;border:1px solid #f6e05e;font-size:12px;color:#744210;text-transform:none;">Somente administradores podem gerenciar os acessos da empresa.
+                        </div><div class="perfis-resumo-grid"><div><b>ADMIN</b><span>Acesso total ao sistema, configurações, usuários, relatórios e cadastros.</span></div><div><b>GESTOR</b><span>Clientes, financeiro, agenda e catálogo; sem Gestão/Dashboard, Configurações e gestão de usuários.</span></div><div><b>OPERACIONAL</b><span>Clientes, própria agenda e lançamentos operacionais; sem Dashboard, relatórios, exportações ou exclusões.</span></div><div><b>FINANCEIRO</b><span>Financeiro completo; clientes e agenda somente para consulta; sem Gestão/Dashboard, catálogo ou Configurações.</span></div></div></div><div id="usuarios-acesso-nao-admin" style="display:none;padding:12px;border-radius:6px;background:#fffaf0;border:1px solid #f6e05e;font-size:12px;color:#744210;text-transform:none;">Somente administradores podem gerenciar os acessos da empresa.
                     </div><h4 style="margin-top:18px;">Usuários vinculados</h4><div style="overflow-x:auto;"><table class="usuarios-table"><thead><tr><th>ID / Usuário</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead><tbody id="cfg-usuarios-tbody"><tr><td colspan="4" style="text-align:center;color:#718096;">Carregando...</td></tr></tbody></table></div></div><hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;"><h3 style="color: var(--cor-accent);"> Histórico de Auditoria</h3><p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">Registro imutável das principais ações realizadas no sistema. A consulta é exclusiva do administrador.
                 </p><div class="section-box-cfg" id="box-cfg-auditoria"><div class="auditoria-toolbar"><div class="form-group" style="margin-bottom:0;"><label>Módulo</label><select id="auditoria-filtro-modulo" onchange="renderizarAuditoria()"><option value="">Todos</option><option value="CLIENTES">Clientes</option><option value="AGENDA">Agenda</option><option value="FINANCEIRO">Financeiro</option><option value="CONFIGURACOES">Configurações</option><option value="USUARIOS">Usuários</option></select></div><div class="form-group" style="margin-bottom:0;"><label>Buscar</label><input id="auditoria-filtro-texto" type="text" placeholder="Usuário, ação, registro..." oninput="renderizarAuditoria()"></div><button class="btn-salvar" onclick="carregarAuditoria()" style="align-self:end;">↻ Atualizar histórico</button></div><div id="auditoria-status" style="font-size:11px;color:#718096;margin-top:10px;text-transform:none;"></div><div class="auditoria-table-wrap"><table class="auditoria-table"><thead><tr><th>Data / Hora</th><th>Usuário</th><th>Perfil</th><th>Módulo</th><th>Ação</th><th>Detalhes</th></tr></thead><tbody id="auditoria-tbody"><tr><td colspan="6" style="text-align:center;color:#718096;">Clique em “Atualizar histórico”.</td></tr></tbody></table></div></div><hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;"><h3>Gerenciamento de Dados e Exportação</h3><p style="font-size: 13px; color: #718096; margin-bottom: 16px;">Extraia informações ou resete o sistema:</p><div style="display: flex; gap: 12px; flex-wrap: wrap;"><button class="btn-salvar" style="background-color: #2f855a; color: white; font-size: 13px; padding: 10px 16px; display: flex; align-items: center; gap: 6px;" onclick="exportarClientesExcel()"> Exportar Clientes (Excel)</button><button class="btn-salvar" style="background-color: #3182ce; font-size: 13px;" onclick="exportarBackup()">Exportar Backup JSON</button><button class="btn-excluir-tabela" style="font-size: 13px; padding: 10px 16px;" onclick="limparDadosSistema()">Apagar Todos os Dados</button></div></div></div></main><script>/* ============================================================
            BARBERMANAGER V2 - CAMADA CENTRAL DE DADOS (CLOUD READY)
@@ -4870,8 +4870,8 @@ hr{
                 dashboardFinanceiro: true
             },
             GESTOR: {
-                telas: ['dashboard','clientes','financeiro','agenda','atendimento'],
-                dashboard: true,
+                telas: ['clientes','financeiro','agenda','atendimento'],
+                dashboard: false,
                 clientesVisualizar: true,
                 clientesEditar: true,
                 clientesExcluir: false,
@@ -4892,8 +4892,8 @@ hr{
                 dashboardFinanceiro: true
             },
             FINANCEIRO: {
-                telas: ['dashboard','clientes','financeiro','agenda','atendimento'],
-                dashboard: true,
+                telas: ['clientes','financeiro','agenda','atendimento'],
+                dashboard: false,
                 clientesVisualizar: true,
                 clientesEditar: false,
                 clientesExcluir: false,
@@ -13963,6 +13963,129 @@ hr{
     setTimeout(atualizar,0);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,2000));else setTimeout(instalar,2000);
+})();
+</script>
+
+
+<style id="simpla-dashboard-servicos-v49-css">
+  .dash-serv-v49{margin:0 0 24px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;box-shadow:0 2px 4px rgba(0,0,0,.04)}
+  .dash-serv-v49-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .dash-serv-v49-head h3{margin:0;font-size:15px;color:#1a1c23}
+  .dash-serv-v49-head p{margin:4px 0 0;font-size:11px;color:#718096;text-transform:none}
+  .dash-serv-v49-wrap{overflow-x:auto;border:1px solid #e2e8f0;border-radius:8px}
+  .dash-serv-v49-table{width:100%;min-width:700px;margin:0;border-collapse:collapse}
+  .dash-serv-v49-table th{font-size:9px;color:#718096;background:#f8fafc;padding:10px;text-align:left;white-space:nowrap}
+  .dash-serv-v49-table td{font-size:11px;color:#2d3748;padding:10px;border-top:1px solid #edf2f7;white-space:nowrap}
+  .dash-serv-v49-table td:first-child{font-weight:800;color:#1a1c23}
+  .dash-serv-v49-table .valor{font-weight:800;color:#2f855a}
+  .dash-serv-v49-barra{width:110px;height:7px;border-radius:99px;background:#edf2f7;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:6px}
+  .dash-serv-v49-barra i{display:block;height:100%;background:var(--cor-accent);border-radius:99px}
+  .dash-serv-v49-vazio{padding:16px;font-size:11px;color:#718096;text-transform:none}
+  @media(max-width:600px){.dash-serv-v49{padding:12px}.dash-serv-v49-head p{font-size:10px}}
+</style>
+<script id="simpla-dashboard-servicos-v49">
+(function(){
+  function admin(){try{return typeof obterPerfilAtual==='function'&&String(obterPerfilAtual()).toUpperCase()==='ADMIN'}catch(_){return false}}
+  function moeda(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+  function aplicarAcessoAdmin(){
+    if(typeof obterPerfilAtual!=='function')return;
+    const ehAdmin=admin();
+    const btn=document.getElementById('menu-btn-dashboard');
+    if(btn)btn.style.display=ehAdmin?'':'none';
+    const dash=document.getElementById('dashboard');
+    if(!ehAdmin&&dash?.classList.contains('active')){
+      dash.classList.remove('active');
+      const destino=document.getElementById('clientes')||document.getElementById('agenda')||document.getElementById('financeiro');
+      if(destino)destino.classList.add('active');
+      document.querySelectorAll('.menu-btn').forEach(x=>x.classList.remove('active'));
+      const b=document.getElementById(destino?.id==='clientes'?'menu-btn-clientes':destino?.id==='agenda'?'menu-btn-agenda':'menu-btn-financeiro');
+      if(b)b.classList.add('active');
+    }
+  }
+
+  function garantir(){
+    if(!admin())return null;
+    const dash=document.getElementById('dashboard');
+    if(!dash)return null;
+    let box=document.getElementById('dash-serv-v49');
+    if(box)return box;
+    box=document.createElement('div');box.id='dash-serv-v49';box.className='dash-serv-v49';
+    box.innerHTML=`<div class="dash-serv-v49-head"><div><h3>Desempenho por Serviço</h3><p>Quantidade realizada, faturamento, ticket médio e participação no faturamento de serviços no período.</p></div></div><div class="dash-serv-v49-wrap"><table class="dash-serv-v49-table"><thead><tr><th>SERVIÇO</th><th>QUANTIDADE</th><th>FATURAMENTO</th><th>TICKET MÉDIO</th><th>PARTICIPAÇÃO</th></tr></thead><tbody id="dash-serv-v49-body"><tr><td colspan="5" class="dash-serv-v49-vazio">Carregando dados...</td></tr></tbody></table></div>`;
+    const prof=document.getElementById('dash-prof-v48');
+    if(prof)prof.insertAdjacentElement('afterend',box);
+    else document.getElementById('dash-agenda-v47')?.insertAdjacentElement('afterend',box);
+    return box;
+  }
+
+  function normalizarItem(i){
+    const tipo=String(i.tipo||i.type||'').toUpperCase();
+    return {tipo,nome:i.nome||i.name||'SERVIÇO',qtd:Number(i.quantidade||i.qtd||1),valor:Number(i.valor_total||i.valorTotal||i.total||0)};
+  }
+
+  async function buscar(ini,fim){
+    if(typeof CloudDB!=='undefined'&&CloudDB&&typeof empresaAtual!=='undefined'&&empresaAtual?.cloud&&empresaAtual?.id){
+      try{
+        const aRes=await CloudDB.from('atendimentos').select('id,data').eq('empresa_id',empresaAtual.id).gte('data',ini).lte('data',fim);
+        if(aRes.error)throw aRes.error;
+        const ids=(aRes.data||[]).map(x=>x.id);
+        if(!ids.length)return [];
+        const iRes=await CloudDB.from('itens_atendimento').select('atendimento_id,tipo,nome,quantidade,valor_total').eq('empresa_id',empresaAtual.id).in('atendimento_id',ids);
+        if(iRes.error)throw iRes.error;
+        return (iRes.data||[]).map(normalizarItem).filter(i=>i.tipo==='SERVICO'||i.tipo==='SERVIÇO');
+      }catch(e){console.warn('Dashboard servicos v49: fallback local',e)}
+    }
+    const ent=(typeof entradas!=='undefined'&&Array.isArray(entradas))?entradas:[];
+    const itens=[];
+    ent.filter(e=>e.data&&e.data>=ini&&e.data<=fim).forEach(e=>{
+      const lista=Array.isArray(e.itens)?e.itens:[];
+      lista.forEach(i=>{const n=normalizarItem(i);if(n.tipo==='SERVICO'||n.tipo==='SERVIÇO')itens.push(n)});
+    });
+    return itens;
+  }
+
+  async function atualizar(){
+    aplicarAcessoAdmin();
+    if(!admin()||!garantir()||typeof obterIntervalosDashboard!=='function')return;
+    const {ini,fim}=obterIntervalosDashboard();
+    const itens=await buscar(ini,fim);
+    const mapa=new Map();
+    itens.forEach(i=>{
+      const k=String(i.nome||'SERVIÇO').trim().toUpperCase()||'SERVIÇO';
+      if(!mapa.has(k))mapa.set(k,{nome:k,qtd:0,fat:0});
+      const x=mapa.get(k);x.qtd+=Number(i.qtd||1);x.fat+=Number(i.valor||0);
+    });
+    const rows=[...mapa.values()].sort((a,b)=>b.fat-a.fat||b.qtd-a.qtd||a.nome.localeCompare(b.nome,'pt-BR'));
+    const total=rows.reduce((s,x)=>s+x.fat,0);
+    const body=document.getElementById('dash-serv-v49-body');if(!body)return;
+    if(!rows.length){body.innerHTML='<tr><td colspan="5" class="dash-serv-v49-vazio">Nenhum serviço concluído no período.</td></tr>';return}
+    body.innerHTML=rows.map(x=>{
+      const ticket=x.qtd?x.fat/x.qtd:0,part=total?x.fat/total*100:0;
+      return `<tr><td>${esc(x.nome)}</td><td>${x.qtd}</td><td class="valor">${moeda(x.fat)}</td><td>${moeda(ticket)}</td><td><span class="dash-serv-v49-barra"><i style="width:${Math.min(100,part).toFixed(1)}%"></i></span>${part.toFixed(1)}%</td></tr>`;
+    }).join('');
+  }
+
+  function instalar(){
+    aplicarAcessoAdmin();garantir();
+    if(typeof mudarTela==='function'&&!mudarTela.__adminDashboardV49){
+      const anterior=mudarTela;
+      const w=function(tela){if(String(tela)==='dashboard'&&!admin()){aplicarAcessoAdmin();return false}return anterior.apply(this,arguments)};
+      w.__adminDashboardV49=true;window.mudarTela=w;try{mudarTela=w}catch(_){}
+    }
+    if(typeof aplicarPermissoesPerfil==='function'&&!aplicarPermissoesPerfil.__adminDashboardV49){
+      const anteriorP=aplicarPermissoesPerfil;
+      const wp=function(){const r=anteriorP.apply(this,arguments);Promise.resolve().then(aplicarAcessoAdmin);return r};
+      wp.__adminDashboardV49=true;window.aplicarPermissoesPerfil=wp;try{aplicarPermissoesPerfil=wp}catch(_){}
+    }
+    if(typeof renderizarDashboard==='function'&&!renderizarDashboard.__v49){
+      const anteriorR=renderizarDashboard;
+      const wr=function(){if(!admin())return;const r=anteriorR.apply(this,arguments);Promise.resolve(r).finally(()=>atualizar());return r};
+      wr.__v49=true;window.renderizarDashboard=wr;try{renderizarDashboard=wr}catch(_){}
+    }
+    if(admin())setTimeout(atualizar,0);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,2050));else setTimeout(instalar,2050);
 })();
 </script>
 
