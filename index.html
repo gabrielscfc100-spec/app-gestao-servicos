@@ -13664,9 +13664,10 @@ hr{
     liberarLogin();
     const auth=document.getElementById('cloud-auth-overlay');
     if(auth){
-      new MutationObserver(liberarLogin).observe(auth,{attributes:true,attributeFilter:['class','style'],subtree:false});
+      new MutationObserver(liberarLogin).observe(auth,{attributes:true,attributeFilter:['class'],subtree:false});
     }
-    setInterval(liberarLogin,1000);
+    setTimeout(liberarLogin,500);
+    setTimeout(liberarLogin,2000);
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true});
   else iniciar();
