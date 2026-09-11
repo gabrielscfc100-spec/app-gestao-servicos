@@ -1,0 +1,26 @@
+name: Diagnostico live desktop v40
+on:
+  push:
+    paths:
+      - '.github/workflows/diagnostico-live-desktop-v40.yml'
+  workflow_dispatch:
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comparar GitHub e Workers
+        run: |
+          curl -L --fail --silent --show-error 'https://app-gestao-servicos.simpla.workers.dev/?diag=v40' -o /tmp/live.html
+          echo 'REPO:' $(sha256sum index.html)
+          echo 'LIVE:' $(sha256sum /tmp/live.html)
+          echo 'REPO_SIZE:' $(wc -c < index.html)
+          echo 'LIVE_SIZE:' $(wc -c < /tmp/live.html)
+          echo 'LIVE_BODY:'
+          grep -o -m1 '<body[^>]*>' /tmp/live.html || true
+          echo 'LIVE_AUTH_CSS:'
+          grep -o -m1 '.cloud-auth-overlay[^}]*}' /tmp/live.html || true
+          echo 'LIVE_V40_MARKER:'
+          grep -o -m1 'SIMPLA desktop recovery v40' /tmp/live.html || true
+          echo 'LIVE_SW:'
+          curl -L --fail --silent --show-error 'https://app-gestao-servicos.simpla.workers.dev/service-worker.js?diag=v40' | grep -m1 'CACHE_VERSION' || true
