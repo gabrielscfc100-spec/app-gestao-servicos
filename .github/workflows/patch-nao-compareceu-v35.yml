@@ -1,0 +1,36 @@
+name: Nao compareceu v35
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-nao-compareceu-v35.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Aplicar patch v35
+        run: python .github/scripts/patch-nao-compareceu-v35.py
+      - name: Validar
+        run: |
+          grep -q 'simpla-nao-compareceu-v35-script' index.html
+          grep -q "simpla-shell-v35-nao-compareceu" service-worker.js
+          grep -q 'AGENDAMENTO_NAO_COMPARECEU' index.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html service-worker.js
+          if git diff --cached --quiet; then
+            echo 'Sem alterações'
+          else
+            git commit -m 'feat: registrar nao comparecimento na agenda'
+            git push origin main
+          fi
