@@ -1,0 +1,33 @@
+name: Global observer freeze v44
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-global-observer-freeze-v44.yml'
+      - '.github/scripts/patch-global-observer-freeze-v44.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-global-observer-freeze-v44.py
+      - name: Validar
+        run: |
+          ! grep -F "obs.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style','hidden']});" index.html
+          ! grep -F "setInterval(sincronizar,2000);" index.html
+          grep -F "document.addEventListener('click',()=>setTimeout(sincronizar,0),true);" index.html
+          grep -F "simpla-shell-v44-global-observer-freeze" service-worker.js
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          if git diff --cached --quiet; then
+            echo "Sem alteracoes"
+            exit 0
+          fi
+          git commit -m "fix: remover observer global que congelava o desktop"
+          git push
