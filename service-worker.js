@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v36-presenca-horario';
+const CACHE_VERSION = 'simpla-shell-v37-agenda-conflitos';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
