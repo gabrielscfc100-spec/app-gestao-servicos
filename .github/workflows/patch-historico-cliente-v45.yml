@@ -1,0 +1,34 @@
+name: Historico cliente v45
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-historico-cliente-v45.yml'
+      - '.github/scripts/patch-historico-cliente-v45.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-historico-cliente-v45.py
+      - name: Validar
+        run: |
+          grep -F 'simpla-historico-cliente-v45' index.html
+          grep -F 'Jornada na Agenda' index.html
+          grep -F 'NAO_COMPARECEU' index.html
+          grep -F "simpla-shell-v45-historico-clientes" service-worker.js
+          ! grep -F "setInterval(verificarHistoricoClienteV45" index.html
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          if git diff --cached --quiet; then
+            echo "Sem alteracoes"
+            exit 0
+          fi
+          git commit -m "feat: consolidar jornada do cliente na agenda"
+          git push
