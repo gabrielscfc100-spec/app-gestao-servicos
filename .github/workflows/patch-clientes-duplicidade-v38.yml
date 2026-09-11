@@ -1,0 +1,28 @@
+name: Clientes duplicidade v38
+on:
+  push:
+    paths:
+      - '.github/scripts/patch-clientes-duplicidade-v38.py'
+      - '.github/workflows/patch-clientes-duplicidade-v38.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-clientes-duplicidade-v38.py
+      - name: Validar
+        run: |
+          grep -q "SIMPLA clientes duplicidade v38" index.html
+          grep -q "simpla-shell-v38-clientes-duplicidade" service-worker.js
+          grep -q "Ver cliente existente" index.html
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          git diff --cached --quiet || git commit -m "feat: impedir clientes duplicados por telefone ou email"
+          git push
