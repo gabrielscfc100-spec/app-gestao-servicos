@@ -11619,11 +11619,10 @@ hr{
   }
   function iniciar(){
     criar();
-    const obs=new MutationObserver(sincronizar);
-    obs.observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','style','hidden']});
+    sincronizar();
     window.addEventListener('resize',sincronizar,{passive:true});
     document.addEventListener('visibilitychange',()=>{if(!document.hidden) sincronizar();});
-    setInterval(sincronizar,2000);
+    document.addEventListener('click',()=>setTimeout(sincronizar,0),true);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar);
   else iniciar();
