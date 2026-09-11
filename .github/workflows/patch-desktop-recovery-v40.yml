@@ -1,0 +1,42 @@
+name: Desktop recovery v40
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-desktop-recovery-v40.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-desktop-recovery-v40.py
+      - name: Validar scripts inline
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, subprocess, sys
+          s=Path('index.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,flags=re.S|re.I)
+          erros=0
+          for i,js in enumerate(scripts):
+              if not js.strip(): continue
+              p=Path(f'/tmp/script-{i}.js');p.write_text(js,encoding='utf-8')
+              r=subprocess.run(['node','--check',str(p)],capture_output=True,text=True)
+              if r.returncode:
+                  erros+=1
+                  print('ERRO_SCRIPT',i)
+                  print(r.stderr)
+          print('ERROS',erros)
+          if erros: sys.exit(1)
+          PY
+          grep -q "simpla-shell-v40-desktop-recovery" service-worker.js
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          git diff --cached --quiet || git commit -m "fix: recuperar abertura do PWA no desktop"
+          git push
