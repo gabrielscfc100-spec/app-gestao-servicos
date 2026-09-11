@@ -1,0 +1,35 @@
+name: Dashboard profissionais v48
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-dashboard-profissionais-v48.yml'
+      - '.github/scripts/patch-dashboard-profissionais-v48.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-dashboard-profissionais-v48.py
+      - name: Validar
+        run: |
+          grep -F 'simpla-dashboard-profissionais-v48' index.html
+          grep -F 'Desempenho por Profissional' index.html
+          grep -F 'TAXA NO-SHOW' index.html
+          grep -F "simpla-shell-v48-dashboard-profissionais" service-worker.js
+          ! grep -F "setInterval(" .github/scripts/patch-dashboard-profissionais-v48.py
+          ! grep -F "MutationObserver" .github/scripts/patch-dashboard-profissionais-v48.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          if git diff --cached --quiet; then
+            echo 'Sem alteracoes'
+            exit 0
+          fi
+          git commit -m 'feat: adicionar desempenho por profissional ao dashboard'
+          git push
