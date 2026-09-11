@@ -1,0 +1,32 @@
+name: Clientes no-show v46
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-clientes-noshow-v46.yml'
+      - '.github/scripts/patch-clientes-noshow-v46.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-clientes-noshow-v46.py
+      - name: Validar
+        run: |
+          grep -F "hist-cli-noshow-alerta" index.html
+          grep -F "simpla-shell-v46-clientes-noshow" service-worker.js
+          ! grep -F "MutationObserver(sincronizar)" index.html
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          if git diff --cached --quiet; then
+            echo "Sem alteracoes"
+            exit 0
+          fi
+          git commit -m "feat: sinalizar reincidencia de no-show no cliente"
+          git push
