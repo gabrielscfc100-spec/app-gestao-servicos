@@ -1,0 +1,17 @@
+name: Diagnostico boot desktop v40
+on:
+  push:
+    paths:
+      - '.github/workflows/diagnostico-boot-desktop-v40.yml'
+  workflow_dispatch:
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspecionar boot e autenticacao
+        run: |
+          echo '--- AUTH CSS/HTML/JS ---'
+          grep -n -E "cloud-auth-overlay|auth-pending|cloud-auth|inicializarCloud|bootCloud|onAuthStateChange|getSession|classList.*auth" index.html | head -n 300 || true
+          echo '--- BODY/TEMA ---'
+          grep -n -E "body\.theme-verde|body\s*\{|background.*1c4532|background.*22543d" index.html | head -n 100 || true
