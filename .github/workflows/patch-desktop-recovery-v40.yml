@@ -2,6 +2,7 @@ name: Desktop recovery v40
 on:
   push:
     paths:
+      - '.github/scripts/patch-desktop-recovery-v40.py'
       - '.github/workflows/patch-desktop-recovery-v40.yml'
   workflow_dispatch:
 permissions:
