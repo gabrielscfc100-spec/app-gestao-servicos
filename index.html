@@ -13575,7 +13575,7 @@ hr{
 
 <!-- SIMPLA boot recovery v41 -->
 <style id="simpla-boot-recovery-v41-style">
-#simpla-boot-recovery-v41{display:none;position:fixed;inset:0;z-index:20000;background:#f4f5f7;align-items:center;justify-content:center;padding:24px;text-transform:none}
+#simpla-boot-recovery-v41{display:none;position:fixed;inset:0;z-index:19000;background:#f4f5f7;align-items:center;justify-content:center;padding:24px;text-transform:none;pointer-events:none!important}
 #simpla-boot-recovery-v41 .box{width:min(420px,100%);background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:22px;box-shadow:0 16px 45px rgba(26,28,35,.16);text-align:center}
 #simpla-boot-recovery-v41 strong{display:block;font-size:18px;color:#23364d;text-transform:none;margin-bottom:7px}
 #simpla-boot-recovery-v41 span{display:block;font-size:12px;line-height:1.5;color:#718096;text-transform:none}
@@ -13630,6 +13630,47 @@ hr{
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true});
   else iniciar();
   window.addEventListener('pageshow',()=>setTimeout(recuperar,1200));
+})();
+</script>
+
+
+<!-- SIMPLA login interaction recovery v42 -->
+<style id="simpla-login-interaction-v42-style">
+.cloud-auth-overlay:not(.hidden){z-index:30000!important;pointer-events:auto!important;}
+.cloud-auth-overlay:not(.hidden) .cloud-auth-card,
+.cloud-auth-overlay:not(.hidden) .cloud-auth-body,
+.cloud-auth-overlay:not(.hidden) .cloud-auth-panel.active,
+.cloud-auth-overlay:not(.hidden) input,
+.cloud-auth-overlay:not(.hidden) select,
+.cloud-auth-overlay:not(.hidden) button{pointer-events:auto!important;}
+.cloud-auth-overlay.hidden{pointer-events:none!important;}
+</style>
+<script id="simpla-login-interaction-v42-script">
+(function(){
+  function liberarLogin(){
+    const auth=document.getElementById('cloud-auth-overlay');
+    if(!auth || auth.classList.contains('hidden')) return;
+    const rescue=document.getElementById('simpla-boot-recovery-v41');
+    if(rescue) rescue.style.display='none';
+    auth.style.setProperty('z-index','30000','important');
+    auth.style.setProperty('pointer-events','auto','important');
+    auth.querySelectorAll('input,select').forEach(el=>{
+      el.style.setProperty('pointer-events','auto','important');
+      if(el.hasAttribute('readonly') && !el.dataset.simplaReadonlyOriginal){ el.removeAttribute('readonly'); }
+      if(el.disabled && !el.dataset.simplaDisabledOriginal){ el.disabled=false; }
+    });
+  }
+  const iniciar=()=>{
+    liberarLogin();
+    const auth=document.getElementById('cloud-auth-overlay');
+    if(auth){
+      new MutationObserver(liberarLogin).observe(auth,{attributes:true,attributeFilter:['class','style'],subtree:false});
+    }
+    setInterval(liberarLogin,1000);
+  };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',iniciar,{once:true});
+  else iniciar();
+  window.addEventListener('pageshow',()=>setTimeout(liberarLogin,100));
 })();
 </script>
 
