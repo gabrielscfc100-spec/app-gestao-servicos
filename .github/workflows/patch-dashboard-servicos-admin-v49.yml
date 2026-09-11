@@ -1,0 +1,43 @@
+name: Dashboard servicos admin v49
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-dashboard-servicos-admin-v49.yml'
+      - '.github/scripts/patch-dashboard-servicos-admin-v49.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar patch
+        run: python .github/scripts/patch-dashboard-servicos-admin-v49.py
+      - name: Validar
+        run: |
+          grep -F 'simpla-dashboard-servicos-v49' index.html
+          grep -F 'Desempenho por Serviço' index.html
+          grep -F "simpla-shell-v49-dashboard-servicos-admin" service-worker.js
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          for perfil in ('GESTOR','FINANCEIRO'):
+              ini=s.index(perfil+': {')
+              fim=s.index('\n            },',ini)
+              bloco=s[ini:fim]
+              assert "'dashboard'" not in bloco, f'dashboard ainda em telas de {perfil}'
+              assert 'dashboard: false' in bloco, f'dashboard ainda liberado para {perfil}'
+          assert "setInterval(" not in Path('.github/scripts/patch-dashboard-servicos-admin-v49.py').read_text(encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          if git diff --cached --quiet; then
+            echo 'Sem alteracoes'
+            exit 0
+          fi
+          git commit -m 'feat: restringir gestao ao admin e adicionar desempenho por servico'
+          git push
