@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v38-clientes-duplicidade';
+const CACHE_VERSION = 'simpla-shell-v39-clientes-dependentes';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
