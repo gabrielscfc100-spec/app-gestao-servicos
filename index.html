@@ -3199,7 +3199,22 @@ hr{
   </div>
 </div>
 <button class="btn-salvar" style="margin-bottom:24px;" onclick="salvarConfigComissoes()">Salvar configurações de comissão</button>
-<hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;"><h3 style="color: var(--cor-accent);"> Profissionais e Serviços</h3><p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">Cadastre os profissionais da empresa e defina quais serviços cada um realiza.
+<hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;">
+<h3 style="color: var(--cor-accent);"> Gestão dos Serviços</h3>
+<p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">Personalize regras administrativas de cada serviço. Estas configurações tratam apenas de gestão, agenda e relacionamento — não de conteúdo técnico ou clínico da profissão.</p>
+<div class="section-box-cfg" id="box-cfg-gestao-servicos">
+  <div class="form-group"><label>Serviço</label><select id="cfg-gestao-servico" onchange="preencherGestaoServicoSelecionado()"><option value="">Carregando serviços...</option></select></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+    <div class="form-group" style="margin-bottom:0;"><label>Duração padrão (min)</label><input id="cfg-gestao-servico-duracao" type="number" min="5" max="1440" step="5"></div>
+    <div class="form-group" style="margin-bottom:0;"><label>Retorno sugerido (dias)</label><input id="cfg-gestao-servico-retorno" type="number" min="1" max="3650" placeholder="Opcional"></div>
+    <div class="form-group" style="margin-bottom:0;"><label>Recorrência padrão</label><select id="cfg-gestao-servico-recorrencia" onchange="atualizarCampoRecorrenciaPersonalizada()"><option value="NENHUMA">Sem recorrência</option><option value="DIARIA">Diária</option><option value="SEMANAL">Semanal</option><option value="QUINZENAL">Quinzenal</option><option value="MENSAL">Mensal</option><option value="PERSONALIZADA">Personalizada</option></select></div>
+    <div class="form-group" id="cfg-gestao-servico-intervalo-wrap" style="margin-bottom:0;display:none;"><label>Intervalo personalizado (dias)</label><input id="cfg-gestao-servico-intervalo" type="number" min="1" max="3650"></div>
+  </div>
+  <div class="form-group" style="margin-top:12px;"><label>Observação de gestão</label><textarea id="cfg-gestao-servico-observacao" rows="2" style="text-transform:none;" placeholder="Ex.: sugerir novo agendamento após o atendimento."></textarea></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><button class="btn-salvar" type="button" onclick="salvarGestaoServico()">Salvar regras do serviço</button><button type="button" onclick="carregarConfiguracoesServicosGestao()" style="padding:10px 12px;">↻ Atualizar lista</button></div>
+  <div id="cfg-gestao-servico-status" style="font-size:11px;color:#718096;margin-top:10px;text-transform:none;"></div>
+</div>
+<!-- SIMPLA_GESTAO_SERVICOS_V1 --><hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0;"><h3 style="color: var(--cor-accent);"> Profissionais e Serviços</h3><p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">Cadastre os profissionais da empresa e defina quais serviços cada um realiza.
                     A duração específica do profissional terá prioridade sobre a duração padrão do serviço.
                 </p><div class="section-box-cfg" id="box-cfg-profissionais"><h4>Novo profissional</h4><div style="display:grid;grid-template-columns:1fr 180px auto;gap:10px;align-items:end;"><div class="form-group" style="margin-bottom:0;"><label>Nome do profissional</label><input type="text" id="cfg-profissional-nome" placeholder="EX: JOÃO SILVA" oninput="this.value=this.value.toUpperCase()"></div><div class="form-group" style="margin-bottom:0;"><label>Telefone</label><input type="tel" id="cfg-profissional-telefone" placeholder="00 9 9999-9999"></div><button class="btn-salvar" id="btn-cadastrar-profissional" onclick="cadastrarProfissional()" style="margin:0;"> Cadastrar</button></div><div id="profissionais-config-status" style="font-size:11px;color:#718096;margin-top:10px;text-transform:none;"></div></div><div id="lista-profissionais-config"></div><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3 style="color: var(--cor-accent);"> Ativação de Páginas e Recursos</h3><p style="font-size: 13px; color: #718096; margin-bottom: 16px;">Escolha quais páginas e funções devem ficar ativas para o cliente. O <b>Dashboard</b> é obrigatório e permanente.</p><div class="section-box-cfg"><h4>Páginas do Menu Lateral</h4><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;"><label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; cursor: pointer;"><input type="checkbox" id="cfg-mod-agenda"> Módulo Agendamentos
                         </label><label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; cursor: pointer;"><input type="checkbox" id="cfg-mod-clientes"> Módulo Clientes
@@ -5618,6 +5633,88 @@ hr{
                 select.innerHTML = '<option value="OUTRO">Outro serviço</option>';
                 select.value = 'OUTRO';
                 select.disabled = false;
+            }
+        }
+
+
+        let servicosGestaoConfigCache = [];
+
+        async function carregarConfiguracoesServicosGestao() {
+            const select = document.getElementById('cfg-gestao-servico');
+            const status = document.getElementById('cfg-gestao-servico-status');
+            if(!select || !CloudDB || !empresaAtual?.id) return;
+            if(status) status.textContent = 'Carregando serviços...';
+            try {
+                const { data, error } = await CloudDB
+                    .from('servicos')
+                    .select('id,nome,duracao_min,ativo,configuracao_gestao')
+                    .eq('empresa_id', empresaAtual.id)
+                    .order('nome', { ascending:true });
+                if(error) throw error;
+                servicosGestaoConfigCache = data || [];
+                select.innerHTML = '<option value="">Selecione um serviço</option>' + servicosGestaoConfigCache.map(s => `<option value="${s.id}">${String(s.nome || 'SERVIÇO')}</option>`).join('');
+                if(status) status.textContent = servicosGestaoConfigCache.length ? `${servicosGestaoConfigCache.length} serviço(s) disponível(is) para configuração.` : 'Nenhum serviço cadastrado.';
+                preencherGestaoServicoSelecionado();
+            } catch(err) {
+                console.error(err);
+                if(status) status.textContent = 'Não foi possível carregar as configurações dos serviços: ' + (err?.message || 'erro desconhecido');
+            }
+        }
+
+        function preencherGestaoServicoSelecionado() {
+            const id = document.getElementById('cfg-gestao-servico')?.value || '';
+            const item = servicosGestaoConfigCache.find(s => String(s.id) === String(id));
+            const cfg = item?.configuracao_gestao || {};
+            const rec = cfg.recorrencia || {};
+            const duracao = document.getElementById('cfg-gestao-servico-duracao');
+            const retorno = document.getElementById('cfg-gestao-servico-retorno');
+            const recorrencia = document.getElementById('cfg-gestao-servico-recorrencia');
+            const intervalo = document.getElementById('cfg-gestao-servico-intervalo');
+            const obs = document.getElementById('cfg-gestao-servico-observacao');
+            if(duracao) duracao.value = item?.duracao_min || '';
+            if(retorno) retorno.value = cfg.retorno_sugerido_dias ?? '';
+            if(recorrencia) recorrencia.value = rec.tipo || 'NENHUMA';
+            if(intervalo) intervalo.value = rec.tipo === 'PERSONALIZADA' ? (rec.intervalo_dias || '') : '';
+            if(obs) obs.value = cfg.observacao_gestao || '';
+            atualizarCampoRecorrenciaPersonalizada();
+        }
+
+        function atualizarCampoRecorrenciaPersonalizada() {
+            const tipo = document.getElementById('cfg-gestao-servico-recorrencia')?.value || 'NENHUMA';
+            const wrap = document.getElementById('cfg-gestao-servico-intervalo-wrap');
+            if(wrap) wrap.style.display = tipo === 'PERSONALIZADA' ? 'block' : 'none';
+        }
+
+        async function salvarGestaoServico() {
+            if(!validarAcessoPerfil('configuracoes','Seu perfil não pode alterar configurações de serviços.')) return;
+            const servicoId = document.getElementById('cfg-gestao-servico')?.value || '';
+            if(!servicoId) { alert('Selecione um serviço.'); return; }
+            const duracao = Number(document.getElementById('cfg-gestao-servico-duracao')?.value || 0);
+            const retornoRaw = document.getElementById('cfg-gestao-servico-retorno')?.value || '';
+            const retorno = retornoRaw === '' ? null : Number(retornoRaw);
+            const tipo = document.getElementById('cfg-gestao-servico-recorrencia')?.value || 'NENHUMA';
+            const intervaloRaw = document.getElementById('cfg-gestao-servico-intervalo')?.value || '';
+            const intervalo = intervaloRaw === '' ? null : Number(intervaloRaw);
+            const observacao = document.getElementById('cfg-gestao-servico-observacao')?.value?.trim() || '';
+            const status = document.getElementById('cfg-gestao-servico-status');
+            if(status) status.textContent = 'Salvando...';
+            try {
+                const { error } = await CloudDB.rpc('configurar_gestao_servico_completo', {
+                    p_servico_id: servicoId,
+                    p_duracao_min: duracao,
+                    p_retorno_sugerido_dias: retorno,
+                    p_recorrencia_tipo: tipo,
+                    p_recorrencia_intervalo: intervalo,
+                    p_observacao_gestao: observacao
+                });
+                if(error) throw error;
+                if(status) status.textContent = 'Configurações de gestão salvas com sucesso.';
+                await carregarConfiguracoesServicosGestao();
+                if(typeof carregarProfissionaisCloud === 'function') await carregarProfissionaisCloud();
+                await registrarAuditoria('CONFIGURACOES','GESTAO_SERVICO_ALTERADA',servicoId,{duracaoMin:duracao,retornoDias:retorno,recorrencia:tipo});
+            } catch(err) {
+                console.error(err);
+                if(status) status.textContent = 'Não foi possível salvar: ' + (err?.message || 'erro desconhecido');
             }
         }
 
