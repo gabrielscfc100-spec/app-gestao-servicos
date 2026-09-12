@@ -1,0 +1,59 @@
+name: Patch textos multissegmento
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-textos-multissegmento.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Neutralizar textos específicos de barbearia
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = 'SIMPLA_TEXTOS_MULTISSEGMENTO_V1'
+          if marker in s:
+              print('Patch já aplicado.')
+              raise SystemExit(0)
+          trocas = {
+              'Horário de Funcionamento da Barbearia':'Horário de Funcionamento do Negócio',
+              'Nome da Barbearia':'Nome do Negócio',
+              'Salvar Nome da Barbearia':'Salvar Nome do Negócio',
+              'Verde Barbeiro':'Verde Essencial',
+              'Atendimentos na Barbearia':'Histórico de Atendimentos',
+              'placeholder="Ex: BarberManager"':'placeholder="Ex: Meu Negócio"',
+              'placeholder="admin@exemplo.com ou BARBEIRO01"':'placeholder="admin@exemplo.com ou PROFISSIONAL01"',
+              'placeholder="Ex.: BARBEIRO01"':'placeholder="Ex.: PROFISSIONAL01"',
+              '<div class="logo" id="logo-texto-app">BarberManager</div>':'<div class="logo" id="logo-texto-app">SimplA</div>',
+              "{ id: 'local-empresa-1', nome: 'BarberManager', tipoNegocio: 'BARBEARIA' }":"{ id: 'local-empresa-1', nome: 'Meu Negócio', tipoNegocio: 'OUTRO' }",
+              "DataStore.getText('barber_nome_barbearia', 'BarberManager')":"DataStore.getText('barber_nome_barbearia', 'Meu Negócio')"
+          }
+          for antigo, novo in trocas.items():
+              s = s.replace(antigo, novo)
+          s = s.replace('<script>/* ============================================================', '<script>/* SIMPLA_TEXTOS_MULTISSEGMENTO_V1 */\n/* ============================================================', 1)
+          p.write_text(s, encoding='utf-8')
+          print('Textos multissegmento atualizados.')
+          PY
+      - name: Commit
+        run: |
+          if git diff --quiet; then
+            echo 'Sem alterações.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'refactor: neutralizar textos específicos de barbearia'
+          git push origin main
