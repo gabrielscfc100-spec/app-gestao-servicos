@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v60-recorrencia-auditoria';
+const CACHE_VERSION = 'simpla-shell-v61-sugestoes-ociosidade';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
