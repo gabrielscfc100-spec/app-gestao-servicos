@@ -1,7 +1,8 @@
 name: Patch agenda bloqueio admin
 
-# trigger-v2
+# trigger-v3
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
