@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v50-relatorios-gerenciais';
+const CACHE_VERSION = 'simpla-shell-v51-radar-retornos';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
