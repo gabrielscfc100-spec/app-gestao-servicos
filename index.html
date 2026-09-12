@@ -7708,7 +7708,16 @@ hr{
             doc.save(`atendimentos_${data}.pdf`);
         }
 
-        function abrirModalBloqueio(horario) {
+        async function abrirModalBloqueio(horario) {
+            // SIMPLA_PATCH_BLOQUEIO_ADMIN_V1
+            if(!usuarioEhAdmin()) {
+                alert('Apenas administradores podem bloquear horários da agenda.');
+                return;
+            }
+            if(!profissionais.some(p => p.ativo !== false)) {
+                try { await carregarProfissionaisCloud(); } catch(err) { console.error('Falha ao carregar profissionais antes do bloqueio:', err); }
+            }
+            if(typeof preencherProfissionaisBloqueioConfig === 'function') preencherProfissionaisBloqueioConfig();
             if(!validarAcessoPerfil('agendaBloquear','Seu perfil não pode bloquear horários.')) return;
             const dataSelecionada = document.getElementById('agenda-data-filtro').value;
             if (dataSelecionada < obterHojeLocal()) {
@@ -14187,5 +14196,18 @@ hr{
 })();
 </script>
 
+
+<script id='simpla-patch-bloqueio-admin-v1'>
+(function(){
+function aplicarBloqueioAdminUI(){
+if(typeof usuarioEhAdmin!=='function')return;
+const admin=usuarioEhAdmin();
+document.querySelectorAll('button[onclick^="abrirModalBloqueio"]').forEach(function(btn){btn.style.display=admin?'':'none';btn.setAttribute('aria-hidden',admin?'false':'true');});
+}
+function iniciar(){aplicarBloqueioAdminUI();const alvo=document.getElementById('grid-horarios-agenda')||document.body;if(alvo)new MutationObserver(aplicarBloqueioAdminUI).observe(alvo,{childList:true,subtree:true});}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar);else iniciar();
+window.addEventListener('load',aplicarBloqueioAdminUI);
+})();
+</script>
 </body>
 </html>
