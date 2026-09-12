@@ -1,0 +1,68 @@
+name: Patch configuracao segmento multissegmento
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-config-segmento-multissegmento.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Aplicar configuracao multissegmento
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = 'SIMPLA_CONFIG_SEGMENTO_V1'
+          if marker in s:
+              print('Patch já aplicado.')
+              raise SystemExit(0)
+          old_select = '<select id="cfg-empresa-tipo" style="text-transform:none;"><option value="BARBEARIA">Barbearia</option><option value="SALAO">Salão de beleza</option><option value="CLINICA">Clínica / consultório</option><option value="ESTUDIO">Estúdio</option><option value="AUTONOMO">Profissional autônomo</option><option value="OUTRO">Outro serviço</option></select>'
+          new_select = '<select id="cfg-empresa-tipo" style="text-transform:none;"><option value="">Carregando segmentos...</option></select>'
+          if old_select not in s:
+              raise SystemExit('Seletor de configuração antigo não encontrado.')
+          s = s.replace(old_select, new_select, 1)
+          anchor = '        function carregarConfigEmpresaV2UI() {\n'
+          insert = "        // SIMPLA_CONFIG_SEGMENTO_V1\n        async function carregarSegmentosConfigEmpresaCloud(valorAtual = '') {\n            const select = document.getElementById('cfg-empresa-tipo');\n            if(!select || !CloudDB) return;\n            select.innerHTML = '<option value=\"\">Carregando segmentos...</option>';\n            select.disabled = true;\n            try {\n                let lista = segmentosOnboardingCloud;\n                if(!Array.isArray(lista) || !lista.length) {\n                    const { data, error } = await CloudDB.rpc('listar_segmentos_onboarding');\n                    if(error) throw error;\n                    lista = Array.isArray(data) ? data : [];\n                    segmentosOnboardingCloud = lista;\n                }\n                const grupos = {};\n                lista.forEach(seg => { const grupo = seg.grupo || 'OUTROS'; (grupos[grupo] ||= []).push(seg); });\n                const nomesGrupo = { BELEZA_ESTETICA:'Beleza & Estética', SAUDE_BEM_ESTAR:'Saúde & Bem-estar', FITNESS:'Fitness', PET:'Pet', SERVICOS_PROFISSIONAIS:'Serviços Profissionais', OUTROS:'Outros' };\n                select.innerHTML = '<option value=\"\">Selecione o perfil do negócio</option>';\n                Object.entries(grupos).forEach(([grupo,itens]) => {\n                    const optgroup = document.createElement('optgroup');\n                    optgroup.label = nomesGrupo[grupo] || grupo.replaceAll('_',' ');\n                    itens.forEach(seg => { const opt = document.createElement('option'); opt.value = seg.codigo; opt.textContent = seg.nome; optgroup.appendChild(opt); });\n                    select.appendChild(optgroup);\n                });\n                select.value = valorAtual || empresaAtual?.tipoNegocio || '';\n                select.disabled = false;\n            } catch(err) {\n                console.error('Falha ao carregar segmentos nas configurações:', err);\n                select.innerHTML = '<option value=\"OUTRO\">Outro serviço</option>';\n                select.value = 'OUTRO';\n                select.disabled = false;\n            }\n        }\n\n"
+          if anchor not in s:
+              raise SystemExit('Função carregarConfigEmpresaV2UI não encontrada.')
+          s = s.replace(anchor, insert + anchor, 1)
+          old_line = "            if(tipoEl) tipoEl.value = empresaAtual.tipoNegocio || 'BARBEARIA';\n"
+          new_line = "            if(tipoEl) carregarSegmentosConfigEmpresaCloud(empresaAtual.tipoNegocio || 'OUTRO');\n"
+          if old_line not in s:
+              raise SystemExit('Linha de preenchimento do segmento não encontrada.')
+          s = s.replace(old_line, new_line, 1)
+          old_tipo = "            const tipo = document.getElementById('cfg-empresa-tipo')?.value || 'OUTRO';\n"
+          new_tipo = "            const tipo = document.getElementById('cfg-empresa-tipo')?.value || '';\n            if(!tipo) { alert('Selecione o perfil do negócio.'); return; }\n"
+          if old_tipo not in s:
+              raise SystemExit('Leitura antiga do tipo não encontrada.')
+          s = s.replace(old_tipo, new_tipo, 1)
+          old_update = "                const { error } = await CloudDB.from('empresas').update({ nome: empresaAtual.nome, tipo_negocio: empresaAtual.tipoNegocio, atualizado_em: new Date().toISOString() }).eq('id', empresaAtual.id);\n                if(error) { alert('Os dados foram salvos localmente, mas houve falha ao atualizar a empresa na nuvem: ' + error.message); return; }\n"
+          new_update = "                const { error: nomeError } = await CloudDB.from('empresas').update({ nome: empresaAtual.nome, atualizado_em: new Date().toISOString() }).eq('id', empresaAtual.id);\n                if(nomeError) { alert('Os dados foram salvos localmente, mas houve falha ao atualizar o nome da empresa na nuvem: ' + nomeError.message); return; }\n                const { error: segError } = await CloudDB.rpc('aplicar_segmento_empresa', { p_empresa_id: empresaAtual.id, p_codigo: tipo, p_criar_servicos: false });\n                if(segError) { alert('O nome foi atualizado, mas houve falha ao aplicar o perfil do negócio: ' + segError.message); return; }\n"
+          if old_update not in s:
+              raise SystemExit('Atualização antiga da empresa não encontrada.')
+          s = s.replace(old_update, new_update, 1)
+          p.write_text(s, encoding='utf-8')
+          print('Configuração de segmento multissegmento aplicada.')
+          PY
+      - name: Commit
+        run: |
+          if git diff --quiet; then
+            echo 'Sem alterações.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'feat: conectar configuracoes ao catalogo multissegmento'
+          git push origin main
