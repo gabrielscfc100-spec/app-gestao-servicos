@@ -1,0 +1,88 @@
+name: Patch agenda bloqueio admin
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-agenda-bloqueio-admin.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Aplicar correção de bloqueio administrativo
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = 'SIMPLA_PATCH_BLOQUEIO_ADMIN_V1'
+          if marker in s:
+              print('Patch já aplicado.')
+              raise SystemExit(0)
+
+          alvo = "        function abrirModalBloqueio(horario) {\n            if(!validarAcessoPerfil('agendaBloquear','Seu perfil não pode bloquear horários.')) return;"
+          novo = """        async function abrirModalBloqueio(horario) {
+            // SIMPLA_PATCH_BLOQUEIO_ADMIN_V1
+            if(!usuarioEhAdmin()) {
+                alert('Apenas administradores podem bloquear horários da agenda.');
+                return;
+            }
+            if(!validarAcessoPerfil('agendaBloquear','Seu perfil não pode bloquear horários.')) return;
+            if(!profissionais.some(p => p.ativo !== false)) {
+                try {
+                    await carregarProfissionaisCloud();
+                } catch(err) {
+                    console.error('Falha ao carregar profissionais antes do bloqueio:', err);
+                }
+            }"""
+          if alvo not in s:
+              raise SystemExit('Trecho de abrirModalBloqueio não encontrado; nenhuma alteração aplicada.')
+          s = s.replace(alvo, novo, 1)
+
+          patch_ui = r'''
+<script id="simpla-patch-bloqueio-admin-v1">
+(function(){
+  function aplicarBloqueioAdminUI(){
+    if(typeof usuarioEhAdmin !== 'function') return;
+    const admin = usuarioEhAdmin();
+    document.querySelectorAll('button[onclick^="abrirModalBloqueio"]').forEach(btn => {
+      btn.style.display = admin ? '' : 'none';
+      btn.setAttribute('aria-hidden', admin ? 'false' : 'true');
+    });
+  }
+  const iniciar = () => {
+    aplicarBloqueioAdminUI();
+    const alvo = document.getElementById('grid-horarios-agenda') || document.body;
+    if(alvo) new MutationObserver(aplicarBloqueioAdminUI).observe(alvo,{childList:true,subtree:true});
+  };
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
+  else iniciar();
+  window.addEventListener('load', aplicarBloqueioAdminUI);
+})();
+</script>
+'''
+          if '</body>' not in s:
+              raise SystemExit('Fechamento </body> não encontrado.')
+          s = s.replace('</body>', patch_ui + '</body>', 1)
+          p.write_text(s, encoding='utf-8')
+          print('Patch aplicado ao index.html.')
+          PY
+      - name: Commit da correção
+        run: |
+          if git diff --quiet; then
+            echo "Sem alterações."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "fix: restringir bloqueio de agenda ao administrador"
+          git push origin main
