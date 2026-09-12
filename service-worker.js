@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v52-radar-agenda';
+const CACHE_VERSION = 'simpla-shell-v53-minha-prioridade';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
