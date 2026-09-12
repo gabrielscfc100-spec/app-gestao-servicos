@@ -1,0 +1,67 @@
+name: Patch onboarding multissegmento
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-onboarding-multissegmento.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Aplicar onboarding multissegmento
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = 'SIMPLA_ONBOARDING_MULTISSEGMENTO_V1'
+          if marker in s:
+              print('Patch já aplicado.')
+              raise SystemExit(0)
+          old_select = '<div class="cloud-auth-field"><label>Tipo de negócio</label><select id="cloud-empresa-tipo"><option value="BARBEARIA">Barbearia</option><option value="SALAO">Salão de beleza</option><option value="CLINICA">Clínica / Consultório</option><option value="ESTUDIO">Estúdio</option><option value="AUTONOMO">Profissional autônomo</option><option value="OUTRO" selected>Outro serviço</option></select></div>'
+          new_select = '<div class="cloud-auth-field"><label>Tipo de negócio</label><select id="cloud-empresa-tipo"><option value="">Carregando segmentos...</option></select><div style="font-size:10px;color:#718096;margin-top:5px;line-height:1.4;text-transform:none;">O SimplA usará esse perfil apenas para sugerir nomes, serviços e configurações de gestão. Tudo poderá ser personalizado depois.</div></div>'
+          if old_select not in s:
+              raise SystemExit('Seletor antigo de tipo de negócio não encontrado.')
+          s = s.replace(old_select, new_select, 1)
+          anchor = '        async function criarEmpresaInicialCloud() {\n'
+          insert = "        // SIMPLA_ONBOARDING_MULTISSEGMENTO_V1\n        let segmentosOnboardingCloud = [];\n\n        async function carregarSegmentosOnboardingCloud() {\n            const select = document.getElementById('cloud-empresa-tipo');\n            if(!select || !CloudDB) return;\n            select.innerHTML = '<option value=\"\">Carregando segmentos...</option>';\n            select.disabled = true;\n            try {\n                const { data, error } = await CloudDB.rpc('listar_segmentos_onboarding');\n                if(error) throw error;\n                segmentosOnboardingCloud = Array.isArray(data) ? data : [];\n                const grupos = {};\n                segmentosOnboardingCloud.forEach(seg => {\n                    const grupo = seg.grupo || 'OUTROS';\n                    (grupos[grupo] ||= []).push(seg);\n                });\n                const nomesGrupo = {\n                    BELEZA_ESTETICA:'Beleza & Estética',\n                    SAUDE_BEM_ESTAR:'Saúde & Bem-estar',\n                    FITNESS:'Fitness',\n                    PET:'Pet',\n                    SERVICOS_PROFISSIONAIS:'Serviços Profissionais',\n                    OUTROS:'Outros'\n                };\n                select.innerHTML = '<option value=\"\">Selecione o perfil do negócio</option>';\n                Object.entries(grupos).forEach(([grupo,itens]) => {\n                    const optgroup = document.createElement('optgroup');\n                    optgroup.label = nomesGrupo[grupo] || grupo.replaceAll('_',' ');\n                    itens.forEach(seg => {\n                        const opt = document.createElement('option');\n                        opt.value = seg.codigo;\n                        opt.textContent = seg.nome;\n                        optgroup.appendChild(opt);\n                    });\n                    select.appendChild(optgroup);\n                });\n                select.disabled = false;\n            } catch(err) {\n                console.error('Falha ao carregar segmentos do onboarding:', err);\n                select.innerHTML = '<option value=\"OUTRO\">Outro serviço</option>';\n                select.disabled = false;\n            }\n        }\n\n"
+          if anchor not in s:
+              raise SystemExit('Âncora da função criarEmpresaInicialCloud não encontrada.')
+          s = s.replace(anchor, insert + anchor, 1)
+          old_validation = "            const tipo = document.getElementById('cloud-empresa-tipo')?.value || 'OUTRO';\n            if(!nome) { exibirMensagemCloud('cloud-empresa-message','Informe o nome do negócio.','error'); return; }\n"
+          new_validation = "            const tipo = document.getElementById('cloud-empresa-tipo')?.value || '';\n            if(!nome) { exibirMensagemCloud('cloud-empresa-message','Informe o nome do negócio.','error'); return; }\n            if(!tipo) { exibirMensagemCloud('cloud-empresa-message','Selecione o perfil do seu negócio.','error'); return; }\n"
+          if old_validation not in s:
+              raise SystemExit('Validação de tipo de negócio não encontrada.')
+          s = s.replace(old_validation, new_validation, 1)
+          old_cfg = "                // Cria a linha de configuração base; se já existir, apenas mantém.\n                const { error: cfgError } = await CloudDB.from('configuracoes_empresa').upsert({ empresa_id: empresaId }, { onConflict: 'empresa_id' });\n                if(cfgError) console.warn('Configuração inicial será criada posteriormente:', cfgError);\n"
+          new_cfg = "                // Cria a linha de configuração base; se já existir, apenas mantém.\n                const { error: cfgError } = await CloudDB.from('configuracoes_empresa').upsert({ empresa_id: empresaId }, { onConflict: 'empresa_id' });\n                if(cfgError) console.warn('Configuração inicial será criada posteriormente:', cfgError);\n                const { error: segError } = await CloudDB.rpc('aplicar_segmento_empresa', { p_empresa_id: empresaId, p_codigo: tipo, p_criar_servicos: true });\n                if(segError) console.warn('Empresa criada, mas o perfil multissegmento precisará ser reaplicado:', segError);\n"
+          if old_cfg not in s:
+              raise SystemExit('Trecho de configuração base não encontrado.')
+          s = s.replace(old_cfg, new_cfg, 1)
+          old_overlay = "            document.getElementById('cloud-empresa-overlay')?.classList.remove('hidden');\n"
+          new_overlay = "            document.getElementById('cloud-empresa-overlay')?.classList.remove('hidden');\n            carregarSegmentosOnboardingCloud();\n"
+          if old_overlay in s:
+              s = s.replace(old_overlay, new_overlay, 1)
+          p.write_text(s, encoding='utf-8')
+          print('Onboarding multissegmento aplicado.')
+          PY
+      - name: Commit
+        run: |
+          if git diff --quiet; then
+            echo 'Sem alterações.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'feat: conectar onboarding ao catálogo multissegmento'
+          git push origin main
