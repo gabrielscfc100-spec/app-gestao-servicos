@@ -339,9 +339,11 @@
     auth: { persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
   });
 
+  // SIMPLA_MULTISSEGMENTO_AGENDA_V1
   const params = new URLSearchParams(window.location.search);
-  const pathSlug = decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop() || '').trim().toLowerCase();
-  const slug = (params.get('empresa') || params.get('slug') || pathSlug || 'simpla-barbearia').trim().toLowerCase();
+  const rawPathSlug = decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop() || '').trim().toLowerCase();
+  const pathSlug = /\.html?$/.test(rawPathSlug) ? '' : rawPathSlug;
+  const slug = (params.get('empresa') || params.get('slug') || pathSlug || '').trim().toLowerCase();
 
   const state = {
     empresa:null,
@@ -353,6 +355,45 @@
     telefone:'',
     email:''
   };
+
+  const ROTULOS_SEGMENTO = {
+    BARBEARIA:{cliente:'Cliente',profissional:'Barbeiro',servico:'Serviço'},
+    SALAO:{cliente:'Cliente',profissional:'Profissional',servico:'Serviço'},
+    CABELEIRO:{cliente:'Cliente',profissional:'Profissional',servico:'Serviço'},
+    BELEZA_ESTETICA:{cliente:'Cliente',profissional:'Profissional',servico:'Serviço'},
+    ESTETICA:{cliente:'Cliente',profissional:'Profissional',servico:'Serviço'},
+    PSICOLOGIA:{cliente:'Paciente',profissional:'Psicólogo',servico:'Sessço'},
+    NUTRICAO:{cliente:'Paciente',profissional:'Nutricionista',servico:'Consulta'},
+    FISIOTERAPIA:{cliente:'Paciente',profissional:'Fisioterapeuta',servico:'Sessão'},
+    PILATES:{cliente:'Aluno',profissional:'Instrutor',servico:'Sessão'},
+    ODONTOLOGIA:{cliente:'Paciente',profissional:'Dentista',servico:'Atendimento'},
+    PERSONAL:{cliente:'Aluno',profissional:'Personal',servico:'Sessço'},
+    FITNESS:{cliente:'Aluno',profissional:'Profissional',servico:'Sessão'},
+    PET:{cliente:'Tutor',Profissional:'Profissional',servico:'Serviço'},
+    AUTONOMO:{cliente:'Cliente',profissional:'Profissional',servico:'Serviço'}
+  };
+
+  function obterRotulos(){
+    const tipo = String(state.empresa?.tipo_negocio || '').trim().toUpperCase();
+    const base = ROTULOS_SEGMENTO[tipo] || {cliente:'Cliente',profissional:'Profissional',servico:'Serviço'};
+    const cfg = state.empresa?.configuracao_gestao || {};
+    const personalizados = cfg.rotulos || {};
+    return {
+      cliente: personalizados.cliente || base.cliente,
+      profissional: personalizados.profissional || base.profissional,
+      servico: personalizados.servico || base.servico
+    };
+  }
+
+  function aplicarRotulosSegmento(){
+    const r = obterRotulos();
+    const tituloProf = document.querySelector('#etapa-2 .titulo');
+    const ajudaProf = document.querySelector('#etapa-2 .ajuda');
+    const tituloServ = document.querySelector('#etapa-3 .titulo');
+    if(tituloProf) tituloProf.textContent = `Escolha ${r.profissional.toLowerCase().startsWith('o ') || r.profissional.toLowerCase().startsWith('a ') ? '' : 'o '}${r.profissional.toLowerCase()}`;
+    if(ajudaProf) ajudaProf.textContent = `Depois de escolher, mostraremos somente os ${r.servico.toLowerCase()}s disponíveis para esse atendimento.`;
+    if(tituloServ) tituloServ.textContent = `Escolha ${r.servico.toLowerCase().startsWith('o ') || r.servico.toLowerCase().startsWith('a ') ? '' : 'o '}${r.servico.toLowerCase()}`;
+  }
 
   function setStatus(id, texto='', tipo='info'){
     const el = document.getElementById(id);
@@ -404,6 +445,7 @@
     document.getElementById('agenda-data').min = hojeLocal();
 
     try{
+      if(!slug) throw new Error('Link de agendamento inválido. Solicite à empresa um novo link.');
       const {data,error} = await db.rpc('agendamento_publico_empresa',{p_slug:slug});
       if(error) throw error;
       const empresa = Array.isArray(data) ? data[0] : data;
@@ -411,8 +453,9 @@
 
       state.empresa = empresa;
       document.getElementById('empresa-nome').textContent = empresa.nome;
-      document.getElementById('empresa-tipo').textContent = empresa.tipo_negocio || '';
+      document.getElementById('empresa-tipo').textContent = String(empresa.tipo_negocio || '').replaceAll('_',' ');
       document.title = `Agendar | ${empresa.nome}`;
+      aplicarRotulosSegmento();
       setStatus('status-global');
     }catch(err){
       console.error(err);
@@ -595,12 +638,13 @@
   function irParaResumo(){
     if(!state.data || !state.horario) return;
     const resumo = document.getElementById('resumo');
+    const rotulos = obterRotulos();
     resumo.innerHTML = `
-      <div class="linha"><span>Cliente</span><b>${escapeHtml(state.nome)}</b></div>
+      <div class="linha"><span>${escapeHtml(rotulos.cliente)}</span><b>${escapeHtml(state.nome)}</b></div>
       <div class="linha"><span>Telefone</span><b>${escapeHtml(state.telefone)}</b></div>
       ${state.email ? `<div class="linha"><span>E-mail</span><b>${escapeHtml(state.email)}</b></div>` : ''}
-      <div class="linha"><span>Profissional</span><b>${escapeHtml(state.profissional.nome)}</b></div>
-      <div class="linha"><span>Serviço</span><b>${escapeHtml(state.servico.nome)}</b></div>
+      <div class="linha"><span>${escapeHtml(rotulos.profissional)}</span><b>${escapeHtml(state.profissional.nome)}</b></div>
+      <div class="linha"><span>${escapeHtml(rotulos.servico)}</span><b>${escapeHtml(state.servico.nome)}</b></div>
       <div class="linha"><span>Duração</span><b>${Number(state.servico.duracao_min)} min</b></div>
       <div class="linha"><span>Valor</span><b>${moeda(state.servico.preco)}</b></div>
       <div class="linha"><span>Data</span><b>${dataPt(state.data)}</b></div>
