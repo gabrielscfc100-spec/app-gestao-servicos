@@ -3225,7 +3225,7 @@ hr{
                     </label><label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: normal; cursor: pointer;"><input type="checkbox" id="cfg-facebook"> Facebook
                     </label><label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: normal; cursor: pointer;"><input type="checkbox" id="cfg-twitter"> X (Twitter)
                     </label><label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: normal; cursor: pointer;"><input type="checkbox" id="cfg-obs"> Observações
-                    </label></div><button class="btn-salvar" style="margin-bottom: 24px;" onclick="salvarConfigCampos()"> Salvar Campos do Cadastro</button><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3>Personalização de Tema</h3><p style="font-size: 13px; color: #718096; margin-bottom: 16px;">Escolha o estilo visual do sistema:</p><div style="display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;"><select id="cfg-tema" style="max-width: 260px;"><option value="padrao">Clássico Ouro</option><option value="azul">Azul Executivo</option><option value="verde">Verde Barbeiro</option></select><button class="btn-salvar" onclick="salvarConfigTema()"> Salvar Tema</button></div><p style="font-size: 12px; color: #718096; margin-bottom: 24px;">A alteração visual será aplicada somente após clicar em salvar.</p><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3>Nome da Barbearia</h3><p style="font-size: 13px; color: #718096; margin-bottom: 12px;">Altere o nome exibido no canto superior esquerdo do sistema:</p><div class="form-group" style="margin-bottom: 24px;"><input type="text" id="cfg-nome-barbearia" style="text-transform: none;" placeholder="Ex: BarberManager"></div><button class="btn-salvar" style="margin-bottom: 24px;" onclick="salvarNomeBarbearia()"> Salvar Nome da Barbearia</button><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3>️ Preparação para Nuvem (Versão 2)</h3><p style="font-size: 13px; color: #718096; margin-bottom: 14px; text-transform:none; line-height:1.5;">Esta versão já usa uma camada central de dados preparada para migração. Enquanto o Supabase não estiver conectado, o aplicativo continua funcionando localmente normalmente.</p><div class="section-box-cfg" style="text-transform:none;"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px;"><div><label style="font-size:12px;font-weight:bold;display:block;margin-bottom:6px;">Modo de dados</label><input id="cfg-cloud-mode" type="text" value="LOCAL / PREPARAÇÃO" readonly style="background:#edf2f7;text-transform:none;"></div><div><label style="font-size:12px;font-weight:bold;display:block;margin-bottom:6px;">Versão da estrutura</label><input id="cfg-app-version" type="text" value="2.0 CLOUD READY" readonly style="background:#edf2f7;text-transform:none;"></div></div><div class="form-group"><label>Nome da empresa / negócio</label><input type="text" id="cfg-empresa-nome" style="text-transform:none;" placeholder="Ex: Studio João"></div><div class="form-group"><label>Tipo de negócio</label><select id="cfg-empresa-tipo" style="text-transform:none;"><option value="BARBEARIA">Barbearia</option><option value="SALAO">Salão de beleza</option><option value="CLINICA">Clínica / consultório</option><option value="ESTUDIO">Estúdio</option><option value="AUTONOMO">Profissional autônomo</option><option value="OUTRO">Outro serviço</option></select></div><button class="btn-salvar" onclick="salvarConfigEmpresaV2()"> Salvar Identidade do Negócio</button><div style="margin-top:14px;padding:12px;border-radius:6px;background:#ebf8ff;border:1px solid #bee3f8;font-size:12px;color:#2c5282;line-height:1.5;text-transform:none;"><b>Próxima etapa:</b> conectar este aplicativo ao Supabase. A URL do projeto e a chave publicável serão usadas no navegador; uma chave secreta de serviço nunca deverá ser colocada neste HTML.
+                    </label></div><button class="btn-salvar" style="margin-bottom: 24px;" onclick="salvarConfigCampos()"> Salvar Campos do Cadastro</button><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3>Personalização de Tema</h3><p style="font-size: 13px; color: #718096; margin-bottom: 16px;">Escolha o estilo visual do sistema:</p><div style="display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;"><select id="cfg-tema" style="max-width: 260px;"><option value="padrao">Clássico Ouro</option><option value="azul">Azul Executivo</option><option value="verde">Verde Barbeiro</option></select><button class="btn-salvar" onclick="salvarConfigTema()"> Salvar Tema</button></div><p style="font-size: 12px; color: #718096; margin-bottom: 24px;">A alteração visual será aplicada somente após clicar em salvar.</p><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3>Nome da Barbearia</h3><p style="font-size: 13px; color: #718096; margin-bottom: 12px;">Altere o nome exibido no canto superior esquerdo do sistema:</p><div class="form-group" style="margin-bottom: 24px;"><input type="text" id="cfg-nome-barbearia" style="text-transform: none;" placeholder="Ex: BarberManager"></div><button class="btn-salvar" style="margin-bottom: 24px;" onclick="salvarNomeBarbearia()"> Salvar Nome da Barbearia</button><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3>️ Preparação para Nuvem (Versão 2)</h3><p style="font-size: 13px; color: #718096; margin-bottom: 14px; text-transform:none; line-height:1.5;">Esta versão já usa uma camada central de dados preparada para migração. Enquanto o Supabase não estiver conectado, o aplicativo continua funcionando localmente normalmente.</p><div class="section-box-cfg" style="text-transform:none;"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px;"><div><label style="font-size:12px;font-weight:bold;display:block;margin-bottom:6px;">Modo de dados</label><input id="cfg-cloud-mode" type="text" value="LOCAL / PREPARAÇÃO" readonly style="background:#edf2f7;text-transform:none;"></div><div><label style="font-size:12px;font-weight:bold;display:block;margin-bottom:6px;">Versão da estrutura</label><input id="cfg-app-version" type="text" value="2.0 CLOUD READY" readonly style="background:#edf2f7;text-transform:none;"></div></div><div class="form-group"><label>Nome da empresa / negócio</label><input type="text" id="cfg-empresa-nome" style="text-transform:none;" placeholder="Ex: Studio João"></div><div class="form-group"><label>Tipo de negócio</label><select id="cfg-empresa-tipo" style="text-transform:none;"><option value="">Carregando segmentos...</option></select></div><button class="btn-salvar" onclick="salvarConfigEmpresaV2()"> Salvar Identidade do Negócio</button><div style="margin-top:14px;padding:12px;border-radius:6px;background:#ebf8ff;border:1px solid #bee3f8;font-size:12px;color:#2c5282;line-height:1.5;text-transform:none;"><b>Próxima etapa:</b> conectar este aplicativo ao Supabase. A URL do projeto e a chave publicável serão usadas no navegador; uma chave secreta de serviço nunca deverá ser colocada neste HTML.
                     </div></div><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;"><h3 style="color: var(--cor-accent);"> Usuários e Acessos</h3><p style="font-size:13px;color:#718096;margin-bottom:16px;text-transform:none;">Cada pessoa usa seu próprio acesso. O administrador cria um ID e uma senha inicial para usuários operacionais; administradores continuam usando e-mail e senha.
                 </p><div class="section-box-cfg" id="box-cfg-usuarios"><div id="usuarios-acesso-admin"><h4>Criar usuário / acesso</h4><div class="cfg-usuarios-grid cfg-usuarios-grid-criacao"><div class="form-group" style="margin-bottom:0;"><label>ID de acesso</label><input type="text" id="cfg-login-id" maxlength="24" placeholder="Ex.: BARBEIRO01" oninput="normalizarCampoLoginId(this)"></div><div class="form-group" style="margin-bottom:0;"><label>Senha inicial</label><div style="position:relative;"><input type="password" id="cfg-login-senha" minlength="8" placeholder="Mínimo 8 caracteres" style="padding-right:42px;"><button type="button" onclick="alternarSenhaCampo('cfg-login-senha', this)" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);border:0;background:transparent;padding:5px;cursor:pointer;">️</button></div></div><div class="form-group" style="margin-bottom:0;"><label>Perfil de acesso</label><select id="cfg-usuario-perfil"><option value="FUNCIONARIO">Operacional / Funcionário</option><option value="FINANCEIRO">Financeiro</option><option value="GESTOR">Gestor</option><option value="ADMIN">Administrador</option></select></div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-salvar" id="btn-criar-acesso" onclick="criarAcessoOperacional()"> Criar Acesso</button><button onclick="carregarUsuariosEmpresa()" style="padding:9px 12px;">↻ Atualizar Lista</button></div><div style="margin-top:10px;padding:10px;border-radius:6px;background:#ebf8ff;border:1px solid #bee3f8;font-size:11px;color:#2c5282;line-height:1.5;text-transform:none;">Usuários criados pelo administrador usarão somente <b>ID + senha</b>. O e-mail técnico criado internamente não será exibido.
                         </div><div class="perfis-resumo-grid"><div><b>ADMIN</b><span>Acesso total ao sistema, configurações, usuários, relatórios e cadastros.</span></div><div><b>GESTOR</b><span>Clientes, financeiro, agenda e catálogo; sem Gestão/Dashboard, Configurações e gestão de usuários.</span></div><div><b>OPERACIONAL</b><span>Clientes, própria agenda e lançamentos operacionais; sem Dashboard, relatórios, exportações ou exclusões.</span></div><div><b>FINANCEIRO</b><span>Financeiro completo; clientes e agenda somente para consulta; sem Gestão/Dashboard, catálogo ou Configurações.</span></div></div></div><div id="usuarios-acesso-nao-admin" style="display:none;padding:12px;border-radius:6px;background:#fffaf0;border:1px solid #f6e05e;font-size:12px;color:#744210;text-transform:none;">Somente administradores podem gerenciar os acessos da empresa.
@@ -5586,19 +5586,54 @@ hr{
             if(document.getElementById('dashboard')) renderizarDashboard();
         }
 
+        // SIMPLA_CONFIG_SEGMENTO_V1
+        async function carregarSegmentosConfigEmpresaCloud(valorAtual = '') {
+            const select = document.getElementById('cfg-empresa-tipo');
+            if(!select || !CloudDB) return;
+            select.innerHTML = '<option value="">Carregando segmentos...</option>';
+            select.disabled = true;
+            try {
+                let lista = segmentosOnboardingCloud;
+                if(!Array.isArray(lista) || !lista.length) {
+                    const { data, error } = await CloudDB.rpc('listar_segmentos_onboarding');
+                    if(error) throw error;
+                    lista = Array.isArray(data) ? data : [];
+                    segmentosOnboardingCloud = lista;
+                }
+                const grupos = {};
+                lista.forEach(seg => { const grupo = seg.grupo || 'OUTROS'; (grupos[grupo] ||= []).push(seg); });
+                const nomesGrupo = { BELEZA_ESTETICA:'Beleza & Estética', SAUDE_BEM_ESTAR:'Saúde & Bem-estar', FITNESS:'Fitness', PET:'Pet', SERVICOS_PROFISSIONAIS:'Serviços Profissionais', OUTROS:'Outros' };
+                select.innerHTML = '<option value="">Selecione o perfil do negócio</option>';
+                Object.entries(grupos).forEach(([grupo,itens]) => {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = nomesGrupo[grupo] || grupo.replaceAll('_',' ');
+                    itens.forEach(seg => { const opt = document.createElement('option'); opt.value = seg.codigo; opt.textContent = seg.nome; optgroup.appendChild(opt); });
+                    select.appendChild(optgroup);
+                });
+                select.value = valorAtual || empresaAtual?.tipoNegocio || '';
+                select.disabled = false;
+            } catch(err) {
+                console.error('Falha ao carregar segmentos nas configurações:', err);
+                select.innerHTML = '<option value="OUTRO">Outro serviço</option>';
+                select.value = 'OUTRO';
+                select.disabled = false;
+            }
+        }
+
         function carregarConfigEmpresaV2UI() {
             const nomeEl = document.getElementById('cfg-empresa-nome');
             const tipoEl = document.getElementById('cfg-empresa-tipo');
             const badge = document.getElementById('cloud-mode-badge');
             if(nomeEl) nomeEl.value = empresaAtual.nome || nomeBarbearia || '';
-            if(tipoEl) tipoEl.value = empresaAtual.tipoNegocio || 'BARBEARIA';
+            if(tipoEl) carregarSegmentosConfigEmpresaCloud(empresaAtual.tipoNegocio || 'OUTRO');
             if(badge && !sessaoCloud) badge.textContent = 'V2 • AGUARDANDO LOGIN';
         }
 
         async function salvarConfigEmpresaV2() {
             if(!validarAcessoPerfil('configuracoes','Somente administradores podem alterar as Configurações.')) return;
             const nome = document.getElementById('cfg-empresa-nome')?.value.trim();
-            const tipo = document.getElementById('cfg-empresa-tipo')?.value || 'OUTRO';
+            const tipo = document.getElementById('cfg-empresa-tipo')?.value || '';
+            if(!tipo) { alert('Selecione o perfil do negócio.'); return; }
             empresaAtual = { ...empresaAtual, nome: nome || nomeBarbearia || 'Meu Negócio', tipoNegocio: tipo, atualizadoEm: new Date().toISOString() };
             if(nome) {
                 nomeBarbearia = nome;
@@ -5608,8 +5643,10 @@ hr{
             }
             salvarStorage();
             if(CloudDB && empresaAtual?.cloud && empresaAtual?.id) {
-                const { error } = await CloudDB.from('empresas').update({ nome: empresaAtual.nome, tipo_negocio: empresaAtual.tipoNegocio, atualizado_em: new Date().toISOString() }).eq('id', empresaAtual.id);
-                if(error) { alert('Os dados foram salvos localmente, mas houve falha ao atualizar a empresa na nuvem: ' + error.message); return; }
+                const { error: nomeError } = await CloudDB.from('empresas').update({ nome: empresaAtual.nome, atualizado_em: new Date().toISOString() }).eq('id', empresaAtual.id);
+                if(nomeError) { alert('Os dados foram salvos localmente, mas houve falha ao atualizar o nome da empresa na nuvem: ' + nomeError.message); return; }
+                const { error: segError } = await CloudDB.rpc('aplicar_segmento_empresa', { p_empresa_id: empresaAtual.id, p_codigo: tipo, p_criar_servicos: false });
+                if(segError) { alert('O nome foi atualizado, mas houve falha ao aplicar o perfil do negócio: ' + segError.message); return; }
             }
             await registrarAuditoria('CONFIGURACOES','IDENTIDADE_NEGOCIO_ALTERADA',empresaAtual.id,{nome:empresaAtual.nome,tipo:empresaAtual.tipoNegocio});
             alert('Identidade do negócio salva com sucesso.');
