@@ -12327,22 +12327,6 @@ hr{
 })();
 </script>
 
-<script id="simpla-gramatica-disponiveis-v21">
-(function(){
-  function corrigirContagemDisponiveis(root=document){
-    const todos = root.querySelectorAll ? root.querySelectorAll('*') : [];
-    todos.forEach(el => {
-      if(el.children.length) return;
-      const txt = (el.textContent || '').trim();
-      if(/^1\s+DISPONÍVEIS$/i.test(txt)) el.textContent = txt.replace(/DISPONÍVEIS/i, 'DISPONÍVEL');
-    });
-  }
-  corrigirContagemDisponiveis();
-  const obs = new MutationObserver(() => corrigirContagemDisponiveis());
-  obs.observe(document.body,{childList:true,subtree:true,characterData:true});
-})();
-</script>
-
 <style id="simpla-cliente-avulso-v22-style">
 #atendimento-cliente-modo{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:16px}
 #atendimento-cliente-modo .atendimento-modo-botoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
