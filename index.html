@@ -8374,12 +8374,32 @@ hr{
             const duracaoMin = parseInt(document.getElementById('agenda-duracao-min').value) || configExpediente.intervalo || 45;
             const data = document.getElementById('agenda-data-filtro').value;
             const buscaVal = document.getElementById('agenda-cliente-busca').value.trim();
-            const profissionalId = document.getElementById('agenda-profissional')?.value || '';
+            const profissionalVinculado = obterPerfilAtual() === 'FUNCIONARIO'
+                ? obterProfissionalVinculadoUsuarioAtual()
+                : null;
+            const profissionalId = obterPerfilAtual() === 'FUNCIONARIO'
+                ? String(profissionalVinculado?.id || '')
+                : (document.getElementById('agenda-profissional')?.value || '');
             const profissionalObj = profissionais.find(p => String(p.id) === String(profissionalId)) || null;
             const servico = document.getElementById('agenda-servico').value;
             const obs = document.getElementById('agenda-obs').value.trim();
             const telefoneCampo = document.getElementById('agenda-telefone').value.trim();
             const hoje = obterHojeLocal();
+
+            if(obterPerfilAtual() === 'FUNCIONARIO' && !profissionalVinculado) {
+                alert('Sua conta operacional ainda não está vinculada a um profissional. Solicite ao administrador que faça o vínculo antes de criar ou editar agendamentos.');
+                return;
+            }
+
+            if(idEdicao && obterPerfilAtual() === 'FUNCIONARIO') {
+                const agendamentoExistente = agendamentos.find(a => String(a.id) === String(idEdicao));
+                if(!agendamentoExistente || String(agendamentoExistente.profissionalId || '') !== String(profissionalId)) {
+                    alert('Você só pode editar agendamentos vinculados ao seu próprio profissional.');
+                    fecharModalAgendamento();
+                    renderizarAgenda();
+                    return;
+                }
+            }
 
             if (!data || data < hoje) {
                 alert('Não é permitido realizar agendamentos antes da data atual.');
