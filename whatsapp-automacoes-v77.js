@@ -54,7 +54,7 @@
     .wa77-msg{font-size:9px;color:#718096}.wa77-vars{display:grid;gap:6px;margin-top:9px}.wa77-var-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto auto auto;gap:6px;align-items:center}.wa77-var-pos{font-size:9px;font-weight:900;color:#718096;text-align:center}.wa77-var-btn{border:0;border-radius:6px;padding:7px 8px;background:#edf2f7;color:#4a5568;font-size:9px;font-weight:900;cursor:pointer}.wa77-var-btn.remove{background:#fff5f5;color:#c53030}.wa77-list{display:grid;gap:8px;margin-top:10px}.wa77-rem{border:1px solid #dbe4ee;border-radius:8px;padding:10px;background:#fff}.wa77-rem-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.wa77-switch{display:flex;align-items:center;gap:7px;font-size:9px;color:#4a5568;text-transform:none}
     .wa77-table-wrap{overflow:auto;margin-top:10px}.wa77-table{width:100%;min-width:760px;border-collapse:collapse}.wa77-table th,.wa77-table td{padding:8px;border-bottom:1px solid #edf2f7;font-size:9px;text-align:left;text-transform:none}.wa77-table th{background:#f8fafc;font-size:8px;color:#718096;text-transform:uppercase}
     .wa77-note{margin-top:10px;padding:9px;border-radius:7px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:9px;line-height:1.4}.wa77-guide{border:1px solid #dbe4ee;border-radius:9px;background:#f8fafc;padding:12px;margin-top:12px}.wa77-guide-steps{display:grid;gap:8px;margin-top:10px}.wa77-guide-step{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}.wa77-guide-num{width:24px;height:24px;border-radius:999px;background:#23364d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900}.wa77-guide-step b{display:block;font-size:10px;color:#2d3748}.wa77-guide-step span{display:block;font-size:9px;color:#718096;line-height:1.45;margin-top:2px}.wa77-guide-example{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:10px}.wa77-guide-example b{font-size:9px;color:#2d3748}.wa77-guide-example p{margin-top:4px;font-size:9px;color:#526579;line-height:1.45}.wa77-test{display:none;margin-top:10px;padding:10px;border:1px solid #bee3f8;border-radius:8px;background:#ebf8ff}.wa77-test.show{display:block}.wa77-test-vars{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.wa77-empty{padding:12px;text-align:center;color:#718096;font-size:10px}
-    .wa77-status{font-weight:900}.wa77-status.ENVIADO,.wa77-status.delivered,.wa77-status.read{color:#2f855a}.wa77-status.ERRO,.wa77-status.failed{color:#c53030}.wa77-status.PENDENTE{color:#975a16}
+    .wa77-ready{margin-top:12px;border:1px solid #dbe4ee;border-radius:9px;background:#f8fafc;padding:11px}.wa77-ready-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.wa77-ready-title{font-size:10px;font-weight:900;color:#2d3748}.wa77-ready-list{display:grid;gap:6px;margin-top:9px}.wa77-ready-item{display:grid;grid-template-columns:20px 1fr;gap:7px;align-items:start}.wa77-ready-dot{width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;background:#fed7d7;color:#c53030}.wa77-ready-dot.ok{background:#c6f6d5;color:#276749}.wa77-ready-item b{display:block;font-size:9px;color:#2d3748}.wa77-ready-item span{display:block;font-size:8px;color:#718096;line-height:1.4;margin-top:1px}.wa77-ready-badge{padding:5px 8px;border-radius:999px;font-size:8px;font-weight:900;background:#fff5f5;color:#c53030}.wa77-ready-badge.ok{background:#f0fff4;color:#276749}.wa77-status{font-weight:900}.wa77-status.ENVIADO,.wa77-status.delivered,.wa77-status.read{color:#2f855a}.wa77-status.ERRO,.wa77-status.failed{color:#c53030}.wa77-status.PENDENTE{color:#975a16}
     @media(max-width:800px){.wa77-grid2,.wa77-fields{grid-template-columns:1fr}.wa77-kpis{grid-template-columns:1fr 1fr}.wa77-var-row{grid-template-columns:36px minmax(0,1fr) auto auto auto}}
     `;
     document.head.appendChild(st);
@@ -65,7 +65,7 @@
     <div class="wa77" id="wa77-root">
       <section class="wa77-card" id="wa77-quota"><div class="wa77-head"><div><h3>Franquia mensal do WhatsApp</h3><p>Consumo mensal de mensagens operacionais.</p></div><span class="wa77-badge" id="wa77-plan">—</span></div><div class="wa77-bar"><div class="wa77-fill" id="wa77-fill"></div></div><div class="wa77-kpis"><div class="wa77-kpi"><span>Enviadas</span><b id="wa77-sent">0</b></div><div class="wa77-kpi"><span>Processando</span><b id="wa77-processing">0</b></div><div class="wa77-kpi"><span>Restantes</span><b id="wa77-remaining">—</b></div><div class="wa77-kpi"><span>Limite mensal</span><b id="wa77-limit">—</b></div></div><div class="wa77-actions"><span class="wa77-msg" id="wa77-quota-msg"></span><button class="wa77-btn alt" data-act="refresh-quota">Atualizar consumo</button></div></section>
 
-      <section class="wa77-card"><div class="wa77-head"><div><h3>Conexão com a Meta</h3><p>Conecte o WhatsApp oficial da empresa sem expor tokens no navegador.</p></div><span class="wa77-badge" id="wa77-conn-badge">Não configurado</span></div><div class="wa77-kpis"><div class="wa77-kpi"><span>Provedor</span><b id="wa77-provider">Meta Cloud API</b></div><div class="wa77-kpi"><span>Número</span><b id="wa77-number">—</b></div><div class="wa77-kpi"><span>Validação</span><b id="wa77-validation" style="font-size:11px">—</b></div><div class="wa77-kpi"><span>Automação</span><b id="wa77-auto-state" style="font-size:11px">Desativada</b></div></div><div class="wa77-actions"><button class="wa77-btn" data-act="connect-meta" id="wa77-connect">Conectar WhatsApp com a Meta</button><button class="wa77-btn alt" data-act="validate-meta">Validar conexão</button><button class="wa77-btn alt" data-act="toggle-auto" data-value="true">Ativar automação</button><button class="wa77-btn alt" data-act="toggle-auto" data-value="false">Desativar</button><span class="wa77-msg" id="wa77-conn-msg"></span></div></section>
+      <section class="wa77-card"><div class="wa77-head"><div><h3>Conexão com a Meta</h3><p>Conecte o WhatsApp oficial da empresa sem expor tokens no navegador.</p></div><span class="wa77-badge" id="wa77-conn-badge">Não configurado</span></div><div class="wa77-kpis"><div class="wa77-kpi"><span>Provedor</span><b id="wa77-provider">Meta Cloud API</b></div><div class="wa77-kpi"><span>Número</span><b id="wa77-number">—</b></div><div class="wa77-kpi"><span>Validação</span><b id="wa77-validation" style="font-size:11px">—</b></div><div class="wa77-kpi"><span>Automação</span><b id="wa77-auto-state" style="font-size:11px">Desativada</b></div></div><div class="wa77-ready" id="wa77-ready"><div class="wa77-ready-head"><div class="wa77-ready-title">Checklist antes de ativar a automação</div><span class="wa77-ready-badge" id="wa77-ready-badge">Verificando</span></div><div class="wa77-ready-list" id="wa77-ready-list"></div></div><div class="wa77-actions"><button class="wa77-btn" data-act="connect-meta" id="wa77-connect">Conectar WhatsApp com a Meta</button><button class="wa77-btn alt" data-act="validate-meta">Validar conexão</button><button class="wa77-btn alt" id="wa77-auto-enable" data-act="toggle-auto" data-value="true" disabled>Ativar automação</button><button class="wa77-btn alt" data-act="toggle-auto" data-value="false">Desativar</button><span class="wa77-msg" id="wa77-conn-msg"></span></div></section>
 
       <section class="wa77-card"><h3>Fuso horário da empresa</h3><p>Necessário para calcular lembretes e janelas de envio.</p><div class="wa77-grid2"><div class="wa77-field"><label>Fuso horário</label><select id="wa77-timezone"></select></div><div class="wa77-actions" style="align-items:end"><button class="wa77-btn" data-act="save-timezone">Salvar fuso</button><span class="wa77-msg" id="wa77-timezone-msg"></span></div></div></section>
 
@@ -140,6 +140,34 @@
     const b=document.getElementById('wa77-conn-badge');b.textContent=data?.ativo&&data?.status==='ATIVO'?'Conectado':(data?.status||'Não configurado');
     const {data:auto}=await db().from('whatsapp_automacao_config').select('envios_automaticos_ativos').eq('empresa_id',empresaId()).maybeSingle();
     document.getElementById('wa77-auto-state').textContent=auto?.envios_automaticos_ativos?'Ativada':'Desativada';
+  }
+
+  async function loadReadiness(){
+    const {data,error}=await db().rpc('prontidao_whatsapp_empresa',{p_empresa_id:empresaId()});
+    if(error)throw error;
+    const r=Array.isArray(data)?data[0]:data;
+    const box=document.getElementById('wa77-ready-list');
+    const badge=document.getElementById('wa77-ready-badge');
+    const btn=document.getElementById('wa77-auto-enable');
+    if(!box||!badge||!btn)return;
+
+    const order=['plano','fuso','integracao','cota','fluxos'];
+    const itens=r?.itens||{};
+    box.innerHTML=order.map(k=>{
+      const x=itens[k]||{};
+      const ok=!!x.ok;
+      return '<div class="wa77-ready-item"><div class="wa77-ready-dot '+(ok?'ok':'')+'">'+(ok?'✓':'!')+'</div><div><b>'+esc(x.titulo||k)+'</b><span>'+esc(x.detalhe||'')+'</span></div></div>';
+    }).join('');
+
+    const pronto=!!r?.pronto;
+    badge.textContent=pronto?'Pronto para ativar':'Configuração incompleta';
+    badge.className='wa77-ready-badge'+(pronto?' ok':'');
+    btn.disabled=!pronto;
+    btn.title=pronto?'Ativar envios automáticos':'Conclua o checklist antes de ativar';
+  }
+
+  async function refreshReadinessSoon(){
+    try{await loadReadiness()}catch(err){console.error('Checklist WhatsApp:',err)}
   }
 
   async function loadTimezone(){
@@ -256,18 +284,18 @@
 
   async function refreshAll(){
     if(state.loading)return;state.loading=true;
-    try{await Promise.all([loadQuota(),loadConnection(),loadTimezone(),loadTemplates(),loadRules(),loadReminders(),loadMonitor()])}
+    try{await Promise.all([loadQuota(),loadConnection(),loadTimezone(),loadTemplates(),loadRules(),loadReminders(),loadMonitor()]);await loadReadiness()}
     catch(e){console.error('SimplA WhatsApp v77:',e)}
     finally{state.loading=false}
   }
 
   async function saveRule(tipo){
     const s=slug(tipo),msg=document.getElementById('wa77-rule-msg-'+s);msg.textContent='Salvando...';
-    const {error}=await db().rpc('salvar_regra_whatsapp_mensagem',{p_empresa_id:empresaId(),p_tipo:tipo,p_ativo:document.getElementById('wa77-rule-active-'+s).checked,p_antecedencia_minutos:null,p_horario_inicio:document.getElementById('wa77-rule-start-'+s).value,p_horario_fim:document.getElementById('wa77-rule-end-'+s).value,p_bloquear_duplicidade:document.getElementById('wa77-rule-dup-'+s).value==='true'});if(error)throw error;msg.textContent='Salvo.';
+    const {error}=await db().rpc('salvar_regra_whatsapp_mensagem',{p_empresa_id:empresaId(),p_tipo:tipo,p_ativo:document.getElementById('wa77-rule-active-'+s).checked,p_antecedencia_minutos:null,p_horario_inicio:document.getElementById('wa77-rule-start-'+s).value,p_horario_fim:document.getElementById('wa77-rule-end-'+s).value,p_bloquear_duplicidade:document.getElementById('wa77-rule-dup-'+s).value==='true'});if(error)throw error;msg.textContent='Salvo.';await refreshReadinessSoon();
   }
   async function saveReminder(i){
     const r=state.reminders[i],msg=document.getElementById('wa77-rem-msg-'+i);msg.textContent='Salvando...';
-    const {error}=await db().rpc('salvar_lembrete_whatsapp',{p_id:r.id||null,p_empresa_id:empresaId(),p_ativo:document.getElementById('wa77-rem-active-'+i).checked,p_antecedencia_minutos:Number(document.getElementById('wa77-rem-ant-'+i).value),p_horario_inicio:document.getElementById('wa77-rem-start-'+i).value,p_horario_fim:document.getElementById('wa77-rem-end-'+i).value,p_bloquear_duplicidade:document.getElementById('wa77-rem-dup-'+i).value==='true'});if(error)throw error;await loadReminders();await loadMonitor();
+    const {error}=await db().rpc('salvar_lembrete_whatsapp',{p_id:r.id||null,p_empresa_id:empresaId(),p_ativo:document.getElementById('wa77-rem-active-'+i).checked,p_antecedencia_minutos:Number(document.getElementById('wa77-rem-ant-'+i).value),p_horario_inicio:document.getElementById('wa77-rem-start-'+i).value,p_horario_fim:document.getElementById('wa77-rem-end-'+i).value,p_bloquear_duplicidade:document.getElementById('wa77-rem-dup-'+i).value==='true'});if(error)throw error;await loadReminders();await loadMonitor();await refreshReadinessSoon();
   }
 
   async function handle(e){
@@ -283,8 +311,8 @@
       }
       if(a==='refresh-quota')await loadQuota();
       if(a==='refresh-monitor')await loadMonitor();
-      if(a==='save-timezone'){const f=document.getElementById('wa77-timezone').value;if(!f)return alert('Selecione o fuso.');const {error}=await db().rpc('salvar_fuso_horario_empresa',{p_empresa_id:empresaId(),p_fuso_horario:f});if(error)throw error;document.getElementById('wa77-timezone-msg').textContent='Fuso salvo.'}
-      if(a==='toggle-auto'){const on=b.dataset.value==='true';if(on&&!confirm('Ativar os envios automáticos?'))return;const {error}=await db().rpc('salvar_automacao_whatsapp_operacional',{p_empresa_id:empresaId(),p_envios_automaticos_ativos:on});if(error)throw error;await loadConnection()}
+      if(a==='save-timezone'){const f=document.getElementById('wa77-timezone').value;if(!f)return alert('Selecione o fuso.');const {error}=await db().rpc('salvar_fuso_horario_empresa',{p_empresa_id:empresaId(),p_fuso_horario:f});if(error)throw error;document.getElementById('wa77-timezone-msg').textContent='Fuso salvo.';await refreshReadinessSoon()}
+      if(a==='toggle-auto'){const on=b.dataset.value==='true';if(on){await loadReadiness();if(b.disabled)return;if(!confirm('Ativar os envios automáticos?'))return;}const {error}=await db().rpc('salvar_automacao_whatsapp_operacional',{p_empresa_id:empresaId(),p_envios_automaticos_ativos:on});if(error)throw error;await loadConnection();await refreshReadinessSoon()}
       if(a==='validate-meta'){document.getElementById('wa77-conn-msg').textContent='Validando...';const {data,error}=await db().functions.invoke('whatsapp-validar-integracao',{body:{empresa_id:empresaId()}});if(error)throw error;document.getElementById('wa77-conn-msg').textContent=data?.ok?'Conexão validada.':'Validação não concluída.';await loadConnection()}
       if(a==='connect-meta'){await startEmbedded()}
       if(a==='add-template-var'){
@@ -353,11 +381,12 @@
         if(error)throw error;
         if(msg)msg.textContent=data?.ok?'Template validado.':(data?.detail||'Template não compatível.');
         await loadTemplates();
+        await refreshReadinessSoon();
       }
       if(a==='save-rule')await saveRule(b.dataset.tipo);
       if(a==='add-reminder'){const used=new Set(state.reminders.map(x=>Number(x.antecedencia_minutos)));const d=ANT.find(x=>!used.has(x[0]))?.[0]||1440;state.reminders.push({id:null,ativo:true,antecedencia_minutos:d,horario_inicio:'08:00',horario_fim:'20:00',bloquear_duplicidade:true});renderReminders()}
       if(a==='save-reminder')await saveReminder(Number(b.dataset.i));
-      if(a==='delete-reminder'){const i=Number(b.dataset.i),r=state.reminders[i];if(!r?.id||!confirm('Excluir este lembrete?'))return;const {error}=await db().rpc('excluir_lembrete_whatsapp',{p_id:r.id,p_empresa_id:empresaId()});if(error)throw error;await loadReminders();await loadMonitor()}
+      if(a==='delete-reminder'){const i=Number(b.dataset.i),r=state.reminders[i];if(!r?.id||!confirm('Excluir este lembrete?'))return;const {error}=await db().rpc('excluir_lembrete_whatsapp',{p_id:r.id,p_empresa_id:empresaId()});if(error)throw error;await loadReminders();await loadMonitor();await refreshReadinessSoon()}
     }catch(err){console.error(err);alert(err?.message||'Não foi possível concluir a ação.')}
   }
 
