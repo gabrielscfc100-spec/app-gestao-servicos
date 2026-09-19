@@ -10634,7 +10634,7 @@ hr{
 
     const waGroup=document.createElement('section');
     waGroup.className='cfg-v2-group'; waGroup.dataset.cat=waCat;
-    waGroup.innerHTML='<h2>'+waCat+'</h2><p class="cfg-v2-desc">Conexão com a Meta, mensagens operacionais, lembretes, franquia e automações.</p><div id="simpla-wa78-container"></div>';
+    waGroup.innerHTML='<h2>'+waCat+'</h2><p class="cfg-v2-desc">Conexão com a Meta, mensagens operacionais, lembretes, franquia e automações.</p><div class="cfg-v2-section"><div id="simpla-wa78-container"></div></div>';
 
     waBtn.onclick=()=>{
       ativar(waCat);
@@ -10714,8 +10714,10 @@ hr{
 
   function limparCategoriasVazias(){
     document.querySelectorAll('#configuracoes .cfg-v2-group').forEach(g=>{
+      const cat=g.dataset.cat;
+      if(cat==='WhatsApp e Automações') return;
       if(!g.querySelector('.cfg-v2-section')){
-        const cat=g.dataset.cat;g.remove();
+        g.remove();
         document.querySelector('#configuracoes .cfg-v2-nav button[data-cat="'+cat+'"]')?.remove();
       }
     });
