@@ -107,6 +107,7 @@
       <section class="wa77-card"><div class="wa77-head"><div><h3>Lembretes do agendamento</h3><p>Crie mais de um lembrete, cada um com antecedência e janela próprias.</p></div><button class="wa77-btn" data-act="add-reminder">+ Adicionar lembrete</button></div><div class="wa77-list" id="wa77-reminders"></div><div class="wa77-note">Cada lembrete enviado conta individualmente na franquia mensal.</div></section>
 
       <section class="wa77-card"><div class="wa77-head"><div><h3>Histórico e monitoramento</h3><p>Últimas mensagens da fila operacional.</p></div><button class="wa77-btn alt" data-act="refresh-monitor">Atualizar</button></div><div class="wa77-table-wrap"><table class="wa77-table"><thead><tr><th>Criada</th><th>Tipo</th><th>Destino</th><th>Status</th><th>Meta</th><th>Programada</th><th>Detalhe</th></tr></thead><tbody id="wa77-monitor"></tbody></table></div></section>
+      <section class="wa77-card"><div class="wa77-head"><div><h3>Bloqueios solicitados pelo cliente</h3><p>Pedidos recebidos pelo próprio WhatsApp para interromper mensagens.</p></div><button class="wa77-btn alt" data-act="refresh-optouts">Atualizar</button></div><div class="wa77-table-wrap"><table class="wa77-table"><thead><tr><th>Recebido</th><th>Número</th><th>Comando</th><th>Cadastros bloqueados</th></tr></thead><tbody id="wa77-optouts"></tbody></table></div></section>
     </div>`;
   }
 
@@ -282,9 +283,22 @@
     const rows=data||[];document.getElementById('wa77-monitor').innerHTML=rows.length?rows.map(r=>{const origem=String(r?.parametros?.origem||'');const detalheOrigem=origem==='TESTE_MANUAL'?'TESTE MANUAL':(r.origem_automacao?'AUTOMAÇÃO':'MANUAL');return `<tr><td>${fmt(r.criado_em)}</td><td>${esc(r.tipo)}<br><span class="wa77-badge">${esc(detalheOrigem)}</span></td><td>${phone(r.destino)}</td><td class="wa77-status ${esc(r.status)}">${esc(r.status)}</td><td class="wa77-status ${esc(r.provider_status||'')}">${esc(r.provider_status||'—')}</td><td>${esc(String(r.processar_em_local||'—').replace('T',' ').slice(0,16))}</td><td>${esc(r.erro||(r.provider_message_id?'ID Meta: '+String(r.provider_message_id).slice(-12):'—'))}</td></tr>`}).join(''):'<tr><td colspan="7" class="wa77-empty">Fila vazia.</td></tr>';
   }
 
+  async function loadOptouts(){
+    const {data,error}=await db().from('whatsapp_optouts')
+      .select('numero_origem,texto_recebido,palavra_detectada,clientes_afetados,criado_em')
+      .eq('empresa_id',empresaId())
+      .order('criado_em',{ascending:false})
+      .limit(20);
+    if(error)throw error;
+    const rows=data||[];
+    const body=document.getElementById('wa77-optouts');
+    if(!body)return;
+    body.innerHTML=rows.length?rows.map(r=>`<tr><td>${fmt(r.criado_em)}</td><td>${phone(r.numero_origem)}</td><td>${esc(r.palavra_detectada||r.texto_recebido||'—')}</td><td>${Number(r.clientes_afetados||0)}</td></tr>`).join(''):'<tr><td colspan="4" class="wa77-empty">Nenhum pedido de bloqueio recebido.</td></tr>';
+  }
+
   async function refreshAll(){
     if(state.loading)return;state.loading=true;
-    try{await Promise.all([loadQuota(),loadConnection(),loadTimezone(),loadTemplates(),loadRules(),loadReminders(),loadMonitor()]);await loadReadiness()}
+    try{await Promise.all([loadQuota(),loadConnection(),loadTimezone(),loadTemplates(),loadRules(),loadReminders(),loadMonitor(),loadOptouts()]);await loadReadiness()}
     catch(e){console.error('SimplA WhatsApp v77:',e)}
     finally{state.loading=false}
   }
@@ -311,6 +325,7 @@
       }
       if(a==='refresh-quota')await loadQuota();
       if(a==='refresh-monitor')await loadMonitor();
+      if(a==='refresh-optouts')await loadOptouts();
       if(a==='save-timezone'){const f=document.getElementById('wa77-timezone').value;if(!f)return alert('Selecione o fuso.');const {error}=await db().rpc('salvar_fuso_horario_empresa',{p_empresa_id:empresaId(),p_fuso_horario:f});if(error)throw error;document.getElementById('wa77-timezone-msg').textContent='Fuso salvo.';await refreshReadinessSoon()}
       if(a==='toggle-auto'){const on=b.dataset.value==='true';if(on){await loadReadiness();if(b.disabled)return;if(!confirm('Ativar os envios automáticos?'))return;}const {error}=await db().rpc('salvar_automacao_whatsapp_operacional',{p_empresa_id:empresaId(),p_envios_automaticos_ativos:on});if(error)throw error;await loadConnection();await refreshReadinessSoon()}
       if(a==='validate-meta'){document.getElementById('wa77-conn-msg').textContent='Validando...';const {data,error}=await db().functions.invoke('whatsapp-validar-integracao',{body:{empresa_id:empresaId()}});if(error)throw error;document.getElementById('wa77-conn-msg').textContent=data?.ok?'Conexão validada.':'Validação não concluída.';await loadConnection()}
