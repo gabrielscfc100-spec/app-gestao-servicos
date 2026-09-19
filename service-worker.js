@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v72-whatsapp-multilembretes';
+const CACHE_VERSION = 'simpla-shell-v73-fix-multilembretes';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
