@@ -2708,7 +2708,7 @@ hr{
 </svg><span class="notificacoes-contador" data-notificacoes-contador>0</span></button></div><div class="mobile-backdrop" onclick="fecharMenuMobile()"></div><!-- Menu Lateral --><aside class="sidebar"><div class="sidebar-top"><div class="logo" id="logo-texto-app">SimplA</div><div id="cloud-mode-badge" style="padding:7px 12px;text-align:center;font-size:10px;color:#a0aec0;border-bottom:1px solid rgba(255,255,255,.08);">V2 • DADOS LOCAIS</div><button class="menu-btn active" id="menu-btn-dashboard" onclick="mudarTela('dashboard', event)"> Painel (Dashboard)</button><button class="menu-btn" id="menu-btn-clientes" onclick="mudarTela('clientes', event)"> Clientes</button><button class="menu-btn" id="menu-btn-financeiro" onclick="mudarTela('financeiro', event)"> Financeiro</button><button class="menu-btn" id="menu-btn-agenda" onclick="mudarTela('agenda', event)"> Agendamentos</button></div><div class="sidebar-bottom"><div id="cloud-user-box" class="cloud-user-box" style="display:none;"><b id="cloud-user-nome">Usuário</b><br><span id="cloud-user-email"></span><button type="button" onclick="sairCloud()">Sair da conta</button></div><button class="menu-btn" id="menu-btn-configuracoes" onclick="mudarTela('configuracoes', event)">️ Configurações</button></div></aside><button class="notificacoes-acionador notificacoes-sino-topo" type="button" onclick="alternarPainelNotificacoes(event)" aria-label="Abrir notificações" title="Notificações"><svg class="simpla-bell-icon" viewBox="0 0 24 24" aria-hidden="true">
 <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-</svg><span class="notificacoes-contador" data-notificacoes-contador>0</span></button><section id="notificacoes-painel" class="notificacoes-painel" aria-label="Central de Notificações" aria-hidden="true"><div class="notificacoes-cabecalho"><strong>Central de Notificações</strong><div class="notificacoes-acoes"><button class="notificacoes-marcar-todas" type="button" onclick="marcarTodasNotificacoesComoLidas(event)">Marcar todas como lidas</button><button class="notificacoes-atualizar" type="button" onclick="carregarNotificacoes()">↻ Atualizar</button></div></div><div id="notificacoes-lista" class="notificacoes-lista"><div class="notificacoes-estado">Carregando notificações...</div></div><div class="notificacoes-rodape"><button id="btn-notificacoes-ver-todas" class="notificacoes-ver-todas" type="button" onclick="alternarCentralNotificacoesCompleta(event)">Ver todas</button></div></section><main class="main-content"><!-- Tela: Dashboard --><div id="dashboard" class="screen active"><div class="header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"><div><h1>Visão Geral / Dashboard</h1><p style="color:#718096;font-size:12px;margin-top:5px;text-transform:none;">Indicadores atualizados automaticamente a partir de Clientes, Financeiro e Agenda.</p></div><span id="dash-periodo-label" class="dash-chip"></span></div><div class="dash-toolbar"><label style="font-size:12px;font-weight:bold;">PERÍODO:</label><select id="dash-periodo-rapido" onchange="definirPeriodoDashboard(this.value)"><option value="hoje">Hoje</option><option value="7dias">Últimos 7 dias</option><option value="mes" selected>Este mês</option><option value="mesAnterior">Mês anterior</option><option value="personalizado">Personalizado</option></select><input type="date" id="dash-data-inicio" onchange="usarPeriodoPersonalizadoDashboard()"><span style="font-size:12px;color:#718096;">ATÉ</span><input type="date" id="dash-data-fim" onchange="usarPeriodoPersonalizadoDashboard()"><button class="btn-salvar" style="padding:9px 14px;font-size:12px;" onclick="renderizarDashboard()">Atualizar Painel</button></div><div id="dash-sec-kpis" class="dash-grid-kpis"><div class="dash-kpi"><div class="rotulo">FATURAMENTO</div><div class="valor" id="dash-faturamento">R$ 0,00</div><div class="sub" id="dash-fat-var">—</div></div><div class="dash-kpi"><div class="rotulo">DESPESAS EFETIVAS</div><div class="valor" id="dash-despesas">R$ 0,00</div><div class="sub">Gastos fixos não incluídos</div></div><div class="dash-kpi"><div class="rotulo">LUCRO LÍQUIDO</div><div class="valor" id="dash-lucro">R$ 0,00</div><div class="sub" id="dash-margem">Margem: 0%</div></div><div class="dash-kpi"><div class="rotulo">ATENDIMENTOS</div><div class="valor" id="dash-atendimentos">0</div><div class="sub">Lançamentos no período</div></div><div class="dash-kpi"><div class="rotulo">TICKET MÉDIO</div><div class="valor" id="dash-ticket">R$ 0,00</div><div class="sub">Faturamento ÷ atendimentos</div></div><div class="dash-kpi"><div class="rotulo">NOVOS CLIENTES</div><div class="valor" id="dash-novos-clientes">0</div><div class="sub">Cadastros no período</div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-fluxo"><h3> Faturamento x Despesas</h3><p class="dash-desc">Evolução financeira no período selecionado.</p><canvas id="dash-grafico-fluxo" height="150"></canvas></div><div class="dash-card" id="dash-sec-composicao"><h3> Composição do Faturamento</h3><p class="dash-desc">Participação dos serviços e produtos no faturamento.</p><div style="max-width:360px;margin:auto;"><canvas id="dash-grafico-composicao"></canvas></div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-servicos"><h3>️ Serviços Mais Vendidos</h3><p class="dash-desc">Ranking por quantidade e faturamento estimado.</p><div id="dash-ranking-servicos"></div></div><div class="dash-card" id="dash-sec-ocupacao"><h3> Ocupação da Agenda</h3><p class="dash-desc">Percentual de horários ocupados no período.</p><div id="dash-ocupacao-conteudo"></div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-clientes"><h3> Clientes e Fidelização</h3><p class="dash-desc">Retorno, novos cadastros e oportunidades de reativação.</p><div id="dash-clientes-conteudo"></div></div><div class="dash-card" id="dash-sec-agenda"><h3> Agenda de Hoje</h3><p class="dash-desc">Próximos compromissos registrados para hoje.</p><div id="dash-agenda-hoje"></div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-aniversariantes"><h3> Aniversariantes</h3><p class="dash-desc">Visão rápida das oportunidades de relacionamento no mês.</p><div id="dash-aniversariantes"></div></div><div class="dash-card" id="dash-sec-materiais"><h3> Materiais e Compromissos</h3><p class="dash-desc">Compras realizadas e compromissos fixos cadastrados.</p><div id="dash-materiais"></div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-comparativo"><h3> Comparativo com Período Anterior</h3><p class="dash-desc">Variação dos principais indicadores.</p><div id="dash-comparativo"></div></div><div class="dash-card" id="dash-sec-vip"><h3> Clientes VIP</h3><p class="dash-desc">Clientes com maior relacionamento financeiro no período.</p><div id="dash-clientes-vip"></div></div></div><div class="dash-card" id="dash-sec-insights" style="margin-bottom:24px;"><h3> Insights do Negócio</h3><p class="dash-desc">Sinais automáticos gerados a partir dos dados disponíveis.</p><div id="dash-insights"></div></div></div><!-- Tela: Clientes --><div id="clientes" class="screen"><div class="header"><h1 style="margin: 0;">Gerenciar Clientes</h1></div><div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 24px;"><div class="form-container" id="sec-cli-cadastro" style="flex: 1; min-width: 360px; margin-bottom: 0;"><h3>Cadastrar Novo Cliente</h3><br><div class="form-group"><label for="cli-nome">Nome *</label><input type="text" id="cli-nome" placeholder="Ex: João" oninput="this.value = this.value.toUpperCase()"></div><div class="form-group" id="group-cli-sobrenome"><label for="cli-sobrenome">Sobrenome</label><input type="text" id="cli-sobrenome" placeholder="Ex: da Silva" oninput="this.value = this.value.toUpperCase()"></div><div class="form-group" id="group-cli-telefone"><label for="cli-telefone">WhatsApp</label><input type="tel" id="cli-telefone" placeholder="00 9 1234-5678" maxlength="14" oninput="mascararWhatsapp(event)"></div><div class="form-group" id="group-cli-whatsapp-preferencia"><label for="cli-whatsapp-preferencia">Mensagens pelo WhatsApp</label><select id="cli-whatsapp-preferencia" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:4px;"><option value="NAO_AUTORIZADO">Não autorizado</option><option value="AUTORIZADO">Autorizado para mensagens operacionais</option><option value="BLOQUEADO">Não enviar WhatsApp</option></select><small style="display:block;margin-top:5px;color:#718096;text-transform:none;line-height:1.4;">A automação só enviará mensagens quando houver autorização explícita. “Não enviar WhatsApp” bloqueia qualquer automação para este cliente.</small></div><div class="form-group" id="group-cli-aniversario"><label for="cli-aniversario">Data de Aniversário</label><input type="date" id="cli-aniversario"></div><div class="form-group" id="group-cli-email"><label for="cli-email">E-mail</label><input type="email" id="cli-email" placeholder="exemplo@email.com" style="text-transform: none;"></div><div id="group-cli-endereco" style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin-bottom: 16px; background: #f8fafc;"><label style="font-weight: bold; margin-bottom: 8px; display: block; font-size: 13px;">Endereço</label><div class="form-group" style="margin-bottom: 8px;"><input type="text" id="cli-rua" placeholder="Rua / Logradouro" oninput="this.value = this.value.toUpperCase()"></div><div style="display: flex; gap: 8px;"><div class="form-group" style="margin-bottom: 0;"><input type="text" id="cli-bairro" placeholder="Bairro" oninput="this.value = this.value.toUpperCase()"></div><div class="form-group" style="margin-bottom: 0;"><input type="text" id="cli-cidade" placeholder="Cidade" oninput="this.value = this.value.toUpperCase()"></div></div></div><div class="form-group" id="group-cli-instagram"><label for="cli-instagram">Instagram</label><input type="text" id="cli-instagram" placeholder="@usuario" style="text-transform: none;"></div><div class="form-group" id="group-cli-tiktok"><label for="cli-tiktok">Tiktok</label><input type="text" id="cli-tiktok" placeholder="@usuario" style="text-transform: none;"></div><div class="form-group" id="group-cli-facebook"><label for="cli-facebook">Facebook</label><input type="text" id="cli-facebook" placeholder="Perfil ou Link" style="text-transform: none;"></div><div class="form-group" id="group-cli-twitter"><label for="cli-twitter">X (Twitter)</label><input type="text" id="cli-twitter" placeholder="@usuario" style="text-transform: none;"></div><div class="form-group" id="group-cli-obs"><label for="cli-obs">Observações</label><textarea id="cli-obs" rows="2" placeholder="Detalhes e preferências..." oninput="this.value = this.value.toUpperCase()"></textarea></div><button class="btn-salvar" style="width: 100%;" onclick="cadastrarCliente()">Salvar Cliente</button></div><div style="width: 340px; min-width: 300px;"><div class="form-container" id="sec-cli-aniversariantes" style="width: 100%; margin-bottom: 16px;"><h3 style="margin-bottom: 4px; font-size: 16px; color: #1a1c23;"> Aniversariantes do Dia</h3><p style="font-size: 12px; color: #718096; margin-bottom: 12px;">Clientes fazendo aniversário hoje:</p><table style="margin-top: 0;"><thead><tr><th>Nome</th><th style="text-align: center;">WhatsApp</th></tr></thead><tbody id="tabela-aniversariantes-dia"></tbody></table></div><div class="form-container" id="sec-cli-aniversariantes-mes" style="width: 100%; margin-bottom: 0;"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;"><h3 style="margin:0; font-size: 16px; color: #1a1c23;"> Aniversariantes do Mês</h3><button class="btn-salvar" style="padding:7px 10px;font-size:12px;background:#38a169;color:white;" onclick="abrirWhatsAppsAniversariantesMes()"> WhatsApp Aniversariantes</button></div><p style="font-size: 12px; color: #718096; margin-bottom: 12px;">Próximos aniversários deste mês, exceto os de hoje. O botão envia a mensagem apenas para quem possui WhatsApp cadastrado.</p><table style="margin-top: 0;"><thead><tr><th>Dia</th><th>Nome</th><th style="text-align: center;">WhatsApp</th></tr></thead><tbody id="tabela-aniversariantes-mes"></tbody></table></div></div></div><div class="form-container" id="sec-cli-tabela"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px;"><h3 style="margin: 0;">Clientes Cadastrados</h3><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><input type="text" id="filtro-cliente-input" placeholder=" Buscar por nome ou telefone..." oninput="atualizarTabelaClientes()" style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 4px; width: 280px; font-size: 14px;"><button id="btn-exportar-clientes-tela" class="btn-salvar" style="padding:8px 12px;background:#2f855a;color:white;font-size:12px;" onclick="exportarClientesExcel()"> Exportar Clientes</button></div></div><table><thead><tr><th>Código</th><th>Nome Completo</th><th>WhatsApp</th><th>Aniversário</th><th>Último Corte</th><th>Observações</th></tr></thead><tbody id="tabela-clientes-corpo"></tbody></table><p style="font-size: 12px; color: #718096; margin-top: 10px; font-style: italic;">* Clique no nome do cliente para visualizar o histórico de atendimentos, editar ou excluir o perfil.</p></div></div><!-- Tela: Financeiro -->
+</svg><span class="notificacoes-contador" data-notificacoes-contador>0</span></button><section id="notificacoes-painel" class="notificacoes-painel" aria-label="Central de Notificações" aria-hidden="true"><div class="notificacoes-cabecalho"><strong>Central de Notificações</strong><div class="notificacoes-acoes"><button class="notificacoes-marcar-todas" type="button" onclick="marcarTodasNotificacoesComoLidas(event)">Marcar todas como lidas</button><button class="notificacoes-atualizar" type="button" onclick="carregarNotificacoes()">↻ Atualizar</button></div></div><div id="notificacoes-lista" class="notificacoes-lista"><div class="notificacoes-estado">Carregando notificações...</div></div><div class="notificacoes-rodape"><button id="btn-notificacoes-ver-todas" class="notificacoes-ver-todas" type="button" onclick="alternarCentralNotificacoesCompleta(event)">Ver todas</button></div></section><main class="main-content"><!-- Tela: Dashboard --><div id="dashboard" class="screen active"><div class="header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"><div><h1>Visão geral</h1><p style="color:#718096;font-size:12px;margin-top:5px;text-transform:none;">Indicadores atualizados automaticamente a partir de Clientes, Financeiro e Agenda.</p></div><span id="dash-periodo-label" class="dash-chip"></span></div><div class="dash-toolbar"><label style="font-size:12px;font-weight:bold;">PERÍODO:</label><select id="dash-periodo-rapido" onchange="definirPeriodoDashboard(this.value)"><option value="hoje">Hoje</option><option value="7dias">Últimos 7 dias</option><option value="mes" selected>Este mês</option><option value="mesAnterior">Mês anterior</option><option value="personalizado">Personalizado</option></select><input type="date" id="dash-data-inicio" onchange="usarPeriodoPersonalizadoDashboard()"><span style="font-size:12px;color:#718096;">ATÉ</span><input type="date" id="dash-data-fim" onchange="usarPeriodoPersonalizadoDashboard()"><button class="btn-salvar" style="padding:9px 14px;font-size:12px;" onclick="renderizarDashboard()">Atualizar Painel</button></div><div id="dash-sec-kpis" class="dash-grid-kpis"><div class="dash-kpi"><div class="rotulo">FATURAMENTO</div><div class="valor" id="dash-faturamento">R$ 0,00</div><div class="sub" id="dash-fat-var">—</div></div><div class="dash-kpi"><div class="rotulo">DESPESAS EFETIVAS</div><div class="valor" id="dash-despesas">R$ 0,00</div><div class="sub">Gastos fixos não incluídos</div></div><div class="dash-kpi"><div class="rotulo">LUCRO LÍQUIDO</div><div class="valor" id="dash-lucro">R$ 0,00</div><div class="sub" id="dash-margem">Margem: 0%</div></div><div class="dash-kpi"><div class="rotulo">ATENDIMENTOS</div><div class="valor" id="dash-atendimentos">0</div><div class="sub">Lançamentos no período</div></div><div class="dash-kpi"><div class="rotulo">TICKET MÉDIO</div><div class="valor" id="dash-ticket">R$ 0,00</div><div class="sub">Faturamento ÷ atendimentos</div></div><div class="dash-kpi"><div class="rotulo">NOVOS CLIENTES</div><div class="valor" id="dash-novos-clientes">0</div><div class="sub">Cadastros no período</div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-fluxo"><h3>Faturamento x Despesas</h3><p class="dash-desc">Evolução financeira no período selecionado.</p><canvas id="dash-grafico-fluxo" height="150"></canvas></div><div class="dash-card" id="dash-sec-composicao"><h3>Composição do Faturamento</h3><p class="dash-desc">Participação dos serviços e produtos no faturamento.</p><div style="max-width:360px;margin:auto;"><canvas id="dash-grafico-composicao"></canvas></div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-servicos"><h3>Serviços mais vendidos</h3><p class="dash-desc">Ranking por quantidade e faturamento estimado.</p><div id="dash-ranking-servicos"></div></div><div class="dash-card" id="dash-sec-ocupacao"><h3>Ocupação da agenda</h3><p class="dash-desc">Percentual de horários ocupados no período.</p><div id="dash-ocupacao-conteudo"></div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-clientes"><h3>Clientes e fidelização</h3><p class="dash-desc">Retorno, novos cadastros e oportunidades de reativação.</p><div id="dash-clientes-conteudo"></div></div><div class="dash-card" id="dash-sec-agenda"><h3>Agenda de hoje</h3><p class="dash-desc">Próximos compromissos registrados para hoje.</p><div id="dash-agenda-hoje"></div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-aniversariantes"><h3>Aniversariantes</h3><p class="dash-desc">Visão rápida das oportunidades de relacionamento no mês.</p><div id="dash-aniversariantes"></div></div><div class="dash-card" id="dash-sec-materiais"><h3>Materiais e compromissos</h3><p class="dash-desc">Compras realizadas e compromissos fixos cadastrados.</p><div id="dash-materiais"></div></div></div><div class="dash-row"><div class="dash-card" id="dash-sec-comparativo"><h3>Comparativo com período anterior</h3><p class="dash-desc">Variação dos principais indicadores.</p><div id="dash-comparativo"></div></div><div class="dash-card" id="dash-sec-vip"><h3>Clientes VIP</h3><p class="dash-desc">Clientes com maior relacionamento financeiro no período.</p><div id="dash-clientes-vip"></div></div></div><div class="dash-card" id="dash-sec-insights" style="margin-bottom:24px;"><h3>Insights do negócio</h3><p class="dash-desc">Sinais automáticos gerados a partir dos dados disponíveis.</p><div id="dash-insights"></div></div></div><!-- Tela: Clientes --><div id="clientes" class="screen"><div class="header"><h1 style="margin: 0;">Clientes</h1></div><div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 24px;"><div class="form-container" id="sec-cli-cadastro" style="flex: 1; min-width: 360px; margin-bottom: 0;"><h3>Cadastrar Novo Cliente</h3><br><div class="form-group"><label for="cli-nome">Nome *</label><input type="text" id="cli-nome" placeholder="Ex: João" oninput="this.value = this.value.toUpperCase()"></div><div class="form-group" id="group-cli-sobrenome"><label for="cli-sobrenome">Sobrenome</label><input type="text" id="cli-sobrenome" placeholder="Ex: da Silva" oninput="this.value = this.value.toUpperCase()"></div><div class="form-group" id="group-cli-telefone"><label for="cli-telefone">WhatsApp</label><input type="tel" id="cli-telefone" placeholder="00 9 1234-5678" maxlength="14" oninput="mascararWhatsapp(event)"></div><div class="form-group" id="group-cli-whatsapp-preferencia"><label for="cli-whatsapp-preferencia">Mensagens pelo WhatsApp</label><select id="cli-whatsapp-preferencia" style="width:100%;padding:10px;border:1px solid #cbd5e0;border-radius:4px;"><option value="NAO_AUTORIZADO">Não autorizado</option><option value="AUTORIZADO">Autorizado para mensagens operacionais</option><option value="BLOQUEADO">Não enviar WhatsApp</option></select><small style="display:block;margin-top:5px;color:#718096;text-transform:none;line-height:1.4;">A automação só enviará mensagens quando houver autorização explícita. “Não enviar WhatsApp” bloqueia qualquer automação para este cliente.</small></div><div class="form-group" id="group-cli-aniversario"><label for="cli-aniversario">Data de Aniversário</label><input type="date" id="cli-aniversario"></div><div class="form-group" id="group-cli-email"><label for="cli-email">E-mail</label><input type="email" id="cli-email" placeholder="exemplo@email.com" style="text-transform: none;"></div><div id="group-cli-endereco" style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; margin-bottom: 16px; background: #f8fafc;"><label style="font-weight: bold; margin-bottom: 8px; display: block; font-size: 13px;">Endereço</label><div class="form-group" style="margin-bottom: 8px;"><input type="text" id="cli-rua" placeholder="Rua / Logradouro" oninput="this.value = this.value.toUpperCase()"></div><div style="display: flex; gap: 8px;"><div class="form-group" style="margin-bottom: 0;"><input type="text" id="cli-bairro" placeholder="Bairro" oninput="this.value = this.value.toUpperCase()"></div><div class="form-group" style="margin-bottom: 0;"><input type="text" id="cli-cidade" placeholder="Cidade" oninput="this.value = this.value.toUpperCase()"></div></div></div><div class="form-group" id="group-cli-instagram"><label for="cli-instagram">Instagram</label><input type="text" id="cli-instagram" placeholder="@usuario" style="text-transform: none;"></div><div class="form-group" id="group-cli-tiktok"><label for="cli-tiktok">Tiktok</label><input type="text" id="cli-tiktok" placeholder="@usuario" style="text-transform: none;"></div><div class="form-group" id="group-cli-facebook"><label for="cli-facebook">Facebook</label><input type="text" id="cli-facebook" placeholder="Perfil ou Link" style="text-transform: none;"></div><div class="form-group" id="group-cli-twitter"><label for="cli-twitter">X (Twitter)</label><input type="text" id="cli-twitter" placeholder="@usuario" style="text-transform: none;"></div><div class="form-group" id="group-cli-obs"><label for="cli-obs">Observações</label><textarea id="cli-obs" rows="2" placeholder="Detalhes e preferências..." oninput="this.value = this.value.toUpperCase()"></textarea></div><button class="btn-salvar" style="width: 100%;" onclick="cadastrarCliente()">Salvar Cliente</button></div><div style="width: 340px; min-width: 300px;"><div class="form-container" id="sec-cli-aniversariantes" style="width: 100%; margin-bottom: 16px;"><h3 style="margin-bottom: 4px; font-size: 16px; color: #1a1c23;"> Aniversariantes do Dia</h3><p style="font-size: 12px; color: #718096; margin-bottom: 12px;">Clientes fazendo aniversário hoje:</p><table style="margin-top: 0;"><thead><tr><th>Nome</th><th style="text-align: center;">WhatsApp</th></tr></thead><tbody id="tabela-aniversariantes-dia"></tbody></table></div><div class="form-container" id="sec-cli-aniversariantes-mes" style="width: 100%; margin-bottom: 0;"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;"><h3 style="margin:0; font-size: 16px; color: #1a1c23;"> Aniversariantes do Mês</h3><button class="btn-salvar" style="padding:7px 10px;font-size:12px;background:#38a169;color:white;" onclick="abrirWhatsAppsAniversariantesMes()"> WhatsApp Aniversariantes</button></div><p style="font-size: 12px; color: #718096; margin-bottom: 12px;">Próximos aniversários deste mês, exceto os de hoje. O botão envia a mensagem apenas para quem possui WhatsApp cadastrado.</p><table style="margin-top: 0;"><thead><tr><th>Dia</th><th>Nome</th><th style="text-align: center;">WhatsApp</th></tr></thead><tbody id="tabela-aniversariantes-mes"></tbody></table></div></div></div><div class="form-container" id="sec-cli-tabela"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px;"><h3 style="margin: 0;">Clientes Cadastrados</h3><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><input type="text" id="filtro-cliente-input" placeholder=" Buscar por nome ou telefone..." oninput="atualizarTabelaClientes()" style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 4px; width: 280px; font-size: 14px;"><button id="btn-exportar-clientes-tela" class="btn-salvar" style="padding:8px 12px;background:#2f855a;color:white;font-size:12px;" onclick="exportarClientesExcel()"> Exportar Clientes</button></div></div><table><thead><tr><th>Código</th><th>Nome Completo</th><th>WhatsApp</th><th>Aniversário</th><th>Último Corte</th><th>Observações</th></tr></thead><tbody id="tabela-clientes-corpo"></tbody></table><p style="font-size: 12px; color: #718096; margin-top: 10px; font-style: italic;">* Clique no nome do cliente para visualizar o histórico de atendimentos, editar ou excluir o perfil.</p></div></div><!-- Tela: Financeiro -->
 <div id="financeiro" class="screen">
   <div class="fin-page-head">
     <div>
@@ -16014,5 +16014,272 @@ tbody tr:last-child td{border-bottom-color:transparent!important;}
   else aplicar();
 })();
 </script>
+
+<style id="simpla-modern-pages-v87">
+/* Dashboard */
+#dashboard > .header{
+  padding:2px 2px 0!important;
+}
+#dashboard > .header > div:first-child{
+  max-width:760px;
+}
+#dashboard #dash-periodo-label{
+  padding:7px 11px!important;
+  border:1px solid #dfe5ea!important;
+  background:#fff!important;
+  color:#657280!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  border-radius:999px!important;
+  box-shadow:0 1px 2px rgba(20,34,48,.03)!important;
+}
+#dashboard .dash-toolbar{
+  display:grid!important;
+  grid-template-columns:auto minmax(150px,190px) minmax(145px,170px) auto minmax(145px,170px) auto!important;
+  align-items:end!important;
+  gap:9px!important;
+  padding:12px!important;
+  margin-bottom:14px!important;
+  border:1px solid var(--simpla-border)!important;
+  background:rgba(255,255,255,.94)!important;
+  border-radius:14px!important;
+  box-shadow:var(--simpla-shadow-xs)!important;
+}
+#dashboard .dash-toolbar label,
+#dashboard .dash-toolbar span{
+  color:#74808d!important;
+  font-size:10px!important;
+  letter-spacing:.04em!important;
+}
+#dashboard .dash-toolbar select,
+#dashboard .dash-toolbar input{
+  min-height:38px!important;
+  padding:8px 10px!important;
+  font-size:12px!important;
+}
+#dashboard .dash-toolbar .btn-salvar{
+  min-height:38px!important;
+  padding:8px 13px!important;
+  font-size:11px!important;
+}
+#dashboard .dash-grid-kpis{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  margin-bottom:14px!important;
+}
+#dashboard .dash-kpi{
+  min-height:118px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  position:relative;
+  overflow:hidden;
+}
+#dashboard .dash-kpi::before{
+  content:"";
+  position:absolute;
+  left:0;top:16px;bottom:16px;
+  width:3px;
+  background:var(--simpla-accent);
+  border-radius:0 3px 3px 0;
+  opacity:.72;
+}
+#dashboard .dash-kpi .rotulo{
+  color:#778491!important;
+  font-size:9px!important;
+  font-weight:760!important;
+  letter-spacing:.065em!important;
+}
+#dashboard .dash-kpi .valor{
+  margin:7px 0 3px!important;
+  color:#243342!important;
+  font-size:21px!important;
+}
+#dashboard .dash-kpi .sub{
+  color:#8a96a2!important;
+  font-size:10px!important;
+  line-height:1.35!important;
+  text-transform:none!important;
+}
+#dashboard .dash-row{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+#dashboard .dash-card{
+  padding:19px!important;
+  min-height:180px;
+}
+#dashboard .dash-card h3{
+  margin:0 0 4px!important;
+  color:#2b3947!important;
+  font-size:14px!important;
+  font-weight:740!important;
+  text-transform:none!important;
+}
+#dashboard .dash-desc{
+  margin-bottom:15px!important;
+  color:#82909c!important;
+  font-size:10.5px!important;
+  line-height:1.45!important;
+  text-transform:none!important;
+}
+#dashboard #dash-sec-insights{
+  padding:20px!important;
+}
+#dashboard .dash-alert{
+  border:1px solid #e5e9ed!important;
+  border-left-width:3px!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+
+/* Clientes */
+#clientes > .header{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  padding:2px 2px 0;
+}
+#clientes > .header::after{
+  content:"Cadastro, relacionamento e histórico em um só lugar.";
+  color:var(--simpla-muted);
+  font-size:11px;
+  text-transform:none;
+}
+#clientes > div[style*="display: flex"][style*="gap: 24px"]{
+  display:grid!important;
+  grid-template-columns:minmax(340px,.88fr) minmax(300px,.62fr)!important;
+  gap:14px!important;
+  align-items:start!important;
+  margin-bottom:14px!important;
+}
+#clientes #sec-cli-cadastro{
+  min-width:0!important;
+  margin:0!important;
+  padding:20px!important;
+}
+#clientes #sec-cli-cadastro > h3{
+  margin:0 0 17px!important;
+  font-size:15px!important;
+  font-weight:740!important;
+  text-transform:none!important;
+}
+#clientes #sec-cli-cadastro > br{display:none;}
+#clientes #group-cli-endereco{
+  border:1px solid #e6ebef!important;
+  padding:13px!important;
+  border-radius:12px!important;
+  background:#f9fbfc!important;
+}
+#clientes > div[style*="display: flex"][style*="gap: 24px"] > div:last-child{
+  width:auto!important;
+  min-width:0!important;
+  display:grid!important;
+  gap:14px!important;
+}
+#clientes #sec-cli-aniversariantes,
+#clientes #sec-cli-aniversariantes-mes{
+  width:auto!important;
+  margin:0!important;
+  padding:18px!important;
+}
+#clientes #sec-cli-aniversariantes h3,
+#clientes #sec-cli-aniversariantes-mes h3{
+  font-size:14px!important;
+  font-weight:730!important;
+  text-transform:none!important;
+}
+#clientes #sec-cli-tabela{
+  padding:20px!important;
+}
+#clientes #sec-cli-tabela > div:first-child{
+  gap:10px!important;
+}
+#clientes #sec-cli-tabela h3{
+  font-size:15px!important;
+  font-weight:740!important;
+  text-transform:none!important;
+}
+#clientes #filtro-cliente-input{
+  width:min(320px,100%)!important;
+  min-height:38px!important;
+  border-radius:10px!important;
+}
+#clientes #btn-exportar-clientes-tela{
+  min-height:38px!important;
+  padding:8px 12px!important;
+  background:var(--simpla-primary)!important;
+}
+#clientes #sec-cli-tabela{
+  overflow:hidden;
+}
+#clientes #sec-cli-tabela > table{
+  margin-top:15px!important;
+}
+#clientes #sec-cli-tabela > p:last-child{
+  color:#8b96a1!important;
+  font-size:10.5px!important;
+  text-transform:none!important;
+}
+
+/* Histórico do cliente como CRM */
+#modal-historico-cliente .modal-balao{
+  width:min(760px,calc(100vw - 28px))!important;
+  padding:22px!important;
+}
+#modal-historico-cliente #hist-cli-detalhes{
+  background:#f8fafb!important;
+  border:1px solid #e4e9ed!important;
+  border-radius:12px!important;
+  padding:14px!important;
+  line-height:1.65!important;
+  text-transform:none!important;
+}
+#modal-historico-cliente .hist-cli-kpis{
+  gap:9px!important;
+}
+#modal-historico-cliente .hist-cli-kpi{
+  background:#fff!important;
+  border:1px solid #e5e9ed!important;
+  border-radius:12px!important;
+  padding:12px!important;
+}
+#modal-historico-cliente .hist-cli-relacionamento{
+  gap:9px!important;
+}
+#modal-historico-cliente .hist-cli-relacionamento > div{
+  background:#f8fafb!important;
+  border:1px solid #e5e9ed!important;
+  border-radius:12px!important;
+  padding:12px!important;
+}
+
+/* Responsividade */
+@media(max-width:1180px){
+  #dashboard .dash-grid-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+}
+@media(max-width:900px){
+  #dashboard .dash-toolbar{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #dashboard .dash-toolbar > label,
+  #dashboard .dash-toolbar > span{align-self:center;}
+  #dashboard .dash-row{grid-template-columns:1fr!important;}
+  #clientes > div[style*="display: flex"][style*="gap: 24px"]{
+    grid-template-columns:1fr!important;
+  }
+  #clientes > .header::after{display:none;}
+}
+@media(max-width:600px){
+  #dashboard .dash-grid-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  #dashboard .dash-kpi{min-height:104px;}
+  #dashboard .dash-kpi .valor{font-size:18px!important;}
+  #dashboard .dash-toolbar{grid-template-columns:1fr!important;}
+  #dashboard .dash-toolbar > label,
+  #dashboard .dash-toolbar > span{display:none!important;}
+  #clientes #sec-cli-tabela{
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
+}
+</style>
 </body>
 </html>
