@@ -337,8 +337,16 @@
   function renderReminders(){document.getElementById('wa77-reminders').innerHTML=state.reminders.length?state.reminders.map(reminderHtml).join(''):'<div class="wa77-empty">Nenhum lembrete configurado.</div>'}
 
   async function loadMonitor(){
-    const {data,error}=await db().from('whatsapp_mensagens_operacionais').select('tipo,destino,status,provider_status,processar_em_local,provider_message_id,erro,criado_em,parametros,origem_automacao').eq('empresa_id',empresaId()).order('criado_em',{ascending:false}).limit(50);if(error)throw error;
-    const rows=data||[];document.getElementById('wa77-monitor').innerHTML=rows.length?rows.map(r=>{const origem=String(r?.parametros?.origem||'');const detalheOrigem=origem==='TESTE_MANUAL'?'TESTE MANUAL':(r.origem_automacao?'AUTOMAÇÃO':'MANUAL');return `<tr><td>${fmt(r.criado_em)}</td><td>${esc(r.tipo)}<br><span class="wa77-badge">${esc(detalheOrigem)}</span></td><td>${phone(r.destino)}</td><td class="wa77-status ${esc(r.status)}">${esc(r.status)}</td><td class="wa77-status ${esc(r.provider_status||'')}">${esc(r.provider_status||'—')}</td><td>${esc(String(r.processar_em_local||'—').replace('T',' ').slice(0,16))}</td><td>${esc(r.erro||(r.provider_message_id?'ID Meta: '+String(r.provider_message_id).slice(-12):'—'))}</td></tr>`}).join(''):'<tr><td colspan="7" class="wa77-empty">Fila vazia.</td></tr>';
+    const {data,error}=await db().from('whatsapp_mensagens_operacionais').select('id,tipo,destino,status,provider_status,processar_em_local,provider_message_id,erro,criado_em,parametros,origem_automacao').eq('empresa_id',empresaId()).order('criado_em',{ascending:false}).limit(50);if(error)throw error;
+    const rows=data||[];document.getElementById('wa77-monitor').innerHTML=rows.length?rows.map(r=>{
+      const origem=String(r?.parametros?.origem||'');
+      const detalheOrigem=origem==='TESTE_MANUAL'?'TESTE MANUAL':(r.origem_automacao?'AUTOMAÇÃO':'MANUAL');
+      const provider=String(r.provider_status||'').toLowerCase();
+      const falhaConfirmada=provider==='failed'||(String(r.status||'').toUpperCase()==='ERRO'&&!r.provider_message_id);
+      const detalhe=esc(r.erro||(r.provider_message_id?'ID Meta: '+String(r.provider_message_id).slice(-12):'—'));
+      const acao=falhaConfirmada?'<div class="wa77-actions" style="margin-top:5px"><button class="wa77-btn alt" data-act="retry-message" data-id="'+esc(r.id)+'">Reprocessar</button></div>':'';
+      return `<tr><td>${fmt(r.criado_em)}</td><td>${esc(r.tipo)}<br><span class="wa77-badge">${esc(detalheOrigem)}</span></td><td>${phone(r.destino)}</td><td class="wa77-status ${esc(r.status)}">${esc(r.status)}</td><td class="wa77-status ${esc(r.provider_status||'')}">${esc(r.provider_status||'—')}</td><td>${esc(String(r.processar_em_local||'—').replace('T',' ').slice(0,16))}</td><td>${detalhe}${acao}</td></tr>`
+    }).join(''):'<tr><td colspan="7" class="wa77-empty">Fila vazia.</td></tr>';
   }
 
   async function loadOptouts(){
@@ -383,6 +391,22 @@
       }
       if(a==='refresh-quota')await loadQuota();
       if(a==='refresh-monitor')await loadMonitor();
+      if(a==='retry-message'){
+        const id=b.dataset.id;
+        if(!id)return;
+        if(!confirm('Reprocessar esta mensagem? O SimplA só continuará se a falha estiver confirmada e o cliente ainda puder receber WhatsApp.'))return;
+        const original=b.textContent;
+        b.disabled=true;b.textContent='Reprocessando...';
+        try{
+          const {data,error}=await db().functions.invoke('whatsapp-reprocessar',{body:{mensagem_id:id}});
+          if(error)throw error;
+          if(!data?.ok)throw new Error(data?.detail||data?.message||data?.error||'Não foi possível reprocessar.');
+          alert('Mensagem reprocessada com sucesso.');
+          await Promise.all([loadMonitor(),loadQuota(),loadSetupAssistant()]);
+        }finally{
+          b.disabled=false;b.textContent=original;
+        }
+      }
       if(a==='refresh-optouts')await loadOptouts();
       if(a==='refresh-setup')await loadSetupAssistant();
       if(a==='save-timezone'){const f=document.getElementById('wa77-timezone').value;if(!f)return alert('Selecione o fuso.');const {error}=await db().rpc('salvar_fuso_horario_empresa',{p_empresa_id:empresaId(),p_fuso_horario:f});if(error)throw error;document.getElementById('wa77-timezone-msg').textContent='Fuso salvo.';await refreshReadinessSoon()}
