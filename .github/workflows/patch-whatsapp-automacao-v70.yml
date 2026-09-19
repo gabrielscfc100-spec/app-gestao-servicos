@@ -1,0 +1,28 @@
+name: Patch WhatsApp Automacao v70
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-whatsapp-automacao-v70.yml'
+      - '.github/scripts/patch-whatsapp-automacao-v70.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python .github/scripts/patch-whatsapp-automacao-v70.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "feat: adicionar chave mestra da automacao WhatsApp"
+          git push
