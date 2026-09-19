@@ -2595,7 +2595,6 @@ hr{
   window.addEventListener('resize',aplicar);
   const obs=new MutationObserver(()=>{ clearTimeout(window.__simplaTwoBlocksTimer); window.__simplaTwoBlocksTimer=setTimeout(aplicar,30); });
   document.addEventListener('DOMContentLoaded',()=>{ const r=document.getElementById('configuracoes'); if(r) obs.observe(r,{childList:true,subtree:true}); });
-  setInterval(aplicar,1200);
 })();
 </script>
 
