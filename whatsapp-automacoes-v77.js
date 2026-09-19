@@ -54,7 +54,7 @@
     .wa77-msg{font-size:9px;color:#718096}.wa77-vars{display:grid;gap:6px;margin-top:9px}.wa77-var-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto auto auto;gap:6px;align-items:center}.wa77-var-pos{font-size:9px;font-weight:900;color:#718096;text-align:center}.wa77-var-btn{border:0;border-radius:6px;padding:7px 8px;background:#edf2f7;color:#4a5568;font-size:9px;font-weight:900;cursor:pointer}.wa77-var-btn.remove{background:#fff5f5;color:#c53030}.wa77-list{display:grid;gap:8px;margin-top:10px}.wa77-rem{border:1px solid #dbe4ee;border-radius:8px;padding:10px;background:#fff}.wa77-rem-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.wa77-switch{display:flex;align-items:center;gap:7px;font-size:9px;color:#4a5568;text-transform:none}
     .wa77-table-wrap{overflow:auto;margin-top:10px}.wa77-table{width:100%;min-width:760px;border-collapse:collapse}.wa77-table th,.wa77-table td{padding:8px;border-bottom:1px solid #edf2f7;font-size:9px;text-align:left;text-transform:none}.wa77-table th{background:#f8fafc;font-size:8px;color:#718096;text-transform:uppercase}
     .wa77-note{margin-top:10px;padding:9px;border-radius:7px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:9px;line-height:1.4}.wa77-guide{border:1px solid #dbe4ee;border-radius:9px;background:#f8fafc;padding:12px;margin-top:12px}.wa77-guide-steps{display:grid;gap:8px;margin-top:10px}.wa77-guide-step{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}.wa77-guide-num{width:24px;height:24px;border-radius:999px;background:#23364d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900}.wa77-guide-step b{display:block;font-size:10px;color:#2d3748}.wa77-guide-step span{display:block;font-size:9px;color:#718096;line-height:1.45;margin-top:2px}.wa77-guide-example{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:10px}.wa77-guide-example b{font-size:9px;color:#2d3748}.wa77-guide-example p{margin-top:4px;font-size:9px;color:#526579;line-height:1.45}.wa77-test{display:none;margin-top:10px;padding:10px;border:1px solid #bee3f8;border-radius:8px;background:#ebf8ff}.wa77-test.show{display:block}.wa77-test-vars{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.wa77-empty{padding:12px;text-align:center;color:#718096;font-size:10px}
-    .wa77-ready{margin-top:12px;border:1px solid #dbe4ee;border-radius:9px;background:#f8fafc;padding:11px}.wa77-ready-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.wa77-ready-title{font-size:10px;font-weight:900;color:#2d3748}.wa77-ready-list{display:grid;gap:6px;margin-top:9px}.wa77-ready-item{display:grid;grid-template-columns:20px 1fr;gap:7px;align-items:start}.wa77-ready-dot{width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;background:#fed7d7;color:#c53030}.wa77-ready-dot.ok{background:#c6f6d5;color:#276749}.wa77-ready-item b{display:block;font-size:9px;color:#2d3748}.wa77-ready-item span{display:block;font-size:8px;color:#718096;line-height:1.4;margin-top:1px}.wa77-ready-badge{padding:5px 8px;border-radius:999px;font-size:8px;font-weight:900;background:#fff5f5;color:#c53030}.wa77-ready-badge.ok{background:#f0fff4;color:#276749}.wa77-status{font-weight:900}.wa77-status.ENVIADO,.wa77-status.delivered,.wa77-status.read{color:#2f855a}.wa77-status.ERRO,.wa77-status.failed{color:#c53030}.wa77-status.PENDENTE{color:#975a16}
+    .wa77-ready{margin-top:12px;border:1px solid #dbe4ee;border-radius:9px;background:#f8fafc;padding:11px}.wa77-ready-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.wa77-ready-title{font-size:10px;font-weight:900;color:#2d3748}.wa77-ready-list{display:grid;gap:6px;margin-top:9px}.wa77-ready-item{display:grid;grid-template-columns:20px 1fr;gap:7px;align-items:start}.wa77-ready-dot{width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;background:#fed7d7;color:#c53030}.wa77-ready-dot.ok{background:#c6f6d5;color:#276749}.wa77-ready-item b{display:block;font-size:9px;color:#2d3748}.wa77-ready-item span{display:block;font-size:8px;color:#718096;line-height:1.4;margin-top:1px}.wa77-ready-badge{padding:5px 8px;border-radius:999px;font-size:8px;font-weight:900;background:#fff5f5;color:#c53030}.wa77-ready-badge.ok{background:#f0fff4;color:#276749}.wa77-setup{margin-top:12px;border:1px solid #dbe4ee;border-radius:9px;background:#fff;padding:12px}.wa77-setup-list{display:grid;gap:8px;margin-top:10px}.wa77-setup-item{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:start;padding:9px;border:1px solid #edf2f7;border-radius:8px;background:#f8fafc}.wa77-setup-num{width:24px;height:24px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;background:#edf2f7;color:#526579}.wa77-setup-num.ok{background:#c6f6d5;color:#276749}.wa77-setup-copy b{display:block;font-size:10px;color:#2d3748}.wa77-setup-copy span{display:block;font-size:8px;color:#718096;line-height:1.4;margin-top:2px}.wa77-setup-state{font-size:8px;font-weight:900;padding:5px 7px;border-radius:999px;background:#fff5f5;color:#c53030;white-space:nowrap}.wa77-setup-state.ok{background:#f0fff4;color:#276749}.wa77-status{font-weight:900}.wa77-status.ENVIADO,.wa77-status.delivered,.wa77-status.read{color:#2f855a}.wa77-status.ERRO,.wa77-status.failed{color:#c53030}.wa77-status.PENDENTE{color:#975a16}
     @media(max-width:800px){.wa77-grid2,.wa77-fields{grid-template-columns:1fr}.wa77-kpis{grid-template-columns:1fr 1fr}.wa77-var-row{grid-template-columns:36px minmax(0,1fr) auto auto auto}}
     `;
     document.head.appendChild(st);
@@ -64,6 +64,17 @@
     return `
     <div class="wa77" id="wa77-root">
       <section class="wa77-card" id="wa77-quota"><div class="wa77-head"><div><h3>Franquia mensal do WhatsApp</h3><p>Consumo mensal de mensagens operacionais.</p></div><span class="wa77-badge" id="wa77-plan">—</span></div><div class="wa77-bar"><div class="wa77-fill" id="wa77-fill"></div></div><div class="wa77-kpis"><div class="wa77-kpi"><span>Enviadas</span><b id="wa77-sent">0</b></div><div class="wa77-kpi"><span>Processando</span><b id="wa77-processing">0</b></div><div class="wa77-kpi"><span>Restantes</span><b id="wa77-remaining">—</b></div><div class="wa77-kpi"><span>Limite mensal</span><b id="wa77-limit">—</b></div></div><div class="wa77-actions"><span class="wa77-msg" id="wa77-quota-msg"></span><button class="wa77-btn alt" data-act="refresh-quota">Atualizar consumo</button></div></section>
+
+      <section class="wa77-card">
+        <div class="wa77-head">
+          <div><h3>Assistente de configuração da Meta</h3><p>Veja exatamente o que falta para liberar os envios reais.</p></div>
+          <button class="wa77-btn alt" data-act="refresh-setup">Rever configuração</button>
+        </div>
+        <div class="wa77-setup">
+          <div class="wa77-setup-list" id="wa77-setup-list"></div>
+          <div class="wa77-note" id="wa77-setup-next">Verificando o próximo passo...</div>
+        </div>
+      </section>
 
       <section class="wa77-card"><div class="wa77-head"><div><h3>Conexão com a Meta</h3><p>Conecte o WhatsApp oficial da empresa sem expor tokens no navegador.</p></div><span class="wa77-badge" id="wa77-conn-badge">Não configurado</span></div><div class="wa77-kpis"><div class="wa77-kpi"><span>Provedor</span><b id="wa77-provider">Meta Cloud API</b></div><div class="wa77-kpi"><span>Número</span><b id="wa77-number">—</b></div><div class="wa77-kpi"><span>Validação</span><b id="wa77-validation" style="font-size:11px">—</b></div><div class="wa77-kpi"><span>Automação</span><b id="wa77-auto-state" style="font-size:11px">Desativada</b></div></div><div class="wa77-ready" id="wa77-ready"><div class="wa77-ready-head"><div class="wa77-ready-title">Checklist antes de ativar a automação</div><span class="wa77-ready-badge" id="wa77-ready-badge">Verificando</span></div><div class="wa77-ready-list" id="wa77-ready-list"></div></div><div class="wa77-actions"><button class="wa77-btn" data-act="connect-meta" id="wa77-connect">Conectar WhatsApp com a Meta</button><button class="wa77-btn alt" data-act="validate-meta">Validar conexão</button><button class="wa77-btn alt" id="wa77-auto-enable" data-act="toggle-auto" data-value="true" disabled>Ativar automação</button><button class="wa77-btn alt" data-act="toggle-auto" data-value="false">Desativar</button><span class="wa77-msg" id="wa77-conn-msg"></span></div></section>
 
@@ -131,6 +142,53 @@
     if(test){document.getElementById('wa77-remaining').textContent='Ilimitadas';document.getElementById('wa77-limit').textContent='Ilimitado';document.getElementById('wa77-fill').style.width='0%';document.getElementById('wa77-quota-msg').textContent='Conta de testes sem limite comercial.';return}
     if(!r.limite_definido){document.getElementById('wa77-remaining').textContent='A definir';document.getElementById('wa77-limit').textContent='A definir';document.getElementById('wa77-fill').style.width='0%';document.getElementById('wa77-quota-msg').textContent='Franquia comercial ainda não definida.';return}
     document.getElementById('wa77-remaining').textContent=r.restantes??0;document.getElementById('wa77-limit').textContent=r.limite_mensal??0;document.getElementById('wa77-fill').style.width=Math.min(100,Number(r.percentual_consumido||0))+'%';document.getElementById('wa77-quota-msg').textContent=(r.percentual_consumido||0)+'% utilizado.';
+  }
+
+  async function loadSetupAssistant(){
+    const [cfgRes,intRes,tplRes,msgRes,autoRes]=await Promise.all([
+      db().functions.invoke('whatsapp-embedded-config',{body:{empresa_id:empresaId()}}),
+      db().from('whatsapp_integracoes').select('status,ativo,waba_id,phone_number_id,ultimo_erro').eq('empresa_id',empresaId()).maybeSingle(),
+      db().from('whatsapp_templates_operacionais').select('tipo,ativo,status_meta,validacao_ok').eq('empresa_id',empresaId()),
+      db().from('whatsapp_mensagens_operacionais').select('status,parametros').eq('empresa_id',empresaId()).order('criado_em',{ascending:false}).limit(100),
+      db().from('whatsapp_automacao_config').select('envios_automaticos_ativos').eq('empresa_id',empresaId()).maybeSingle()
+    ]);
+
+    const cfg=cfgRes?.data?.status_configuracao||{};
+    const integ=intRes?.data||{};
+    const templates=tplRes?.data||[];
+    const msgs=msgRes?.data||[];
+    const auto=autoRes?.data||{};
+
+    const planOk=await allowed();
+    const embeddedOk=!!cfg.embedded_signup_ready;
+    const connectionOk=!!(integ.ativo&&integ.status==='ATIVO'&&integ.waba_id&&integ.phone_number_id);
+    const webhookOk=!!(cfg.webhook_ready&&connectionOk&&!String(integ.ultimo_erro||'').toLowerCase().includes('webhook'));
+    const validTemplates=templates.filter(t=>t.ativo&&t.status_meta==='APPROVED'&&t.validacao_ok===true).length;
+    const templatesOk=validTemplates>0;
+    const testOk=msgs.some(m=>String(m?.parametros?.origem||'')==='TESTE_MANUAL'&&m.status==='ENVIADO');
+    const automationOk=!!auto.envios_automaticos_ativos;
+
+    const steps=[
+      {ok:planOk,title:'Recurso disponível no plano',detail:planOk?'WhatsApp operacional liberado para esta empresa.':'O plano atual não inclui WhatsApp operacional.'},
+      {ok:embeddedOk,title:'Configuração técnica da Meta',detail:embeddedOk?'App, Embedded Signup e Graph API estão configurados no SimplA.':'Ainda faltam credenciais técnicas da Meta no ambiente do SimplA.'},
+      {ok:connectionOk,title:'Número e WABA conectados',detail:connectionOk?'Conta e número oficial conectados.':'Conecte a conta da Meta e selecione o número oficial.'},
+      {ok:webhookOk,title:'Webhook preparado',detail:webhookOk?'Webhook pronto para status e opt-out.':'Configure/valide o webhook da Meta para receber eventos.'},
+      {ok:templatesOk,title:'Template validado',detail:templatesOk?validTemplates+' template(s) pronto(s).':'Cadastre e valide pelo menos um template aprovado pela Meta.'},
+      {ok:testOk,title:'Teste real concluído',detail:testOk?'Já existe envio de teste concluído.':'Envie um template de teste para confirmar a integração.'},
+      {ok:automationOk,title:'Automação ativada',detail:automationOk?'Envios automáticos estão ativos.':'Ative a automação somente após concluir os passos anteriores.'}
+    ];
+
+    const box=document.getElementById('wa77-setup-list');
+    const next=document.getElementById('wa77-setup-next');
+    if(!box||!next)return;
+
+    box.innerHTML=steps.map((x,i)=>'<div class="wa77-setup-item"><div class="wa77-setup-num '+(x.ok?'ok':'')+'">'+(x.ok?'✓':(i+1))+'</div><div class="wa77-setup-copy"><b>'+esc(x.title)+'</b><span>'+esc(x.detail)+'</span></div><span class="wa77-setup-state '+(x.ok?'ok':'')+'">'+(x.ok?'Concluído':'Pendente')+'</span></div>').join('');
+
+    const pending=steps.find(x=>!x.ok);
+    next.textContent=pending?'Próximo passo: '+pending.title+'. '+pending.detail:'Configuração concluída. O WhatsApp operacional está pronto.';
+    next.style.background=pending?'#fffaf0':'#f0fff4';
+    next.style.borderColor=pending?'#f6e05e':'#9ae6b4';
+    next.style.color=pending?'#744210':'#276749';
   }
 
   async function loadConnection(){
@@ -298,7 +356,7 @@
 
   async function refreshAll(){
     if(state.loading)return;state.loading=true;
-    try{await Promise.all([loadQuota(),loadConnection(),loadTimezone(),loadTemplates(),loadRules(),loadReminders(),loadMonitor(),loadOptouts()]);await loadReadiness()}
+    try{await Promise.all([loadQuota(),loadConnection(),loadTimezone(),loadTemplates(),loadRules(),loadReminders(),loadMonitor(),loadOptouts(),loadSetupAssistant()]);await loadReadiness()}
     catch(e){console.error('SimplA WhatsApp v77:',e)}
     finally{state.loading=false}
   }
@@ -326,9 +384,10 @@
       if(a==='refresh-quota')await loadQuota();
       if(a==='refresh-monitor')await loadMonitor();
       if(a==='refresh-optouts')await loadOptouts();
+      if(a==='refresh-setup')await loadSetupAssistant();
       if(a==='save-timezone'){const f=document.getElementById('wa77-timezone').value;if(!f)return alert('Selecione o fuso.');const {error}=await db().rpc('salvar_fuso_horario_empresa',{p_empresa_id:empresaId(),p_fuso_horario:f});if(error)throw error;document.getElementById('wa77-timezone-msg').textContent='Fuso salvo.';await refreshReadinessSoon()}
-      if(a==='toggle-auto'){const on=b.dataset.value==='true';if(on){await loadReadiness();if(b.disabled)return;if(!confirm('Ativar os envios automáticos?'))return;}const {error}=await db().rpc('salvar_automacao_whatsapp_operacional',{p_empresa_id:empresaId(),p_envios_automaticos_ativos:on});if(error)throw error;await loadConnection();await refreshReadinessSoon()}
-      if(a==='validate-meta'){document.getElementById('wa77-conn-msg').textContent='Validando...';const {data,error}=await db().functions.invoke('whatsapp-validar-integracao',{body:{empresa_id:empresaId()}});if(error)throw error;document.getElementById('wa77-conn-msg').textContent=data?.ok?'Conexão validada.':'Validação não concluída.';await loadConnection()}
+      if(a==='toggle-auto'){const on=b.dataset.value==='true';if(on){await loadReadiness();if(b.disabled)return;if(!confirm('Ativar os envios automáticos?'))return;}const {error}=await db().rpc('salvar_automacao_whatsapp_operacional',{p_empresa_id:empresaId(),p_envios_automaticos_ativos:on});if(error)throw error;await loadConnection();await refreshReadinessSoon();await loadSetupAssistant()}
+      if(a==='validate-meta'){document.getElementById('wa77-conn-msg').textContent='Validando...';const {data,error}=await db().functions.invoke('whatsapp-validar-integracao',{body:{empresa_id:empresaId()}});if(error)throw error;document.getElementById('wa77-conn-msg').textContent=data?.ok?'Conexão validada.':'Validação não concluída.';await loadConnection();await loadSetupAssistant()}
       if(a==='connect-meta'){await startEmbedded()}
       if(a==='add-template-var'){
         const t=b.dataset.tipo,s=slug(t),box=document.getElementById('wa77-tpl-vars-'+s);
