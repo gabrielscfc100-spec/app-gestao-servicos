@@ -1453,7 +1453,6 @@
             .profissional-servico-item{grid-template-columns:24px minmax(0,1fr) 92px;}
         }
 
-
         @media(max-width:520px){
             #modal-cliente-agendamento .modal-balao{
                 width:calc(100vw - 20px) !important;
@@ -1825,7 +1824,6 @@ hr{
 }
 </style>
 
-
 <style id="simpla-config-layout-v2">
 #configuracoes .header{margin-bottom:16px}
 #configuracoes #sec-config-geral{max-width:none!important;padding:0!important;background:transparent!important;box-shadow:none!important}
@@ -1859,7 +1857,6 @@ hr{
 #configuracoes input[type="checkbox"]:not(.cfg-switch-input):checked:after{transform:translateX(18px)}
 @media(max-width:900px){.cfg-v2-shell{grid-template-columns:1fr}.cfg-v2-nav{position:static;display:flex;overflow-x:auto;gap:6px;padding:7px}.cfg-v2-nav button{width:auto;white-space:nowrap;flex:0 0 auto}.cfg-v2-group{padding:16px}}
 </style>
-
 
 <style id="simpla-ux-config-agenda-v3">
 /* Configurações: switches legíveis e próximos do texto */
@@ -1901,7 +1898,6 @@ hr{
 @media(max-width:560px){.cfg-dias-grid{grid-template-columns:repeat(2,minmax(90px,1fr));}}
 </style>
 
-
 <style id="simpla-switch-comissoes-contrast-v1">
 #configuracoes .cfg-switch-line{justify-content:flex-start!important;gap:14px!important;}
 #configuracoes .cfg-switch{width:50px!important;height:28px!important;flex:0 0 50px!important;}
@@ -1912,7 +1908,6 @@ hr{
 #box-cfg-comissoes .cfg-switch-line{max-width:420px!important;align-items:center!important;}
 #box-cfg-comissoes .cfg-switch-state{color:#56697b!important;font-weight:600!important;}
 </style>
-
 
 <style id="simpla-switch-comissoes-native-v2">
 /* Corrige especificamente o interruptor Utilizar comissões */
@@ -2094,7 +2089,6 @@ hr{
   }
 }
 </style>
-
 
 <style id="simpla-mobile-config-structural-v3">
 @media (max-width:768px){
@@ -2469,7 +2463,6 @@ hr{
 })();
 </script>
 
-
 <style id="simpla-mobile-two-blocks-final-v11">
 @media (max-width:768px){
   /* Serviços e durações: reserva física suficiente para o switch */
@@ -2605,7 +2598,6 @@ hr{
   setInterval(aplicar,1200);
 })();
 </script>
-
 
 <style id="simpla-cfg-dias-mobile-v16">
 /* Dias de funcionamento: interação dedicada no mobile */
@@ -3373,7 +3365,6 @@ hr{
         // A lista é sempre carregada com filtro por empresa_id.
         let usuariosEmpresaParaVinculo = [];
 
-
         let mensagemAniversario = DataStore.getText('barber_msg_aniversario', 'OLÁ [NOME]! PARABÉNS PELO SEU ANIVERSÁRIO! A BARBERMANAGER TE DESEJA MUITA SAÚDE E SUCESSO!');
         let mensagemConfirmacaoAgendamento = DataStore.getText('barber_msg_confirmacao_agendamento', 'Olá [NOME]! Passando para confirmar seu agendamento para o dia [DATA], às [HORA].\n\nPedimos que chegue com 10 minutos de antecedência. O tempo de tolerância é de até 10 minutos.\n\nPodemos confirmar?');
         let mensagemAniversarioMes = DataStore.getText('barber_msg_aniversario_mes', 'Olá [NOME]!  Seu aniversário está chegando no dia [DATA]! Para comemorar, preparamos um possível desconto especial para você na [BARBEARIA]. Entre em contato conosco para saber mais. Esperamos você!');
@@ -3509,7 +3500,6 @@ hr{
             }
             return true;
         }
-
 
         function clienteCloudParaLocal(row) {
             return {
@@ -3692,8 +3682,6 @@ hr{
             renderizarProfissionaisConfig();
             renderizarDashboard();
         }
-
-
 
         function profissionalCloudParaLocal(row) {
             return {
@@ -4210,7 +4198,6 @@ hr{
                 .subscribe();
         }
 
-
         function materialCloudParaLocal(row) {
             return { id: row.id, empresaId: row.empresa_id, nome: row.nome || '', ativo: row.ativo !== false, cloud: true };
         }
@@ -4330,7 +4317,6 @@ hr{
                 .on('postgres_changes', {event:'*',schema:'public',table:'gastos_fixos',filter:`empresa_id=eq.${empresaAtual.id}`}, agendarAtualizacaoFinanceiroCloud)
                 .subscribe();
         }
-
 
         function exibirMensagemCloud(id, texto, tipo='info') {
             const el = document.getElementById(id);
@@ -4731,7 +4717,6 @@ hr{
                 exibirMensagemCloud('cloud-empresa-message',`Não foi possível criar o negócio: ${err?.message || 'erro desconhecido'}`,'error');
             } finally { definirCarregandoCloud('cloud-btn-empresa', false, 'Criar meu negócio'); }
         }
-
 
         const DOMINIO_LOGIN_OPERACIONAL = 'acesso.simpla.app';
 
@@ -5184,7 +5169,6 @@ hr{
             }
         }
 
-
         const CONFIG_CLOUD_ATIVO = true;
         let salvandoConfigCloud = false;
 
@@ -5635,7 +5619,6 @@ hr{
                 select.disabled = false;
             }
         }
-
 
         let servicosGestaoConfigCache = [];
 
@@ -6257,7 +6240,6 @@ hr{
             }
         }
 
-
         function aplicarPermissoesAcoesVisuais() {
             const perfil = obterPerfilAtual();
 
@@ -6568,7 +6550,6 @@ hr{
             return true;
         }
 
-
         async function processarDestinoNotificacaoPWA() {
             if(destinoNotificacaoPwaProcessado) return;
             if(!CloudDB || !empresaAtual?.id || !usuarioAtual?.id) return;
@@ -6756,7 +6737,6 @@ hr{
 
             if(!timerNotificacoesCloud) iniciarFallbackNotificacoesCloud();
         }
-
 
         if('serviceWorker' in navigator) {
             navigator.serviceWorker.addEventListener('message', event => {
@@ -8199,7 +8179,6 @@ hr{
             return `https://wa.me/${numeroCompleto}?text=${encodeURIComponent(mensagem)}`;
         }
 
-
         function gerarLinkWhatsAppConfirmacaoAgendamento(agendamento) {
             if(!agendamento) return '';
 
@@ -8505,7 +8484,6 @@ hr{
             }
         }
 
-
         function normalizarTelefoneComparacao(valor) {
             return String(valor || '').replace(/\D/g, '');
         }
@@ -8747,7 +8725,6 @@ hr{
             await salvarNovoClienteDireto(dados);
         }
 
-
         async function salvarNovoClienteDireto(dados) {
             if(CLIENTES_CLOUD_ATIVO && CloudDB && empresaAtual?.cloud && empresaAtual?.id) {
                 try {
@@ -8779,7 +8756,6 @@ hr{
             alert('Cliente cadastrado localmente.');
             return clienteObj;
         }
-
 
         async function confirmarCadastroDuplicado() {
             document.getElementById('modal-cliente-duplicado').classList.remove('active');
@@ -9249,7 +9225,6 @@ hr{
             }
         }
 
-
         async function excluirDoHistorico() {
             if(!validarPermissaoCancelamento('clientes','excluir clientes')) return;
             if(!confirm('Tem certeza que deseja excluir este cliente? Os lançamentos históricos existentes serão preservados.')) return;
@@ -9270,7 +9245,6 @@ hr{
                 }
             }
         }
-
 
         async function excluirClienteModal() {
             if(!validarAcessoPerfil('clientesExcluir','Seu perfil não pode excluir clientes.')) return;
@@ -9293,7 +9267,6 @@ hr{
                 }
             }
         }
-
 
         function exportarClientesExcel() {
             if(!validarAcessoPerfil('clientesExportar','Seu perfil não pode exportar a relação de clientes.')) return;
@@ -10211,7 +10184,6 @@ hr{
             renderizarCaixaFinanceiro();
         }
 
-
         function obterPeriodoFinanceiroSelecionado() {
             const inicio = document.getElementById('filtro-data-inicio')?.value || '';
             const fim = document.getElementById('filtro-data-fim')?.value || '';
@@ -10424,7 +10396,6 @@ hr{
             doc.save(`financeiro_${nomeInicio}_a_${nomeFim}.pdf`);
         }
 
-
         function renderizarGrafico(entradasVal, saidasVal) {
             const ctx = document.getElementById('graficoPizza1');
             if(!ctx) return;
@@ -10635,7 +10606,6 @@ hr{
 })();
 </script>
 
-
 <script id="simpla-ux-config-agenda-v3-js">
 (function(){
   const DIAS=[['Dom',0],['Seg',1],['Ter',2],['Qua',3],['Qui',4],['Sex',5],['Sáb',6]];
@@ -10729,7 +10699,6 @@ hr{
 })();
 </script>
 
-
 <style id="simpla-pwa-update-manager-v1">
 .simpla-update-banner{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:3000;width:min(560px,calc(100vw - 28px));background:#1f3b56;color:#fff;border-radius:12px;box-shadow:0 14px 38px rgba(0,0,0,.28);padding:14px 16px;display:none;align-items:center;justify-content:space-between;gap:14px;text-transform:none!important}
 .simpla-update-banner.show{display:flex}
@@ -10815,7 +10784,6 @@ hr{
   });
 })();
 </script>
-
 
 <!-- SIMPLA_SWITCHES_MOBILE_FINAL_V8 -->
 <style id="simpla-switches-mobile-final-v8">
@@ -10995,7 +10963,6 @@ hr{
 })();
 </script>
 
-
 <script id="simpla-mobile-switch-force-v10">
 (function(){
   function aplicar(){
@@ -11058,7 +11025,6 @@ hr{
 })();
 </script>
 
-
 <script id="simpla-perfis-acesso-v12">
 (function(){
   function aplicarComplementares(){
@@ -11109,7 +11075,6 @@ hr{
   }, true);
 })();
 </script>
-
 
 <script id="simpla-telefone-cliente-v13">
 (function(){
@@ -11212,7 +11177,6 @@ hr{
   setTimeout(instalar, 1500);
 })();
 </script>
-
 
 <style id="simpla-agenda-redesign-v14">
 /* ===== SimplA Agenda v14 — remodelagem final ===== */
@@ -11605,7 +11569,6 @@ hr{
 })();
 </script>
 
-
 <style id="simpla-agenda-scroll-v15">
 /* Agenda v15 — cabeçalho fixo fora da rolagem e grade totalmente navegável */
 #agenda.simpla-agenda-v14 .agenda-v14-scroll,
@@ -11724,7 +11687,6 @@ hr{
 })();
 </script>
 
-
 <style id="simpla-bottom-nav-v17">
 .simpla-bottom-nav{display:none;}
 @media(max-width:768px){
@@ -11839,7 +11801,6 @@ hr{
   else iniciar();
 })();
 </script>
-
 
 <style id="simpla-registro-atendimento-v18">
 /* Teste v18: atendimento separado do Financeiro */
@@ -11984,7 +11945,6 @@ hr{
 })();
 </script>
 
-
 <script id="simpla-atendimento-permissoes-v19">
 (function(){
   function sincronizarPermissaoAtendimento(){
@@ -12011,7 +11971,6 @@ hr{
   setTimeout(sincronizarPermissaoAtendimento, 1200);
 })();
 </script>
-
 
 <style id="simpla-agendamento-atendimento-v20">
 #atendimento .origem-atendimento-v20{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin:0 0 14px;box-shadow:0 2px 8px rgba(26,28,35,.04)}
@@ -12162,7 +12121,6 @@ hr{
 })();
 </script>
 
-
 <script id="simpla-gramatica-disponiveis-v21">
 (function(){
   function corrigirContagemDisponiveis(root=document){
@@ -12178,7 +12136,6 @@ hr{
   obs.observe(document.body,{childList:true,subtree:true,characterData:true});
 })();
 </script>
-
 
 <style id="simpla-cliente-avulso-v22-style">
 #atendimento-cliente-modo{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:16px}
@@ -12334,7 +12291,6 @@ hr{
 })();
 </script>
 
-
 <style id="simpla-caixa-mobile-v23">
 @media (max-width:700px){
   .simpla-caixa-resumo-card{overflow:hidden !important; width:100% !important; max-width:100% !important;}
@@ -12420,8 +12376,6 @@ hr{
   setTimeout(aplicar,1000);
 })();
 </script>
-
-
 
 <style id="simpla-materiais-mobile-v25">
 /* Materiais v25 — corrige o formulário real .fin-inline-form no mobile */
@@ -12666,7 +12620,6 @@ hr{
 })();
 </script>
 
-
 <style id="simpla-pagamento-dividido-v26">
 .pagamento-dividido-box{margin-top:10px;padding:12px;border:1px solid #dbe4ee;border-radius:8px;background:#f8fafc}.pagamento-dividido-linha{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:8px;margin-bottom:8px}.pagamento-dividido-box small{display:block;color:#718096;line-height:1.4;text-transform:none}@media(max-width:768px){.pagamento-dividido-linha{grid-template-columns:1fr}.pagamento-dividido-linha select,.pagamento-dividido-linha input{width:100%;min-width:0}}
 </style>
@@ -12794,7 +12747,6 @@ hr{
   setInterval(()=>{if(document.getElementById('atendimento')?.classList.contains('active')) atualizarPixUI(false);},1200);
 })();
 </script>
-
 
 <script id="simpla-config-financeiro-comissoes-v29">
 (function(){
@@ -13009,7 +12961,6 @@ hr{
 })();
 </script>
 
-
 <script id="simpla-pix-empresa-bridge-v31b">
 (function(){
   function sincronizarEmpresaPix(){
@@ -13028,7 +12979,6 @@ hr{
   window.sincronizarEmpresaPixV31=sincronizarEmpresaPix;
 })();
 </script>
-
 
 <style id="simpla-pagamentos-v32">
 #pagamento-dinheiro-v32{display:none;margin-top:10px;padding:12px;border:1px solid #dbe4ee;border-radius:8px;background:#f8fafc;text-transform:none}
@@ -13125,7 +13075,6 @@ hr{
   setTimeout(montarUI,900);
 })();
 </script>
-
 
 <style id="simpla-caixa-formas-v33">
 #caixa-formas-v33{margin-top:18px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px}
@@ -13235,8 +13184,6 @@ hr{
   setTimeout(atualizar,700);
 })();
 </script>
-
-
 
 <style id="simpla-relatorio-formas-v34">
 #relatorio-formas-v34{margin-top:18px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px}
@@ -13403,7 +13350,6 @@ hr{
 })();
 </script>
 
-
 <style id="simpla-presenca-horario-v36">
 #simpla-presenca-modal-v36{position:fixed;inset:0;background:rgba(15,23,42,.66);z-index:10050;display:none;align-items:center;justify-content:center;padding:18px}
 #simpla-presenca-modal-v36.ativo{display:flex}
@@ -13475,7 +13421,6 @@ hr{
 })();
 </script>
 
-
 <!-- SIMPLA agenda conflitos v37 -->
 <style id="simpla-agenda-conflitos-v37">
 #agenda-validacao-horario-v37{margin:-4px 0 14px;padding:10px 12px;border-radius:6px;font-size:12px;line-height:1.45;text-transform:none;background:#edf2f7;color:#4a5568;border:1px solid #e2e8f0}
@@ -13541,7 +13486,6 @@ hr{
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',preparar); else preparar();
 })();
 </script>
-
 
 <!-- SIMPLA clientes duplicidade v38 -->
 <style id="simpla-clientes-duplicidade-v38-style">
@@ -13654,7 +13598,6 @@ hr{
   setTimeout(instalar,1200);
 })();
 </script>
-
 
 <!-- SIMPLA clientes dependentes v39 -->
 <style id="simpla-clientes-dependentes-v39-style">
@@ -13843,7 +13786,6 @@ hr{
 })();
 </script>
 
-
 <!-- SIMPLA login interaction recovery v42 -->
 <style id="simpla-login-interaction-v42-style">
 .cloud-auth-overlay:not(.hidden){z-index:30000!important;pointer-events:auto!important;}
@@ -13884,7 +13826,6 @@ hr{
   window.addEventListener('pageshow',()=>setTimeout(liberarLogin,100));
 })();
 </script>
-
 
 <style id="simpla-historico-cliente-v45-css">
   .hist-agenda-v45{margin:18px 0;padding-top:14px;border-top:1px solid #e2e8f0}
@@ -13971,7 +13912,6 @@ hr{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,1800));else setTimeout(instalar,1800);
 })();
 </script>
-
 
 <style id="simpla-dashboard-agenda-v47-css">
   .dash-agenda-v47{margin:0 0 24px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;box-shadow:0 2px 4px rgba(0,0,0,.04)}
@@ -14063,7 +14003,6 @@ hr{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,1900));else setTimeout(instalar,1900);
 })();
 </script>
-
 
 <style id="simpla-dashboard-profissionais-v48-css">
   .dash-prof-v48{margin:0 0 24px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;box-shadow:0 2px 4px rgba(0,0,0,.04)}
@@ -14158,7 +14097,6 @@ hr{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,2000));else setTimeout(instalar,2000);
 })();
 </script>
-
 
 <style id="simpla-dashboard-servicos-v49-css">
   .dash-serv-v49{margin:0 0 24px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;box-shadow:0 2px 4px rgba(0,0,0,.04)}
@@ -14282,7 +14220,6 @@ hr{
 })();
 </script>
 
-
 <style id="simpla-relatorios-gerenciais-v50-css">
   .dash-rel-v50{margin:0 0 24px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;box-shadow:0 2px 4px rgba(0,0,0,.04)}
   .dash-rel-v50-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
@@ -14380,7 +14317,6 @@ hr{
 })();
 </script>
 
-
 <script id='simpla-patch-bloqueio-admin-v1'>
 (function(){
 function aplicarBloqueioAdminUI(){
@@ -14461,7 +14397,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,2200)); else setTimeout(instalar,2200);
 })();
 </script>
-
 
 <style id="simpla-radar-agenda-v52-css">
   .dash-ret-v51-item{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 120px 82px 82px!important}
@@ -14567,7 +14502,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
   const modal=document.getElementById('modal-agendamento'); if(modal) obs.observe(modal,{attributes:true,attributeFilter:['class']});
 })();
 </script>
-
 
 <style id="simpla-minha-prioridade-v53-css">
   .dash-prio-v53{margin:0 0 18px;background:#fff;border:1px solid #dbe4ee;border-radius:11px;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.05)}
@@ -14679,7 +14613,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
 })();
 </script>
 
-
 <style id="simpla-oportunidades-agenda-v54-css">
   .dash-ocio-v54{margin:0 0 18px;background:#fff;border:1px solid #dbe4ee;border-radius:11px;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.05)}
   .dash-ocio-v54-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
@@ -14777,7 +14710,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
 })();
 </script>
 
-
 <style id="simpla-planos-dependentes-v55-css">
   .simpla-plano-v55{margin:0 0 14px;padding:11px 12px;border:1px solid #dbe4ee;border-radius:8px;background:#f8fafc;font-size:11px;color:#475569;text-transform:none;line-height:1.45}
   .simpla-plano-v55 b{color:#1a1c23}
@@ -14835,7 +14767,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
 })();
 </script>
 
-
 <script id="simpla-entitlements-v56">
 (function(){
   const cache=new Map();
@@ -14891,7 +14822,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
   };
 })();
 </script>
-
 
 <style id="simpla-meu-plano-v57-css">
   .simpla-meu-plano-v57{margin:0 0 18px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.04);text-transform:none}
@@ -14953,7 +14883,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,2700));else setTimeout(instalar,2700);
 })();
 </script>
-
 
 <style id="simpla-bloqueios-planos-v58-css">
   .simpla-entitlement-lock-v58{position:relative!important;overflow:hidden}
@@ -15023,7 +14952,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',instalar);else instalar();
 })();
 </script>
-
 
 <style id="simpla-entitlements-avancados-v59-css">
   .simpla-entitlement-lock-v59{position:relative!important;overflow:hidden}
@@ -15101,7 +15029,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
 })();
 </script>
 
-
 <style id="simpla-recorrencia-auditoria-v60-css">
   .simpla-entitlement-inline-v60{margin-top:8px;padding:9px 10px;border:1px solid #bee3f8;border-radius:8px;background:#ebf8ff;color:#2c5282;font-size:10px;line-height:1.45;text-transform:none}
   .simpla-entitlement-auditoria-v60{position:relative!important;overflow:hidden;min-height:185px}
@@ -15154,7 +15081,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',instalar);else instalar();
 })();
 </script>
-
 
 <style id="simpla-sugestoes-ociosidade-v61-css">
   .simpla-v61-backdrop{position:fixed;inset:0;z-index:9990;background:rgba(15,23,42,.48);display:none;align-items:center;justify-content:center;padding:18px}
@@ -15214,1497 +15140,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
   };
   window.verHistoricoSugestaoV61=function(i){const x=atuais[Number(i)];if(!x)return;fechar();try{if(typeof abrirHistoricoCliente==='function')return abrirHistoricoCliente(x.cliente_id)}catch(_){ }try{if(typeof mudarTela==='function')mudarTela('clientes')}catch(_){ }};
   window.prepararAgendamentoSugestaoV61=function(i){const x=atuais[Number(i)];const j=janelaAtual;if(!x||!j)return;fechar();try{if(typeof mudarTela==='function')mudarTela('agenda')}catch(_){ }const d=document.getElementById('agenda-data-filtro');if(d){d.value=j.data;d.dispatchEvent(new Event('change',{bubbles:true}))}const p=document.getElementById('agenda-profissional-filtro');if(p){const opt=[...p.options].find(o=>String(o.value)===String(j.profissional_id));if(opt){p.value=opt.value;p.dispatchEvent(new Event('change',{bubbles:true}))}}setTimeout(()=>{try{if(typeof abrirModalAgendamento==='function')abrirModalAgendamento(j.inicio,j.data,j.profissional_id)}catch(_){ }setTimeout(()=>{try{if(typeof selecionarClienteBusca==='function')selecionarClienteBusca('agenda',x.cliente_id)}catch(_){ }const s=document.getElementById('agenda-servico')||document.getElementById('ag-servico')||document.querySelector('#modal-agendamento select[id*=servico]');if(s&&x.servico_id){const op=[...s.options].find(o=>String(o.value)===String(x.servico_id));if(op)s.value=op.value}},180)},180)};
-})();
-</script>
-
-
-<style id="simpla-whatsapp-config-v62-css">
-  .simpla-wa-v62{margin:0 0 18px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.04);text-transform:none}
-  .simpla-wa-v62-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
-  .simpla-wa-v62 h3{margin:0;font-size:16px;color:#1a1c23}.simpla-wa-v62 p{margin:4px 0 0;font-size:11px;color:#718096;line-height:1.5;text-transform:none}
-  .simpla-wa-v62-badge{display:inline-flex;padding:6px 9px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase;background:#edf2f7;color:#4a5568}
-  .simpla-wa-v62-badge.ativo{background:#f0fff4;color:#2f855a}.simpla-wa-v62-badge.erro{background:#fff5f5;color:#c53030}.simpla-wa-v62-badge.lock{background:#fffaf0;color:#975a16}
-  .simpla-wa-v62-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
-  .simpla-wa-v62-cell{border:1px solid #edf2f7;border-radius:8px;background:#f8fafc;padding:10px;min-width:0}
-  .simpla-wa-v62-cell span{display:block;font-size:8px;color:#718096;font-weight:900;margin-bottom:4px}.simpla-wa-v62-cell b{display:block;font-size:11px;color:#2d3748;overflow-wrap:anywhere;text-transform:none}
-  .simpla-wa-v62-note{margin-top:12px;padding:10px 11px;border:1px solid #bee3f8;background:#ebf8ff;border-radius:8px;color:#2c5282;font-size:10px;line-height:1.5;text-transform:none}
-  .simpla-wa-v62-actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}.simpla-wa-v62-actions button{border:0;border-radius:7px;padding:9px 11px;cursor:pointer;font-size:9px;font-weight:900}
-  .simpla-wa-v62-refresh{background:#1a1c23;color:#fff}.simpla-wa-v62-planos{background:#edf2f7;color:#2d3748}
-  @media(max-width:760px){.simpla-wa-v62-grid{grid-template-columns:1fr}}
-</style>
-<script id="simpla-whatsapp-config-v62">
-(function(){
-  function garantir(){
-    let box=document.getElementById('simpla-wa-v62');if(box)return box;
-    const usuarios=document.getElementById('box-cfg-usuarios');
-    const config=document.getElementById('configuracoes');
-    if(!usuarios&&!config)return null;
-    box=document.createElement('section');
-    box.id='simpla-wa-v62';box.className='simpla-wa-v62';
-    box.innerHTML='<div class="simpla-wa-v62-head"><div><h3>WhatsApp operacional</h3><p>Conexão oficial para confirmações, lembretes, cancelamentos e reagendamentos. Campanhas permanecem separadas.</p></div><span id="simpla-wa-v62-badge" class="simpla-wa-v62-badge">Carregando</span></div><div class="simpla-wa-v62-grid"><div class="simpla-wa-v62-cell"><span>PROVEDOR</span><b id="simpla-wa-v62-provedor">Meta Cloud API</b></div><div class="simpla-wa-v62-cell"><span>NÚMERO CONECTADO</span><b id="simpla-wa-v62-numero">—</b></div><div class="simpla-wa-v62-cell"><span>ÚLTIMA VALIDAÇÃO</span><b id="simpla-wa-v62-validacao">—</b></div></div><div id="simpla-wa-v62-note" class="simpla-wa-v62-note">Consultando status da integração...</div><div class="simpla-wa-v62-actions"><button type="button" class="simpla-wa-v62-refresh" onclick="carregarWhatsAppConfigV62()">Atualizar status</button><button type="button" class="simpla-wa-v62-planos" onclick="abrirPlanosWhatsAppV62()" style="display:none">Ver planos</button></div>';
-    if(usuarios)usuarios.insertAdjacentElement('beforebegin',box);else config.appendChild(box);
-    return box;
-  }
-  function fmtData(v){if(!v)return '—';try{return new Date(v).toLocaleString('pt-BR')}catch(_){return '—'}}
-  function planos(){try{if(typeof mudarTela==='function')mudarTela('configuracoes')}catch(_){}
-    setTimeout(()=>document.getElementById('simpla-meu-plano-v57')?.scrollIntoView({behavior:'smooth',block:'center'}),80)}
-  window.abrirPlanosWhatsAppV62=planos;
-  async function carregar(){
-    const box=garantir();
-    if(!box||typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return;
-    const badge=document.getElementById('simpla-wa-v62-badge'), note=document.getElementById('simpla-wa-v62-note'), btnPlanos=box.querySelector('.simpla-wa-v62-planos');
-    try{
-      const {data:perfil}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-      if(String(perfil||'').toUpperCase()!=='ADMIN'){box.style.display='none';return}
-      box.style.display='block';
-      const permitido=typeof empresaPodeUsarRecurso==='function'?await empresaPodeUsarRecurso('whatsapp_operacional'):false;
-      if(!permitido){
-        badge.textContent='Disponível no Plus';badge.className='simpla-wa-v62-badge lock';
-        note.innerHTML='<b>WhatsApp operacional</b> está disponível a partir do Plus. O recurso inclui mensagens transacionais ligadas à agenda; campanhas comerciais são exclusivas do Pro.';
-        btnPlanos.style.display='inline-block';return;
-      }
-      btnPlanos.style.display='none';
-      const {data,error}=await CloudDB.from('whatsapp_integracoes').select('provedor,phone_number_id,numero_exibicao,status,ativo,ultima_validacao_em,ultimo_erro').eq('empresa_id',empresaAtual.id).maybeSingle();
-      if(error)throw error;
-      document.getElementById('simpla-wa-v62-provedor').textContent=data?.provedor==='META_CLOUD_API'?'Meta Cloud API':(data?.provedor||'Meta Cloud API');
-      document.getElementById('simpla-wa-v62-numero').textContent=data?.numero_exibicao||'Não conectado';
-      document.getElementById('simpla-wa-v62-validacao').textContent=fmtData(data?.ultima_validacao_em);
-      if(data?.ativo&&data?.status==='ATIVO'){
-        badge.textContent='Conectado';badge.className='simpla-wa-v62-badge ativo';
-        note.textContent='Integração ativa. As credenciais permanecem protegidas no backend e não são exibidas nesta tela.';
-      }else if(data?.status==='ERRO'){
-        badge.textContent='Erro';badge.className='simpla-wa-v62-badge erro';
-        note.textContent=data?.ultimo_erro||'A integração precisa ser validada novamente.';
-      }else{
-        badge.textContent='Não configurado';badge.className='simpla-wa-v62-badge';
-        note.textContent='A estrutura segura já está pronta. A conexão da conta Meta será realizada sem armazenar token no navegador.';
-      }
-    }catch(err){
-      console.error('WhatsApp config v62:',err);
-      badge.textContent='Indisponível';badge.className='simpla-wa-v62-badge erro';
-      note.textContent='Não foi possível consultar o status da integração agora.';
-    }
-  }
-  window.carregarWhatsAppConfigV62=carregar;
-  function instalar(){garantir();setTimeout(carregar,900)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,3000));else setTimeout(instalar,3000);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-templates-v63-css">
-  .simpla-wa-tpl-v63{margin:0 0 18px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.04);text-transform:none}
-  .simpla-wa-tpl-v63 h3{margin:0;font-size:16px;color:#1a1c23}.simpla-wa-tpl-v63 p{margin:4px 0 0;font-size:11px;color:#718096;line-height:1.5;text-transform:none}
-  .simpla-wa-tpl-v63-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-  .simpla-wa-tpl-v63-actions button{border:0;border-radius:7px;padding:9px 11px;cursor:pointer;font-size:9px;font-weight:900}
-  .simpla-wa-tpl-v63-primary{background:#1a1c23;color:#fff}.simpla-wa-tpl-v63-secondary{background:#edf2f7;color:#2d3748}
-  .simpla-wa-tpl-v63-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .simpla-wa-tpl-v63-card{border:1px solid #e2e8f0;border-radius:9px;padding:12px;background:#f8fafc}
-  .simpla-wa-tpl-v63-card h4{margin:0 0 8px;font-size:11px;color:#2d3748}
-  .simpla-wa-tpl-v63-row{display:grid;grid-template-columns:minmax(0,2fr) 110px;gap:8px}
-  .simpla-wa-tpl-v63-card label{display:block;font-size:8px;font-weight:900;color:#718096;margin-bottom:4px}
-  .simpla-wa-tpl-v63-card input[type=text]{width:100%;padding:8px;border:1px solid #cbd5e0;border-radius:6px;text-transform:none;font-size:11px}
-  .simpla-wa-tpl-v63-foot{margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-  .simpla-wa-tpl-v63-status{font-size:9px;font-weight:900;color:#718096}.simpla-wa-tpl-v63-status.aprovado{color:#2f855a}.simpla-wa-tpl-v63-status.rejeitado{color:#c53030}
-  .simpla-wa-tpl-v63-save{border:0;border-radius:6px;background:#2d3748;color:#fff;padding:7px 9px;cursor:pointer;font-size:8px;font-weight:900}
-  .simpla-wa-tpl-v63-msg{font-size:10px;color:#718096;margin-top:10px;text-transform:none}
-  @media(max-width:760px){.simpla-wa-tpl-v63-grid{grid-template-columns:1fr}.simpla-wa-tpl-v63-row{grid-template-columns:1fr}}
-</style>
-<script id="simpla-whatsapp-templates-v63">
-(function(){
-  const TIPOS=[
-    ['CONFIRMACAO','Confirmação de agendamento'],
-    ['LEMBRETE','Lembrete de agendamento'],
-    ['CANCELAMENTO','Cancelamento'],
-    ['REAGENDAMENTO','Reagendamento']
-  ];
-  function idTipo(t){return String(t).toLowerCase()}
-  function garantir(){
-    let box=document.getElementById('simpla-wa-tpl-v63');if(box)return box;
-    const status=document.getElementById('simpla-wa-v62');
-    const usuarios=document.getElementById('box-cfg-usuarios');
-    const config=document.getElementById('configuracoes');
-    if(!status&&!usuarios&&!config)return null;
-    box=document.createElement('section');box.id='simpla-wa-tpl-v63';box.className='simpla-wa-tpl-v63';
-    box.innerHTML='<div><h3>Templates operacionais do WhatsApp</h3><p>Mapeie os nomes dos templates aprovados na Meta. O SimplA não cria nem aprova templates automaticamente.</p></div><div class="simpla-wa-tpl-v63-actions"><button type="button" class="simpla-wa-tpl-v63-primary" onclick="validarConexaoWhatsAppV63()">Validar conexão</button><button type="button" class="simpla-wa-tpl-v63-secondary" onclick="carregarTemplatesWhatsAppV63()">Atualizar templates</button></div><div id="simpla-wa-tpl-v63-grid" class="simpla-wa-tpl-v63-grid"></div><div id="simpla-wa-tpl-v63-msg" class="simpla-wa-tpl-v63-msg"></div>';
-    if(status)status.insertAdjacentElement('afterend',box);else if(usuarios)usuarios.insertAdjacentElement('beforebegin',box);else config.appendChild(box);
-    return box;
-  }
-  function render(rows){
-    const grid=document.getElementById('simpla-wa-tpl-v63-grid');if(!grid)return;
-    const map=new Map((rows||[]).map(r=>[String(r.tipo).toUpperCase(),r]));
-    grid.innerHTML=TIPOS.map(([tipo,nome])=>{
-      const r=map.get(tipo)||{};const x=idTipo(tipo);const st=String(r.status_meta||'DESCONHECIDO').toUpperCase();
-      return '<div class="simpla-wa-tpl-v63-card"><h4>'+nome+'</h4><div class="simpla-wa-tpl-v63-row"><div><label>NOME APROVADO NA META</label><input type="text" id="wa-tpl-'+x+'" value="'+String(r.template_codigo||'').replace(/"/g,'&quot;')+'" placeholder="ex.: simpla_confirmacao_agendamento"></div><div><label>IDIOMA</label><input type="text" id="wa-lang-'+x+'" value="'+String(r.language_code||'pt_BR').replace(/"/g,'&quot;')+'" placeholder="pt_BR"></div></div><div class="simpla-wa-tpl-v63-foot"><label style="display:flex;align-items:center;gap:7px;margin:0;font-size:9px;color:#4a5568"><input type="checkbox" id="wa-ativo-'+x+'" '+(r.ativo?'checked':'')+'> Ativo</label><span class="simpla-wa-tpl-v63-status '+st.toLowerCase()+'">'+st+'</span><button type="button" class="simpla-wa-tpl-v63-save" onclick="salvarTemplateWhatsAppV63(\''+tipo+'\')">Salvar</button></div></div>';
-    }).join('');
-  }
-  async function pode(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return false;
-    const {data:perfil}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    if(String(perfil||'').toUpperCase()!=='ADMIN')return false;
-    return typeof empresaPodeUsarRecurso==='function'?await empresaPodeUsarRecurso('whatsapp_operacional'):false;
-  }
-  async function carregar(){
-    const box=garantir();if(!box)return;
-    try{
-      const ok=await pode();
-      if(!ok){box.style.display='none';return}
-      box.style.display='block';
-      const {data,error}=await CloudDB.from('whatsapp_templates_operacionais').select('tipo,template_codigo,language_code,status_meta,ativo').eq('empresa_id',empresaAtual.id);
-      if(error)throw error;render(Array.isArray(data)?data:[]);
-      document.getElementById('simpla-wa-tpl-v63-msg').textContent='Os templates só serão usados após conexão ativa e aprovação na Meta.';
-    }catch(err){console.error('Templates WhatsApp v63:',err);document.getElementById('simpla-wa-tpl-v63-msg').textContent='Não foi possível carregar os templates agora.'}
-  }
-  window.carregarTemplatesWhatsAppV63=carregar;
-  window.salvarTemplateWhatsAppV63=async function(tipo){
-    try{
-      if(!await pode())return;
-      const x=idTipo(tipo), codigo=document.getElementById('wa-tpl-'+x)?.value?.trim(), lang=document.getElementById('wa-lang-'+x)?.value?.trim()||'pt_BR', ativo=!!document.getElementById('wa-ativo-'+x)?.checked;
-      const {error}=await CloudDB.rpc('salvar_template_whatsapp_operacional',{p_empresa_id:empresaAtual.id,p_tipo:tipo,p_template_codigo:codigo,p_language_code:lang,p_ativo:ativo});
-      if(error)throw error;
-      document.getElementById('simpla-wa-tpl-v63-msg').textContent='Template salvo. O status será validado com a Meta quando a integração estiver conectada.';
-      await carregar();
-    }catch(err){console.error(err);alert(err?.message||'Não foi possível salvar o template.')}
-  };
-  window.validarConexaoWhatsAppV63=async function(){
-    const msg=document.getElementById('simpla-wa-tpl-v63-msg');
-    try{
-      if(!await pode())return;
-      msg.textContent='Validando conexão com a Meta...';
-      const {data,error}=await CloudDB.functions.invoke('whatsapp-validar-integracao',{body:{empresa_id:empresaAtual.id}});
-      if(error)throw error;
-      msg.textContent=data?.ok?'Conexão validada com sucesso.':'A integração ainda não está pronta para validação.';
-      if(typeof carregarWhatsAppConfigV62==='function')await carregarWhatsAppConfigV62();
-    }catch(err){
-      console.error('Validar WhatsApp v63:',err);
-      msg.textContent='A integração ainda não possui credencial Meta ativa ou a validação falhou.';
-      if(typeof carregarWhatsAppConfigV62==='function')await carregarWhatsAppConfigV62();
-    }
-  };
-  function instalar(){garantir();setTimeout(carregar,1100)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,3300));else setTimeout(instalar,3300);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-embedded-v64-css">
-  .simpla-wa-connect-v64{margin-top:12px;padding:12px;border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc;text-transform:none}
-  .simpla-wa-connect-v64-title{font-size:11px;font-weight:900;color:#2d3748;margin-bottom:4px}
-  .simpla-wa-connect-v64-desc{font-size:10px;color:#718096;line-height:1.5;text-transform:none}
-  .simpla-wa-connect-v64-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-  .simpla-wa-connect-v64-btn{border:0;border-radius:7px;padding:10px 12px;font-size:9px;font-weight:900;cursor:pointer;background:#1877f2;color:#fff}
-  .simpla-wa-connect-v64-btn:disabled{cursor:not-allowed;background:#cbd5e0;color:#718096}
-  .simpla-wa-connect-v64-status{margin-top:9px;font-size:10px;color:#4a5568;text-transform:none}
-</style>
-<script id="simpla-whatsapp-embedded-v64">
-(function(){
-  let cfg=null, sdkPromise=null, signup={code:null,waba_id:null,phone_number_id:null,business_id:null,finalizando:false};
-
-  function garantir(){
-    const box=document.getElementById('simpla-wa-v62');if(!box)return null;
-    let area=document.getElementById('simpla-wa-connect-v64');if(area)return area;
-    area=document.createElement('div');area.id='simpla-wa-connect-v64';area.className='simpla-wa-connect-v64';
-    area.innerHTML='<div class="simpla-wa-connect-v64-title">Conexão oficial com a Meta</div><div class="simpla-wa-connect-v64-desc">A empresa conecta o próprio WhatsApp pelo fluxo oficial da Meta. Nenhum token é digitado ou exibido no SimplA.</div><div class="simpla-wa-connect-v64-actions"><button id="simpla-wa-connect-v64-btn" type="button" class="simpla-wa-connect-v64-btn" disabled onclick="iniciarEmbeddedSignupV64()">Verificando disponibilidade...</button></div><div id="simpla-wa-connect-v64-status" class="simpla-wa-connect-v64-status"></div>';
-    box.appendChild(area);return area;
-  }
-
-  async function podeAdmin(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return false;
-    const {data:perfil}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    return String(perfil||'').toUpperCase()==='ADMIN';
-  }
-
-  async function carregarConfig(){
-    const area=garantir();if(!area||!await podeAdmin()){if(area)area.style.display='none';return}
-    area.style.display='block';
-    const btn=document.getElementById('simpla-wa-connect-v64-btn');
-    const st=document.getElementById('simpla-wa-connect-v64-status');
-    try{
-      const {data,error}=await CloudDB.functions.invoke('whatsapp-embedded-config',{body:{empresa_id:empresaAtual.id}});
-      if(error)throw error;
-      cfg=data||null;
-      if(cfg?.ready){
-        btn.disabled=false;btn.textContent='Conectar WhatsApp com a Meta';
-        st.textContent='Fluxo Embedded Signup disponível para esta conta.';
-      }else{
-        btn.disabled=true;btn.textContent='Configuração Meta pendente';
-        st.textContent='O App Meta do SimplA ainda precisa receber App ID, Config ID e versão da Graph API no backend.';
-      }
-    }catch(err){
-      console.error('Embedded config v64:',err);
-      btn.disabled=true;btn.textContent='Integração indisponível';
-      st.textContent='Não foi possível carregar a configuração de conexão agora.';
-    }
-  }
-
-  function carregarSDK(appId,version){
-    if(window.FB)return Promise.resolve();
-    if(sdkPromise)return sdkPromise;
-    sdkPromise=new Promise((resolve,reject)=>{
-      const timeout=setTimeout(()=>reject(new Error('Timeout ao carregar SDK da Meta')),12000);
-      window.fbAsyncInit=function(){
-        try{
-          FB.init({appId:String(appId),cookie:true,xfbml:false,version:String(version||'v25.0')});
-          clearTimeout(timeout);resolve();
-        }catch(e){clearTimeout(timeout);reject(e)}
-      };
-      const js=document.createElement('script');js.id='facebook-jssdk';js.async=true;js.defer=true;js.crossOrigin='anonymous';
-      js.src='https://connect.facebook.net/pt_BR/sdk.js';
-      js.onerror=()=>{clearTimeout(timeout);reject(new Error('Falha ao carregar SDK da Meta'))};
-      document.head.appendChild(js);
-    });
-    return sdkPromise;
-  }
-
-  async function tentarFinalizar(){
-    if(signup.finalizando||!signup.code||!signup.waba_id||!signup.phone_number_id)return;
-    signup.finalizando=true;
-    const st=document.getElementById('simpla-wa-connect-v64-status');
-    try{
-      st.textContent='Finalizando conexão segura com a Meta...';
-      const {data,error}=await CloudDB.functions.invoke('whatsapp-embedded-finalizar',{body:{
-        empresa_id:empresaAtual.id,
-        code:signup.code,
-        waba_id:signup.waba_id,
-        phone_number_id:signup.phone_number_id,
-        business_id:signup.business_id||null
-      }});
-      if(error)throw error;
-      if(!data?.ok)throw new Error(data?.detail||data?.error||'Falha ao concluir conexão.');
-      st.textContent='WhatsApp conectado com sucesso.';
-      if(typeof carregarWhatsAppConfigV62==='function')await carregarWhatsAppConfigV62();
-      if(typeof carregarTemplatesWhatsAppV63==='function')await carregarTemplatesWhatsAppV63();
-    }catch(err){
-      console.error('Embedded finalizar v64:',err);
-      st.textContent='Não foi possível concluir a conexão. Revise a configuração do App Meta e tente novamente.';
-    }finally{
-      signup={code:null,waba_id:null,phone_number_id:null,business_id:null,finalizando:false};
-    }
-  }
-
-  window.addEventListener('message',function(event){
-    if(!/facebook\.com$/i.test(new URL(event.origin||'https://invalid.local').hostname))return;
-    let data=event.data;
-    try{if(typeof data==='string')data=JSON.parse(data)}catch(_){return}
-    if(!data||data.type!=='WA_EMBEDDED_SIGNUP')return;
-    if(data.event==='FINISH'||data.event==='FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING'){
-      signup.waba_id=String(data.data?.waba_id||data.data?.wabaId||'')||signup.waba_id;
-      signup.phone_number_id=String(data.data?.phone_number_id||data.data?.phoneNumberId||'')||signup.phone_number_id;
-      signup.business_id=String(data.data?.business_id||data.data?.businessId||'')||signup.business_id;
-      tentarFinalizar();
-    }
-  });
-
-  window.iniciarEmbeddedSignupV64=async function(){
-    const st=document.getElementById('simpla-wa-connect-v64-status');
-    try{
-      if(!cfg?.ready){await carregarConfig();if(!cfg?.ready)return}
-      signup={code:null,waba_id:null,phone_number_id:null,business_id:null,finalizando:false};
-      st.textContent='Abrindo conexão segura da Meta...';
-      await carregarSDK(cfg.app_id,cfg.graph_version);
-      FB.login(function(response){
-        if(response?.authResponse?.code){
-          signup.code=response.authResponse.code;
-          st.textContent='Autorização recebida. Concluindo vínculo do número...';
-          tentarFinalizar();
-        }else{
-          st.textContent='Conexão cancelada ou autorização não concluída.';
-        }
-      },{
-        config_id:String(cfg.config_id),
-        response_type:'code',
-        override_default_response_type:true,
-        extras:{setup:{}}
-      });
-    }catch(err){
-      console.error('Embedded Signup v64:',err);
-      st.textContent='Não foi possível iniciar a conexão com a Meta.';
-    }
-  };
-
-  window.carregarEmbeddedSignupV64=carregarConfig;
-  function instalar(){garantir();setTimeout(carregarConfig,1400)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,3600));else setTimeout(instalar,3600);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-categoria-v65-css">
-  .simpla-wa-roadmap-v65{margin-top:16px;border:1px dashed #cbd5e0;border-radius:10px;padding:14px;background:#f8fafc;text-transform:none}
-  .simpla-wa-roadmap-v65 h3{margin:0 0 5px;font-size:13px;color:#2d3748;text-transform:none}
-  .simpla-wa-roadmap-v65 p{margin:0;font-size:10px;line-height:1.5;color:#718096;text-transform:none}
-  .simpla-wa-roadmap-v65-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:11px}
-  .simpla-wa-roadmap-v65-item{padding:10px;border-radius:8px;background:#fff;border:1px solid #e2e8f0}
-  .simpla-wa-roadmap-v65-item b{display:block;font-size:9px;color:#4a5568;margin-bottom:3px;text-transform:none}
-  .simpla-wa-roadmap-v65-item span{font-size:9px;color:#a0aec0;text-transform:none}
-  @media(max-width:760px){.simpla-wa-roadmap-v65-grid{grid-template-columns:1fr}}
-</style>
-<script id="simpla-whatsapp-categoria-v65">
-(function(){
-  const CAT='WhatsApp e Automações';
-
-  function ehAdmin(){
-    try{
-      if(typeof usuarioEhAdmin==='function') return !!usuarioEhAdmin();
-      return String(window.usuarioAtual?.perfil||window.empresaAtual?.perfil||'').toUpperCase()==='ADMIN';
-    }catch(_){return false}
-  }
-
-  function descricao(){
-    return 'Conexão com a Meta, mensagens operacionais, templates e futuras regras de automação.';
-  }
-
-  function criarRoadmap(container){
-    if(document.getElementById('simpla-wa-roadmap-v65')) return;
-    const box=document.createElement('div');
-    box.id='simpla-wa-roadmap-v65';
-    box.className='simpla-wa-roadmap-v65';
-    box.innerHTML='<h3>Próximas configurações</h3><p>Esta área já está reservada para as próximas etapas do WhatsApp operacional. Os controles serão liberados conforme forem implementados e testados.</p><div class="simpla-wa-roadmap-v65-grid"><div class="simpla-wa-roadmap-v65-item"><b>Regras de envio</b><span>Antecedência, horários permitidos e prevenção de duplicidade.</span></div><div class="simpla-wa-roadmap-v65-item"><b>Automações</b><span>Confirmação, lembrete, cancelamento e reagendamento automáticos.</span></div><div class="simpla-wa-roadmap-v65-item"><b>Histórico e monitoramento</b><span>Enviados, pendentes, erros e reenvios.</span></div></div>';
-    container.appendChild(box);
-  }
-
-  function ordenarBotao(nav, btn){
-    const geral=[...nav.querySelectorAll('button')].find(b=>String(b.dataset.cat||'')==='Geral e Aparência');
-    if(geral) nav.insertBefore(btn,geral);
-    else {
-      const usuarios=[...nav.querySelectorAll('button')].find(b=>String(b.dataset.cat||'')==='Usuários e Segurança');
-      if(usuarios) nav.insertBefore(btn,usuarios);
-      else nav.appendChild(btn);
-    }
-  }
-
-  function ativar(nav,content){
-    nav.querySelectorAll('button').forEach(b=>b.classList.toggle('ativo',b.dataset.cat===CAT));
-    content.querySelectorAll('.cfg-v2-group').forEach(g=>g.classList.toggle('ativo',g.dataset.cat===CAT));
-    setTimeout(()=>{
-      try{ if(typeof carregarWhatsAppConfigV62==='function') carregarWhatsAppConfigV62(); }catch(_){}
-      try{ if(typeof carregarTemplatesWhatsAppV63==='function') carregarTemplatesWhatsAppV63(); }catch(_){}
-      try{ if(typeof carregarEmbeddedSignupV64==='function') carregarEmbeddedSignupV64(); }catch(_){}
-    },80);
-  }
-
-  function montar(){
-    const shell=document.querySelector('#configuracoes .cfg-v2-shell');
-    if(!shell) return false;
-    const nav=shell.querySelector('.cfg-v2-nav');
-    const content=shell.querySelector('.cfg-v2-content');
-    if(!nav||!content) return false;
-
-    let group=content.querySelector('.cfg-v2-group[data-cat="'+CAT+'"]');
-    let btn=[...nav.querySelectorAll('button')].find(b=>b.dataset.cat===CAT);
-
-    if(!ehAdmin()){
-      if(btn) btn.style.display='none';
-      if(group) group.style.display='none';
-      return true;
-    }
-
-    if(!btn){
-      btn=document.createElement('button');
-      btn.type='button';
-      btn.dataset.cat=CAT;
-      btn.innerHTML='<span>'+CAT+'</span><span>›</span>';
-      btn.onclick=()=>ativar(nav,content);
-      ordenarBotao(nav,btn);
-    }
-    btn.style.display='';
-
-    if(!group){
-      group=document.createElement('section');
-      group.className='cfg-v2-group';
-      group.dataset.cat=CAT;
-      const h=document.createElement('h2'); h.textContent=CAT;
-      const d=document.createElement('p'); d.className='cfg-v2-desc'; d.textContent=descricao();
-      const area=document.createElement('div'); area.id='simpla-wa-categoria-v65-content'; area.className='cfg-v2-section';
-      group.append(h,d,area);
-
-      const geral=content.querySelector('.cfg-v2-group[data-cat="Geral e Aparência"]');
-      if(geral) content.insertBefore(group,geral); else content.appendChild(group);
-    }
-    group.style.display='';
-
-    const area=group.querySelector('#simpla-wa-categoria-v65-content') || group;
-    const status=document.getElementById('simpla-wa-v62');
-    const templates=document.getElementById('simpla-wa-tpl-v63');
-
-    if(status && status.parentElement!==area) area.appendChild(status);
-    if(templates && templates.parentElement!==area) area.appendChild(templates);
-    criarRoadmap(area);
-
-    return true;
-  }
-
-  function instalar(){
-    let tentativas=0;
-    const timer=setInterval(()=>{
-      tentativas++;
-      const ok=montar();
-      if(ok || tentativas>12) clearInterval(timer);
-    },250);
-  }
-
-  document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.cfg-v2-nav button');
-    if(b && b.dataset.cat===CAT) setTimeout(()=>montar(),20);
-  },true);
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,500));
-  else setTimeout(instalar,500);
-  setTimeout(montar,2500);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-regras-v66-css">
-  .simpla-wa-rules-v66{margin-top:16px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.04);text-transform:none}
-  .simpla-wa-rules-v66 h3{margin:0;font-size:16px;color:#1a1c23;text-transform:none}
-  .simpla-wa-rules-v66 p{margin:4px 0 0;font-size:10px;color:#718096;line-height:1.5;text-transform:none}
-  .simpla-wa-rules-v66-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-  .simpla-wa-rules-v66-card{border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc;padding:12px}
-  .simpla-wa-rules-v66-card h4{margin:0 0 8px;font-size:11px;color:#2d3748;text-transform:none}
-  .simpla-wa-rules-v66-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #edf2f7;text-transform:none}
-  .simpla-wa-rules-v66-switch:last-child{border-bottom:0}
-  .simpla-wa-rules-v66-switch span{font-size:10px;color:#4a5568;text-transform:none}
-  .simpla-wa-rules-v66-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .simpla-wa-rules-v66-field label{display:block;font-size:8px;font-weight:900;color:#718096;margin-bottom:4px;text-transform:uppercase}
-  .simpla-wa-rules-v66-field select,.simpla-wa-rules-v66-field input{width:100%;padding:9px;border:1px solid #cbd5e0;border-radius:6px;background:#fff;font-size:11px;text-transform:none}
-  .simpla-wa-rules-v66-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
-  .simpla-wa-rules-v66-save{border:0;border-radius:7px;padding:10px 13px;background:#1a1c23;color:#fff;font-size:9px;font-weight:900;cursor:pointer}
-  .simpla-wa-rules-v66-msg{font-size:10px;color:#718096;text-transform:none}
-  .simpla-wa-rules-v66-note{margin-top:12px;padding:10px;border-radius:8px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:10px;line-height:1.5;text-transform:none}
-  .simpla-wa-rules-v66.locked{opacity:.78}
-  .simpla-wa-rules-v66.locked input,.simpla-wa-rules-v66.locked select,.simpla-wa-rules-v66.locked button{pointer-events:none}
-  @media(max-width:760px){.simpla-wa-rules-v66-grid,.simpla-wa-rules-v66-fields{grid-template-columns:1fr}}
-</style>
-
-<script id="simpla-whatsapp-regras-v66">
-(function(){
-  function garantir(){
-    let box=document.getElementById('simpla-wa-rules-v66'); if(box) return box;
-    const area=document.getElementById('simpla-wa-categoria-v65-content');
-    if(!area) return null;
-
-    box=document.createElement('section');
-    box.id='simpla-wa-rules-v66';
-    box.className='simpla-wa-rules-v66';
-    box.innerHTML=`
-      <div>
-        <h3>Regras de envio</h3>
-        <p>Defina quando o SimplA poderá preparar mensagens operacionais. As automações só serão executadas quando o motor de envio for ativado em uma etapa posterior.</p>
-      </div>
-
-      <div class="simpla-wa-rules-v66-grid">
-        <div class="simpla-wa-rules-v66-card">
-          <h4>Tipos de mensagem</h4>
-          <label class="simpla-wa-rules-v66-switch"><span>Confirmação de agendamento</span><input id="wa-rule-confirmacao" type="checkbox"></label>
-          <label class="simpla-wa-rules-v66-switch"><span>Lembrete de agendamento</span><input id="wa-rule-lembrete" type="checkbox"></label>
-          <label class="simpla-wa-rules-v66-switch"><span>Cancelamento</span><input id="wa-rule-cancelamento" type="checkbox"></label>
-          <label class="simpla-wa-rules-v66-switch"><span>Reagendamento</span><input id="wa-rule-reagendamento" type="checkbox"></label>
-        </div>
-
-        <div class="simpla-wa-rules-v66-card">
-          <h4>Parâmetros</h4>
-          <div class="simpla-wa-rules-v66-fields">
-            <div class="simpla-wa-rules-v66-field">
-              <label>Antecedência do lembrete</label>
-              <select id="wa-rule-antecedencia">
-                <option value="30">30 minutos</option>
-                <option value="60">1 hora</option>
-                <option value="120">2 horas</option>
-                <option value="360">6 horas</option>
-                <option value="720">12 horas</option>
-                <option value="1440">24 horas</option>
-                <option value="2880">48 horas</option>
-                <option value="4320">3 dias</option>
-                <option value="10080">7 dias</option>
-              </select>
-            </div>
-            <div class="simpla-wa-rules-v66-field">
-              <label>Evitar duplicidade</label>
-              <select id="wa-rule-duplicidade">
-                <option value="true">Sim</option>
-                <option value="false">Não</option>
-              </select>
-            </div>
-            <div class="simpla-wa-rules-v66-field">
-              <label>Início da janela de envio</label>
-              <input id="wa-rule-inicio" type="time" value="08:00">
-            </div>
-            <div class="simpla-wa-rules-v66-field">
-              <label>Fim da janela de envio</label>
-              <input id="wa-rule-fim" type="time" value="20:00">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="simpla-wa-rules-v66-actions">
-        <button type="button" class="simpla-wa-rules-v66-save" onclick="salvarRegrasWhatsAppV66()">Salvar regras</button>
-        <span id="simpla-wa-rules-v66-msg" class="simpla-wa-rules-v66-msg"></span>
-      </div>
-      <div class="simpla-wa-rules-v66-note">Estas regras ainda não disparam mensagens automaticamente. Elas serão usadas pelo motor de automação que será conectado à fila operacional nas próximas versões.</div>
-    `;
-
-    const roadmap=document.getElementById('simpla-wa-roadmap-v65');
-    if(roadmap && roadmap.parentElement===area) area.insertBefore(box,roadmap); else area.appendChild(box);
-    return box;
-  }
-
-  async function permitido(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id) return false;
-    const {data:perfil}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    if(String(perfil||'').toUpperCase()!=='ADMIN') return false;
-    if(typeof empresaPodeUsarRecurso!=='function') return false;
-    return await empresaPodeUsarRecurso('whatsapp_operacional');
-  }
-
-  function preencher(r){
-    document.getElementById('wa-rule-confirmacao').checked=!!r?.confirmacao_ativa;
-    document.getElementById('wa-rule-lembrete').checked=!!r?.lembrete_ativo;
-    document.getElementById('wa-rule-cancelamento').checked=!!r?.cancelamento_ativo;
-    document.getElementById('wa-rule-reagendamento').checked=!!r?.reagendamento_ativo;
-    document.getElementById('wa-rule-antecedencia').value=String(r?.lembrete_antecedencia_minutos||1440);
-    document.getElementById('wa-rule-inicio').value=String(r?.horario_inicio||'08:00').slice(0,5);
-    document.getElementById('wa-rule-fim').value=String(r?.horario_fim||'20:00').slice(0,5);
-    document.getElementById('wa-rule-duplicidade').value=String(r?.bloquear_duplicidade!==false);
-  }
-
-  async function carregar(){
-    const box=garantir(); if(!box) return;
-    const msg=document.getElementById('simpla-wa-rules-v66-msg');
-    try{
-      const ok=await permitido();
-      box.classList.toggle('locked',!ok);
-      if(!ok){
-        msg.textContent='Disponível a partir do plano Plus.';
-        return;
-      }
-      const {data,error}=await CloudDB.from('whatsapp_regras_operacionais')
-        .select('confirmacao_ativa,lembrete_ativo,cancelamento_ativo,reagendamento_ativo,lembrete_antecedencia_minutos,horario_inicio,horario_fim,bloquear_duplicidade')
-        .eq('empresa_id',empresaAtual.id).maybeSingle();
-      if(error) throw error;
-      preencher(data||{});
-      msg.textContent=data?'Regras carregadas.':'Use os valores abaixo para criar a primeira configuração.';
-    }catch(err){
-      console.error('Regras WhatsApp v66:',err);
-      msg.textContent='Não foi possível carregar as regras agora.';
-    }
-  }
-
-  window.carregarRegrasWhatsAppV66=carregar;
-
-  window.salvarRegrasWhatsAppV66=async function(){
-    const box=garantir(); if(!box) return;
-    const msg=document.getElementById('simpla-wa-rules-v66-msg');
-    try{
-      if(!await permitido()) return;
-      const inicio=document.getElementById('wa-rule-inicio').value;
-      const fim=document.getElementById('wa-rule-fim').value;
-      if(!inicio||!fim||inicio===fim){alert('Informe uma janela de envio válida.');return}
-      msg.textContent='Salvando...';
-      const {error}=await CloudDB.rpc('salvar_regras_whatsapp_operacional',{
-        p_empresa_id:empresaAtual.id,
-        p_confirmacao_ativa:document.getElementById('wa-rule-confirmacao').checked,
-        p_lembrete_ativo:document.getElementById('wa-rule-lembrete').checked,
-        p_cancelamento_ativo:document.getElementById('wa-rule-cancelamento').checked,
-        p_reagendamento_ativo:document.getElementById('wa-rule-reagendamento').checked,
-        p_lembrete_antecedencia_minutos:Number(document.getElementById('wa-rule-antecedencia').value||1440),
-        p_horario_inicio:inicio,
-        p_horario_fim:fim,
-        p_bloquear_duplicidade:document.getElementById('wa-rule-duplicidade').value==='true'
-      });
-      if(error) throw error;
-      msg.textContent='Regras salvas com sucesso.';
-      await carregar();
-    }catch(err){
-      console.error('Salvar regras WhatsApp v66:',err);
-      msg.textContent='Não foi possível salvar as regras.';
-      alert(err?.message||'Erro ao salvar regras do WhatsApp.');
-    }
-  };
-
-  function instalar(){
-    garantir();
-    setTimeout(carregar,800);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,4500));
-  else setTimeout(instalar,4500);
-
-  document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.cfg-v2-nav button');
-    if(b && b.dataset.cat==='WhatsApp e Automações') setTimeout(carregar,120);
-  },true);
-
-  setTimeout(instalar,6500);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-monitor-v67-css">
-  .simpla-wa-monitor-v67{margin-top:16px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.04);text-transform:none}
-  .simpla-wa-monitor-v67-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-  .simpla-wa-monitor-v67 h3{margin:0;font-size:16px;color:#1a1c23;text-transform:none}
-  .simpla-wa-monitor-v67 p{margin:4px 0 0;font-size:10px;color:#718096;line-height:1.5;text-transform:none}
-  .simpla-wa-monitor-v67-btn{border:0;border-radius:7px;padding:9px 11px;background:#1a1c23;color:#fff;font-size:9px;font-weight:900;cursor:pointer}
-  .simpla-wa-monitor-v67-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}
-  .simpla-wa-monitor-v67-kpi{border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc;padding:10px}
-  .simpla-wa-monitor-v67-kpi span{display:block;font-size:8px;color:#718096;font-weight:900;margin-bottom:4px;text-transform:uppercase}
-  .simpla-wa-monitor-v67-kpi b{font-size:18px;color:#2d3748}
-  .simpla-wa-monitor-v67-table-wrap{overflow-x:auto;margin-top:12px}
-  .simpla-wa-monitor-v67-table{width:100%;min-width:780px;border-collapse:collapse}
-  .simpla-wa-monitor-v67-table th,.simpla-wa-monitor-v67-table td{padding:9px 8px;border-bottom:1px solid #edf2f7;font-size:10px;text-align:left;text-transform:none}
-  .simpla-wa-monitor-v67-table th{font-size:8px;color:#718096;text-transform:uppercase;background:#f8fafc}
-  .simpla-wa-monitor-v67-badge{display:inline-flex;padding:4px 7px;border-radius:999px;background:#edf2f7;color:#4a5568;font-size:8px;font-weight:900}
-  .simpla-wa-monitor-v67-badge.ENVIADO{background:#f0fff4;color:#2f855a}
-  .simpla-wa-monitor-v67-badge.ERRO{background:#fff5f5;color:#c53030}
-  .simpla-wa-monitor-v67-badge.PENDENTE{background:#fffaf0;color:#975a16}
-  .simpla-wa-monitor-v67-badge.CANCELADO{background:#edf2f7;color:#718096}
-  .simpla-wa-monitor-v67-empty{padding:16px;text-align:center;color:#718096;font-size:10px;text-transform:none}
-  .simpla-wa-monitor-v67-note{margin-top:10px;font-size:9px;color:#a0aec0;text-transform:none}
-  @media(max-width:760px){.simpla-wa-monitor-v67-kpis{grid-template-columns:1fr 1fr}}
-</style>
-<script id="simpla-whatsapp-monitor-v67">
-(function(){
-  function garantir(){
-    let box=document.getElementById('simpla-wa-monitor-v67'); if(box) return box;
-    const area=document.getElementById('simpla-wa-categoria-v65-content'); if(!area) return null;
-
-    box=document.createElement('section');
-    box.id='simpla-wa-monitor-v67';
-    box.className='simpla-wa-monitor-v67';
-    box.innerHTML='<div class="simpla-wa-monitor-v67-head"><div><h3>Histórico e monitoramento</h3><p>Acompanhe o que o motor está preparando na fila operacional. Nesta fase, o painel é somente leitura.</p></div><button type="button" class="simpla-wa-monitor-v67-btn" onclick="carregarMonitorWhatsAppV67()">Atualizar histórico</button></div><div class="simpla-wa-monitor-v67-kpis"><div class="simpla-wa-monitor-v67-kpi"><span>Pendentes</span><b id="wa-mon-pendentes">0</b></div><div class="simpla-wa-monitor-v67-kpi"><span>Enviadas</span><b id="wa-mon-enviadas">0</b></div><div class="simpla-wa-monitor-v67-kpi"><span>Erros</span><b id="wa-mon-erros">0</b></div><div class="simpla-wa-monitor-v67-kpi"><span>Canceladas</span><b id="wa-mon-canceladas">0</b></div></div><div class="simpla-wa-monitor-v67-table-wrap"><table class="simpla-wa-monitor-v67-table"><thead><tr><th>Criada em</th><th>Tipo</th><th>Destino</th><th>Status</th><th>Origem</th><th>Programada</th><th>Detalhe</th></tr></thead><tbody id="wa-mon-body"></tbody></table></div><div class="simpla-wa-monitor-v67-note">O telefone é mascarado na interface. Nenhuma credencial da Meta é exibida aqui.</div>';
-    const roadmap=document.getElementById('simpla-wa-roadmap-v65');
-    if(roadmap && roadmap.parentElement===area) area.insertBefore(box,roadmap); else area.appendChild(box);
-    return box;
-  }
-  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-  function data(v){if(!v)return '—';try{return new Date(v).toLocaleString('pt-BR')}catch(_){return '—'}}
-  function local(v){if(!v)return '—';const s=String(v).replace('T',' ');return esc(s.slice(0,16))}
-  function telefone(v){
-    const d=String(v||'').replace(/\D/g,'');
-    if(d.length<6)return '—';
-    return d.slice(0,2)+'•••••'+d.slice(-3);
-  }
-  function detalhe(r){
-    if(r.erro)return esc(r.erro);
-    if(r.provider_message_id)return 'ID Meta: '+esc(String(r.provider_message_id).slice(-14));
-    return '—';
-  }
-  async function permitido(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return false;
-    const {data:perfil}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    return String(perfil||'').toUpperCase()==='ADMIN';
-  }
-  async function carregar(){
-    const box=garantir();if(!box||!await permitido())return;
-    try{
-      const {data:rows,error}=await CloudDB.from('whatsapp_mensagens_operacionais')
-        .select('id,tipo,destino,status,origem_automacao,processar_em_local,provider_message_id,erro,criado_em')
-        .eq('empresa_id',empresaAtual.id)
-        .order('criado_em',{ascending:false})
-        .limit(100);
-      if(error)throw error;
-      const lista=Array.isArray(rows)?rows:[];
-      const n=s=>lista.filter(x=>String(x.status)===s).length;
-      document.getElementById('wa-mon-pendentes').textContent=String(n('PENDENTE')+n('RASCUNHO')+n('PROCESSANDO'));
-      document.getElementById('wa-mon-enviadas').textContent=String(n('ENVIADO'));
-      document.getElementById('wa-mon-erros').textContent=String(n('ERRO'));
-      document.getElementById('wa-mon-canceladas').textContent=String(n('CANCELADO'));
-      const body=document.getElementById('wa-mon-body');
-      if(!lista.length){body.innerHTML='<tr><td colspan="7"><div class="simpla-wa-monitor-v67-empty">A fila ainda está vazia. Novos eventos de agenda aparecerão aqui quando houver regras e templates ativos.</div></td></tr>';return}
-      body.innerHTML=lista.map(r=>'<tr><td>'+data(r.criado_em)+'</td><td>'+esc(r.tipo)+'</td><td>'+telefone(r.destino)+'</td><td><span class="simpla-wa-monitor-v67-badge '+esc(r.status)+'">'+esc(r.status)+'</span></td><td>'+(r.origem_automacao?'Automação':'Manual')+'</td><td>'+local(r.processar_em_local)+'</td><td>'+detalhe(r)+'</td></tr>').join('');
-    }catch(err){
-      console.error('Monitor WhatsApp v67:',err);
-      const body=document.getElementById('wa-mon-body');
-      if(body)body.innerHTML='<tr><td colspan="7"><div class="simpla-wa-monitor-v67-empty">Não foi possível carregar o histórico agora.</div></td></tr>';
-    }
-  }
-  window.carregarMonitorWhatsAppV67=carregar;
-  function instalar(){garantir();setTimeout(carregar,900)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,5000));else setTimeout(instalar,5000);
-  document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.cfg-v2-nav button');
-    if(b&&b.dataset.cat==='WhatsApp e Automações')setTimeout(carregar,150);
-  },true);
-  setTimeout(instalar,7000);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-regras-individuais-v68-css">
-  #simpla-wa-rules-v66{display:none!important}
-  .simpla-wa-rules-v68{margin-top:16px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.04);text-transform:none}
-  .simpla-wa-rules-v68 h3{margin:0;font-size:16px;color:#1a1c23;text-transform:none}
-  .simpla-wa-rules-v68>p{margin:4px 0 0;font-size:10px;color:#718096;line-height:1.5;text-transform:none}
-  .simpla-wa-rules-v68-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-  .simpla-wa-rule-v68-card{border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:13px}
-  .simpla-wa-rule-v68-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
-  .simpla-wa-rule-v68-title{font-size:12px;font-weight:900;color:#2d3748;text-transform:none}
-  .simpla-wa-rule-v68-desc{font-size:9px;color:#718096;margin-top:2px;line-height:1.4;text-transform:none}
-  .simpla-wa-rule-v68-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-  .simpla-wa-rule-v68-field label{display:block;font-size:8px;font-weight:900;color:#718096;margin-bottom:4px;text-transform:uppercase}
-  .simpla-wa-rule-v68-field input,.simpla-wa-rule-v68-field select{width:100%;padding:8px;border:1px solid #cbd5e0;border-radius:6px;background:#fff;font-size:11px;text-transform:none}
-  .simpla-wa-rule-v68-full{grid-column:1/-1}
-  .simpla-wa-rule-v68-actions{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:11px;flex-wrap:wrap}
-  .simpla-wa-rule-v68-save{border:0;border-radius:7px;padding:9px 11px;background:#1a1c23;color:#fff;font-size:9px;font-weight:900;cursor:pointer}
-  .simpla-wa-rule-v68-msg{font-size:9px;color:#718096;text-transform:none}
-  .simpla-wa-rule-v68-note{margin-top:12px;padding:10px;border-radius:8px;background:#ebf8ff;border:1px solid #bee3f8;color:#2c5282;font-size:10px;line-height:1.5;text-transform:none}
-  .simpla-wa-rule-v68-disabled{opacity:.65}
-  @media(max-width:760px){.simpla-wa-rules-v68-grid,.simpla-wa-rule-v68-fields{grid-template-columns:1fr}.simpla-wa-rule-v68-full{grid-column:auto}}
-</style>
-
-<script id="simpla-whatsapp-regras-individuais-v68">
-(function(){
-  const TIPOS=[
-    {tipo:'CONFIRMACAO',titulo:'Confirmação de agendamento',desc:'Preparada quando o agendamento passa para AGENDADO.',antecedencia:false},
-    
-    {tipo:'CANCELAMENTO',titulo:'Cancelamento',desc:'Preparado quando o agendamento é cancelado.',antecedencia:false},
-    {tipo:'REAGENDAMENTO',titulo:'Reagendamento',desc:'Preparado quando data, horário ou profissional são alterados.',antecedencia:false}
-  ];
-
-  function slug(t){return t.toLowerCase()}
-  function garantir(){
-    let box=document.getElementById('simpla-wa-rules-v68');if(box)return box;
-    const area=document.getElementById('simpla-wa-categoria-v65-content');if(!area)return null;
-    box=document.createElement('section');
-    box.id='simpla-wa-rules-v68';
-    box.className='simpla-wa-rules-v68';
-    box.innerHTML='<h3>Regras de envio por mensagem</h3><p>Cada mensagem possui configuração própria. Isso permite, por exemplo, enviar confirmações em uma janela e lembretes em outra.</p><div id="simpla-wa-rules-v68-grid" class="simpla-wa-rules-v68-grid"></div><div class="simpla-wa-rule-v68-note">As regras controlam a preparação da fila. O disparo automático continuará desativado até ativarmos o processador final.</div>';
-    const antigo=document.getElementById('simpla-wa-rules-v66');
-    if(antigo&&antigo.parentElement===area) antigo.insertAdjacentElement('afterend',box);
-    else {
-      const monitor=document.getElementById('simpla-wa-monitor-v67');
-      if(monitor&&monitor.parentElement===area) area.insertBefore(box,monitor); else area.appendChild(box);
-    }
-    render([]);
-    return box;
-  }
-
-  function opcoesAntecedencia(v){
-    const opts=[[30,'30 minutos'],[60,'1 hora'],[120,'2 horas'],[360,'6 horas'],[720,'12 horas'],[1440,'24 horas'],[2880,'48 horas'],[4320,'3 dias'],[10080,'7 dias']];
-    return opts.map(([x,n])=>'<option value="'+x+'" '+(Number(v||1440)===x?'selected':'')+'>'+n+'</option>').join('');
-  }
-
-  function render(rows){
-    const grid=document.getElementById('simpla-wa-rules-v68-grid');if(!grid)return;
-    const map=new Map((rows||[]).map(r=>[String(r.tipo).toUpperCase(),r]));
-    const reminders=document.getElementById('simpla-wa-reminders-v72');
-    if(reminders && reminders.parentElement===grid) reminders.remove();
-    grid.innerHTML=TIPOS.map(cfg=>{
-      const r=map.get(cfg.tipo)||{};
-      const s=slug(cfg.tipo);
-      const ini=String(r.horario_inicio||'08:00').slice(0,5);
-      const fim=String(r.horario_fim||'20:00').slice(0,5);
-      return '<div class="simpla-wa-rule-v68-card" id="wa-rule-card-'+s+'">'+
-        '<div class="simpla-wa-rule-v68-head"><div><div class="simpla-wa-rule-v68-title">'+cfg.titulo+'</div><div class="simpla-wa-rule-v68-desc">'+cfg.desc+'</div></div><label style="display:flex;align-items:center;gap:7px;font-size:9px;color:#4a5568;text-transform:none"><input id="wa68-ativo-'+s+'" type="checkbox" '+(r.ativo?'checked':'')+'> Ativo</label></div>'+
-        '<div class="simpla-wa-rule-v68-fields">'+
-          (cfg.antecedencia?'<div class="simpla-wa-rule-v68-field simpla-wa-rule-v68-full"><label>Antecedência</label><select id="wa68-ant-'+s+'">'+opcoesAntecedencia(r.antecedencia_minutos)+'</select></div>':'')+
-          '<div class="simpla-wa-rule-v68-field"><label>Início da janela</label><input id="wa68-ini-'+s+'" type="time" value="'+ini+'"></div>'+
-          '<div class="simpla-wa-rule-v68-field"><label>Fim da janela</label><input id="wa68-fim-'+s+'" type="time" value="'+fim+'"></div>'+
-          '<div class="simpla-wa-rule-v68-field simpla-wa-rule-v68-full"><label>Evitar duplicidade</label><select id="wa68-dup-'+s+'"><option value="true" '+(r.bloquear_duplicidade!==false?'selected':'')+'>Sim</option><option value="false" '+(r.bloquear_duplicidade===false?'selected':'')+'>Não</option></select></div>'+
-        '</div>'+
-        '<div class="simpla-wa-rule-v68-actions"><span id="wa68-msg-'+s+'" class="simpla-wa-rule-v68-msg"></span><button type="button" class="simpla-wa-rule-v68-save" onclick="salvarRegraWhatsAppV68(\''+cfg.tipo+'\')">Salvar '+cfg.titulo.toLowerCase()+'</button></div>'+
-      '</div>';
-    }).join('');
-    if(reminders){
-      grid.appendChild(reminders);
-    }else if(typeof carregarLembretesWhatsAppV72==='function'){
-      setTimeout(()=>{ try{ carregarLembretesWhatsAppV72(); }catch(_){} },0);
-    }
-  }
-
-  async function permitido(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return false;
-    const {data:perfil}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    if(String(perfil||'').toUpperCase()!=='ADMIN')return false;
-    return typeof empresaPodeUsarRecurso==='function'?await empresaPodeUsarRecurso('whatsapp_operacional'):false;
-  }
-
-  async function carregar(){
-    const box=garantir();if(!box)return;
-    try{
-      const ok=await permitido();
-      box.classList.toggle('simpla-wa-rule-v68-disabled',!ok);
-      if(!ok)return;
-      const {data,error}=await CloudDB.from('whatsapp_regras_mensagem')
-        .select('tipo,ativo,antecedencia_minutos,horario_inicio,horario_fim,bloquear_duplicidade')
-        .eq('empresa_id',empresaAtual.id);
-      if(error)throw error;
-      render(Array.isArray(data)?data:[]);
-    }catch(err){console.error('Regras individuais WhatsApp v68:',err)}
-  }
-
-  window.carregarRegrasWhatsAppV68=carregar;
-
-  window.salvarRegraWhatsAppV68=async function(tipo){
-    const cfg=TIPOS.find(x=>x.tipo===tipo);if(!cfg)return;
-    const s=slug(tipo), msg=document.getElementById('wa68-msg-'+s);
-    try{
-      if(!await permitido())return;
-      const ini=document.getElementById('wa68-ini-'+s)?.value;
-      const fim=document.getElementById('wa68-fim-'+s)?.value;
-      if(!ini||!fim||ini===fim){alert('Informe uma janela de envio válida para '+cfg.titulo+'.');return}
-      msg.textContent='Salvando...';
-      const ant=cfg.antecedencia?Number(document.getElementById('wa68-ant-'+s)?.value||1440):null;
-      const {error}=await CloudDB.rpc('salvar_regra_whatsapp_mensagem',{
-        p_empresa_id:empresaAtual.id,
-        p_tipo:tipo,
-        p_ativo:!!document.getElementById('wa68-ativo-'+s)?.checked,
-        p_antecedencia_minutos:ant,
-        p_horario_inicio:ini,
-        p_horario_fim:fim,
-        p_bloquear_duplicidade:document.getElementById('wa68-dup-'+s)?.value==='true'
-      });
-      if(error)throw error;
-      msg.textContent='Salvo.';
-      setTimeout(()=>{if(msg)msg.textContent=''},1800);
-      await carregar();
-    }catch(err){
-      console.error('Salvar regra WhatsApp v68:',err);
-      msg.textContent='Erro ao salvar.';
-      alert(err?.message||'Não foi possível salvar esta regra.');
-    }
-  };
-
-  function instalar(){garantir();setTimeout(carregar,700)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,5200));else setTimeout(instalar,5200);
-  document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.cfg-v2-nav button');
-    if(b&&b.dataset.cat==='WhatsApp e Automações')setTimeout(carregar,140);
-  },true);
-  setTimeout(instalar,7500);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-fuso-v69-css">
-  .simpla-wa-fuso-v69{margin-top:16px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.04);text-transform:none}
-  .simpla-wa-fuso-v69 h3{margin:0;font-size:16px;color:#1a1c23;text-transform:none}
-  .simpla-wa-fuso-v69 p{margin:4px 0 0;font-size:10px;color:#718096;line-height:1.5;text-transform:none}
-  .simpla-wa-fuso-v69-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-top:12px}
-  .simpla-wa-fuso-v69-field label{display:block;font-size:8px;font-weight:900;color:#718096;margin-bottom:4px;text-transform:uppercase}
-  .simpla-wa-fuso-v69-field select{width:100%;padding:9px;border:1px solid #cbd5e0;border-radius:6px;background:#fff;font-size:11px;text-transform:none}
-  .simpla-wa-fuso-v69-save{border:0;border-radius:7px;padding:10px 13px;background:#1a1c23;color:#fff;font-size:9px;font-weight:900;cursor:pointer}
-  .simpla-wa-fuso-v69-msg{margin-top:9px;font-size:10px;color:#718096;text-transform:none}
-  .simpla-wa-fuso-v69-warn{margin-top:10px;padding:10px;border-radius:8px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:10px;line-height:1.5;text-transform:none}
-  @media(max-width:760px){.simpla-wa-fuso-v69-row{grid-template-columns:1fr}}
-</style>
-
-<script id="simpla-whatsapp-fuso-v69">
-(function(){
-  const FUSOS=[
-    ['America/Recife','Recife / Brasília (Nordeste)'],
-    ['America/Sao_Paulo','São Paulo / Brasília (Sudeste/Sul)'],
-    ['America/Fortaleza','Fortaleza'],
-    ['America/Bahia','Salvador / Bahia'],
-    ['America/Manaus','Manaus / Amazonas'],
-    ['America/Belem','Belém / Pará'],
-    ['America/Cuiaba','Cuiabá / Mato Grosso'],
-    ['America/Campo_Grande','Campo Grande / Mato Grosso do Sul'],
-    ['America/Rio_Branco','Rio Branco / Acre'],
-    ['America/Noronha','Fernando de Noronha']
-  ];
-
-  function garantir(){
-    let box=document.getElementById('simpla-wa-fuso-v69'); if(box)return box;
-    const area=document.getElementById('simpla-wa-categoria-v65-content'); if(!area)return null;
-
-    box=document.createElement('section');
-    box.id='simpla-wa-fuso-v69';
-    box.className='simpla-wa-fuso-v69';
-    box.innerHTML='<h3>Fuso horário da empresa</h3><p>Usado para calcular corretamente lembretes e demais automações. O navegador pode sugerir um valor, mas o fuso oficial é salvo pelo ADMIN.</p><div class="simpla-wa-fuso-v69-row"><div class="simpla-wa-fuso-v69-field"><label>Fuso horário</label><select id="wa-fuso-v69"></select></div><button type="button" class="simpla-wa-fuso-v69-save" onclick="salvarFusoWhatsAppV69()">Salvar fuso</button></div><div id="wa-fuso-v69-msg" class="simpla-wa-fuso-v69-msg"></div><div id="wa-fuso-v69-warn" class="simpla-wa-fuso-v69-warn">Enquanto o fuso não estiver configurado, o SimplA não programará mensagens automáticas.</div>';
-
-    const rules=document.getElementById('simpla-wa-rules-v68');
-    if(rules&&rules.parentElement===area) area.insertBefore(box,rules); else area.prepend(box);
-    preencherOpcoes();
-    return box;
-  }
-
-  function preencherOpcoes(){
-    const sel=document.getElementById('wa-fuso-v69');if(!sel)return;
-    const detectado=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
-    const conhecidos=new Set(FUSOS.map(x=>x[0]));
-    const itens=[...FUSOS];
-    if(detectado&&!conhecidos.has(detectado)) itens.unshift([detectado,'Detectado pelo navegador']);
-    sel.innerHTML='<option value="">Selecione o fuso da empresa</option>'+itens.map(([v,n])=>'<option value="'+v+'">'+n+' · '+v+'</option>').join('');
-    if(detectado) sel.dataset.detectado=detectado;
-  }
-
-  async function ehAdmin(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return false;
-    const {data:perfil}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    return String(perfil||'').toUpperCase()==='ADMIN';
-  }
-
-  async function carregar(){
-    const box=garantir(); if(!box||!await ehAdmin())return;
-    const msg=document.getElementById('wa-fuso-v69-msg');
-    try{
-      const {data,error}=await CloudDB.from('empresas').select('fuso_horario').eq('id',empresaAtual.id).maybeSingle();
-      if(error)throw error;
-      const sel=document.getElementById('wa-fuso-v69');
-      if(data?.fuso_horario){
-        if(![...sel.options].some(o=>o.value===data.fuso_horario)){
-          const opt=document.createElement('option');opt.value=data.fuso_horario;opt.textContent=data.fuso_horario;sel.appendChild(opt);
-        }
-        sel.value=data.fuso_horario;
-        msg.textContent='Fuso configurado: '+data.fuso_horario;
-        document.getElementById('wa-fuso-v69-warn').style.display='none';
-      }else{
-        const det=sel.dataset.detectado||'';
-        if(det&&[...sel.options].some(o=>o.value===det)) sel.value=det;
-        msg.textContent=det?'Sugestão do navegador: '+det+'. Salve para ativar a programação automática.':'Selecione e salve o fuso horário.';
-        document.getElementById('wa-fuso-v69-warn').style.display='block';
-      }
-    }catch(err){
-      console.error('Fuso WhatsApp v69:',err);
-      msg.textContent='Não foi possível carregar o fuso horário agora.';
-    }
-  }
-
-  window.carregarFusoWhatsAppV69=carregar;
-
-  window.salvarFusoWhatsAppV69=async function(){
-    const msg=document.getElementById('wa-fuso-v69-msg');
-    try{
-      if(!await ehAdmin())return;
-      const fuso=document.getElementById('wa-fuso-v69')?.value||'';
-      if(!fuso){alert('Selecione o fuso horário da empresa.');return}
-      msg.textContent='Salvando...';
-      const {error}=await CloudDB.rpc('salvar_fuso_horario_empresa',{p_empresa_id:empresaAtual.id,p_fuso_horario:fuso});
-      if(error)throw error;
-      msg.textContent='Fuso salvo com sucesso.';
-      await carregar();
-    }catch(err){
-      console.error('Salvar fuso v69:',err);
-      msg.textContent='Não foi possível salvar o fuso.';
-      alert(err?.message||'Erro ao salvar fuso horário.');
-    }
-  };
-
-  function instalar(){garantir();setTimeout(carregar,700)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,5400));else setTimeout(instalar,5400);
-  document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.cfg-v2-nav button');
-    if(b&&b.dataset.cat==='WhatsApp e Automações')setTimeout(carregar,130);
-  },true);
-  setTimeout(instalar,7600);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-automacao-v70-css">
-  .simpla-wa-auto-v70{margin-top:16px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.04);text-transform:none}
-  .simpla-wa-auto-v70-head{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap}
-  .simpla-wa-auto-v70 h3{margin:0;font-size:16px;color:#1a1c23;text-transform:none}
-  .simpla-wa-auto-v70 p{margin:4px 0 0;font-size:10px;color:#718096;line-height:1.5;text-transform:none}
-  .simpla-wa-auto-v70-state{font-size:10px;font-weight:900;padding:6px 9px;border-radius:999px;background:#edf2f7;color:#4a5568}
-  .simpla-wa-auto-v70-state.on{background:#f0fff4;color:#2f855a}
-  .simpla-wa-auto-v70-actions{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
-  .simpla-wa-auto-v70-btn{border:0;border-radius:7px;padding:10px 13px;font-size:9px;font-weight:900;cursor:pointer}
-  .simpla-wa-auto-v70-on{background:#1a1c23;color:#fff}.simpla-wa-auto-v70-off{background:#edf2f7;color:#2d3748}
-  .simpla-wa-auto-v70-msg{font-size:10px;color:#718096;text-transform:none}
-  .simpla-wa-auto-v70-note{margin-top:10px;padding:10px;border-radius:8px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:10px;line-height:1.5;text-transform:none}
-</style>
-<script id="simpla-whatsapp-automacao-v70">
-(function(){
-  function garantir(){
-    let box=document.getElementById('simpla-wa-auto-v70');if(box)return box;
-    const area=document.getElementById('simpla-wa-categoria-v65-content');if(!area)return null;
-    box=document.createElement('section');box.id='simpla-wa-auto-v70';box.className='simpla-wa-auto-v70';
-    box.innerHTML='<div class="simpla-wa-auto-v70-head"><div><h3>Automação de envios</h3><p>Controle mestre para permitir que o processador envie automaticamente as mensagens preparadas pela agenda.</p></div><span id="wa-auto-state-v70" class="simpla-wa-auto-v70-state">Desativado</span></div><div class="simpla-wa-auto-v70-actions"><button type="button" class="simpla-wa-auto-v70-btn simpla-wa-auto-v70-on" onclick="alterarAutomacaoWhatsAppV70(true)">Ativar automação</button><button type="button" class="simpla-wa-auto-v70-btn simpla-wa-auto-v70-off" onclick="alterarAutomacaoWhatsAppV70(false)">Desativar</button><span id="wa-auto-msg-v70" class="simpla-wa-auto-v70-msg"></span></div><div class="simpla-wa-auto-v70-note">A ativação só é permitida quando o fuso horário e a integração oficial com a Meta estiverem configurados e válidos.</div>';
-    const monitor=document.getElementById('simpla-wa-monitor-v67');
-    if(monitor&&monitor.parentElement===area) area.insertBefore(box,monitor);else area.appendChild(box);
-    return box;
-  }
-  async function admin(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return false;
-    const {data}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    return String(data||'').toUpperCase()==='ADMIN';
-  }
-  function render(on){
-    const s=document.getElementById('wa-auto-state-v70');if(!s)return;
-    s.textContent=on?'Ativado':'Desativado';s.className='simpla-wa-auto-v70-state'+(on?' on':'');
-  }
-  async function carregar(){
-    const box=garantir();if(!box||!await admin())return;
-    try{
-      const {data,error}=await CloudDB.from('whatsapp_automacao_config').select('envios_automaticos_ativos').eq('empresa_id',empresaAtual.id).maybeSingle();
-      if(error)throw error;render(!!data?.envios_automaticos_ativos);
-    }catch(err){console.error('Automação WhatsApp v70:',err)}
-  }
-  window.carregarAutomacaoWhatsAppV70=carregar;
-  window.alterarAutomacaoWhatsAppV70=async function(ativo){
-    const msg=document.getElementById('wa-auto-msg-v70');
-    try{
-      if(!await admin())return;
-      if(ativo&&!confirm('Ativar os envios automáticos do WhatsApp para esta empresa?'))return;
-      msg.textContent=ativo?'Validando pré-requisitos...':'Desativando...';
-      const {error}=await CloudDB.rpc('salvar_automacao_whatsapp_operacional',{p_empresa_id:empresaAtual.id,p_envios_automaticos_ativos:!!ativo});
-      if(error)throw error;
-      render(!!ativo);msg.textContent=ativo?'Automação ativada.':'Automação desativada.';
-    }catch(err){
-      console.error('Alterar automação v70:',err);
-      msg.textContent='Não foi possível alterar.';
-      alert(err?.message||'Não foi possível alterar a automação.');
-      await carregar();
-    }
-  };
-  function instalar(){garantir();setTimeout(carregar,700)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,5600));else setTimeout(instalar,5600);
-  document.addEventListener('click',e=>{const b=e.target.closest?.('.cfg-v2-nav button');if(b&&b.dataset.cat==='WhatsApp e Automações')setTimeout(carregar,140)},true);
-  setTimeout(instalar,7800);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-cota-v71-css">
-  .simpla-wa-cota-v71{margin:0 0 16px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;padding:16px;box-shadow:0 2px 5px rgba(15,23,42,.04);text-transform:none}
-  .simpla-wa-cota-v71-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-  .simpla-wa-cota-v71 h3{margin:0;font-size:16px;color:#1a1c23;text-transform:none}
-  .simpla-wa-cota-v71 p{margin:4px 0 0;font-size:10px;color:#718096;line-height:1.5;text-transform:none}
-  .simpla-wa-cota-v71-plan{display:inline-flex;align-items:center;padding:6px 9px;border-radius:999px;background:#edf2f7;color:#4a5568;font-size:9px;font-weight:900;text-transform:uppercase}
-  .simpla-wa-cota-v71-progress-wrap{margin-top:14px}
-  .simpla-wa-cota-v71-progress-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:6px;font-size:9px;color:#718096;text-transform:none}
-  .simpla-wa-cota-v71-bar{height:12px;border-radius:999px;background:#edf2f7;overflow:hidden}
-  .simpla-wa-cota-v71-fill{height:100%;width:0%;background:#2d3748;border-radius:999px;transition:width .3s ease}
-  .simpla-wa-cota-v71-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
-  .simpla-wa-cota-v71-kpi{border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc;padding:10px}
-  .simpla-wa-cota-v71-kpi span{display:block;font-size:8px;font-weight:900;color:#718096;margin-bottom:4px;text-transform:uppercase}
-  .simpla-wa-cota-v71-kpi b{display:block;font-size:18px;color:#2d3748;text-transform:none}
-  .simpla-wa-cota-v71-foot{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
-  .simpla-wa-cota-v71-note{font-size:9px;color:#718096;line-height:1.4;text-transform:none}
-  .simpla-wa-cota-v71-btn{border:0;border-radius:7px;padding:8px 10px;background:#edf2f7;color:#2d3748;font-size:8px;font-weight:900;cursor:pointer}
-  .simpla-wa-cota-v71-alert{margin-top:10px;padding:9px 10px;border-radius:8px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:10px;line-height:1.4;text-transform:none;display:none}
-  @media(max-width:760px){.simpla-wa-cota-v71-grid{grid-template-columns:1fr 1fr}}
-</style>
-
-<script id="simpla-whatsapp-cota-v71">
-(function(){
-  function garantir(){
-    let box=document.getElementById('simpla-wa-cota-v71');if(box)return box;
-    const area=document.getElementById('simpla-wa-categoria-v65-content');if(!area)return null;
-
-    box=document.createElement('section');
-    box.id='simpla-wa-cota-v71';
-    box.className='simpla-wa-cota-v71';
-    box.innerHTML='<div class="simpla-wa-cota-v71-head"><div><h3>Franquia mensal do WhatsApp</h3><p>Acompanhe o consumo de mensagens operacionais deste mês antes de configurar ou ativar automações.</p></div><span id="wa-cota-plan-v71" class="simpla-wa-cota-v71-plan">Carregando</span></div><div class="simpla-wa-cota-v71-progress-wrap"><div class="simpla-wa-cota-v71-progress-top"><span id="wa-cota-periodo-v71">Período atual</span><b id="wa-cota-percent-v71">—</b></div><div class="simpla-wa-cota-v71-bar"><div id="wa-cota-fill-v71" class="simpla-wa-cota-v71-fill"></div></div></div><div class="simpla-wa-cota-v71-grid"><div class="simpla-wa-cota-v71-kpi"><span>Enviadas no mês</span><b id="wa-cota-enviadas-v71">0</b></div><div class="simpla-wa-cota-v71-kpi"><span>Em processamento</span><b id="wa-cota-processando-v71">0</b></div><div class="simpla-wa-cota-v71-kpi"><span>Restantes</span><b id="wa-cota-restantes-v71">—</b></div><div class="simpla-wa-cota-v71-kpi"><span>Limite mensal</span><b id="wa-cota-limite-v71">—</b></div></div><div id="wa-cota-alert-v71" class="simpla-wa-cota-v71-alert"></div><div class="simpla-wa-cota-v71-foot"><span id="wa-cota-note-v71" class="simpla-wa-cota-v71-note"></span><button type="button" class="simpla-wa-cota-v71-btn" onclick="carregarCotaWhatsAppV71()">Atualizar consumo</button></div>';
-
-    area.insertBefore(box,area.firstChild);
-    return box;
-  }
-
-  function fmtPeriodo(ini,fim){
-    try{
-      const a=new Date(ini), b=new Date(fim);
-      const mes=a.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-      return mes.charAt(0).toUpperCase()+mes.slice(1)+' · renova em '+b.toLocaleDateString('pt-BR');
-    }catch(_){return 'Período mensal atual'}
-  }
-
-  async function admin(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return false;
-    const {data}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    return String(data||'').toUpperCase()==='ADMIN';
-  }
-
-  function render(r){
-    const teste=!!r?.modo_teste||String(r?.plano_codigo||'').toUpperCase()==='TESTE';
-    const definido=!!r?.limite_definido;
-    const limite=Number(r?.limite_mensal??0);
-    const enviadas=Number(r?.enviadas_mes||0);
-    const processando=Number(r?.em_processamento||0);
-    const restantes=r?.restantes;
-    const perc=Number(r?.percentual_consumido||0);
-
-    document.getElementById('wa-cota-plan-v71').textContent='Plano '+String(r?.plano_codigo||'—');
-    document.getElementById('wa-cota-enviadas-v71').textContent=String(enviadas);
-    document.getElementById('wa-cota-processando-v71').textContent=String(processando);
-    document.getElementById('wa-cota-periodo-v71').textContent=fmtPeriodo(r?.periodo_inicio,r?.periodo_fim);
-
-    const alert=document.getElementById('wa-cota-alert-v71');
-    const note=document.getElementById('wa-cota-note-v71');
-
-    if(teste){
-      document.getElementById('wa-cota-restantes-v71').textContent='Ilimitadas';
-      document.getElementById('wa-cota-limite-v71').textContent='Ilimitado';
-      document.getElementById('wa-cota-percent-v71').textContent='Conta de testes';
-      document.getElementById('wa-cota-fill-v71').style.width='0%';
-      note.textContent='A conta TESTE não consome franquia comercial durante o desenvolvimento.';
-      alert.style.display='none';
-      return;
-    }
-
-    if(!definido){
-      document.getElementById('wa-cota-restantes-v71').textContent='A definir';
-      document.getElementById('wa-cota-limite-v71').textContent='A definir';
-      document.getElementById('wa-cota-percent-v71').textContent='Franquia comercial pendente';
-      document.getElementById('wa-cota-fill-v71').style.width='0%';
-      note.textContent='O limite mensal deste plano ainda será definido na etapa de precificação.';
-      alert.style.display='none';
-      return;
-    }
-
-    document.getElementById('wa-cota-restantes-v71').textContent=String(Math.max(0,Number(restantes||0)));
-    document.getElementById('wa-cota-limite-v71').textContent=String(limite);
-    document.getElementById('wa-cota-percent-v71').textContent=(limite===0?'100':String(perc||0))+'% utilizado';
-    document.getElementById('wa-cota-fill-v71').style.width=Math.max(0,Math.min(100,limite===0?100:perc))+'%';
-    note.textContent='A franquia considera apenas mensagens realmente enviadas e reservas atualmente em processamento.';
-
-    if(limite===0){
-      alert.textContent='Este plano não possui franquia de WhatsApp operacional.';
-      alert.style.display='block';
-    }else if(Number(restantes||0)<=0){
-      alert.textContent='A franquia mensal foi atingida. Novos envios ficam bloqueados até a renovação ou alteração do plano.';
-      alert.style.display='block';
-    }else if(perc>=80){
-      alert.textContent='A franquia está próxima do limite mensal.';
-      alert.style.display='block';
-    }else{
-      alert.style.display='none';
-    }
-  }
-
-  async function carregar(){
-    const box=garantir();if(!box||!await admin())return;
-    try{
-      const {data,error}=await CloudDB.rpc('status_cota_whatsapp_empresa',{p_empresa_id:empresaAtual.id});
-      if(error)throw error;
-      const r=Array.isArray(data)?data[0]:data;
-      if(!r)throw new Error('Status da franquia indisponível.');
-      render(r);
-    }catch(err){
-      console.error('Cota WhatsApp v71:',err);
-      document.getElementById('wa-cota-note-v71').textContent='Não foi possível consultar a franquia agora.';
-    }
-  }
-
-  window.carregarCotaWhatsAppV71=carregar;
-
-  function instalar(){garantir();setTimeout(carregar,500)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,4300));else setTimeout(instalar,4300);
-
-  document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.cfg-v2-nav button');
-    if(b&&b.dataset.cat==='WhatsApp e Automações')setTimeout(carregar,100);
-  },true);
-
-  const originalMonitor=window.carregarMonitorWhatsAppV67;
-  if(typeof originalMonitor==='function'){
-    window.carregarMonitorWhatsAppV67=async function(){
-      const r=await originalMonitor.apply(this,arguments);
-      setTimeout(carregar,80);
-      return r;
-    };
-  }
-
-  setTimeout(instalar,7200);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-multilembretes-v72-css">
-  #wa-rule-card-lembrete{display:none!important}
-  .simpla-wa-reminders-v72{grid-column:1/-1;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;padding:13px}
-  .simpla-wa-reminders-v72-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-  .simpla-wa-reminders-v72-title{font-size:12px;font-weight:900;color:#2d3748;text-transform:none}
-  .simpla-wa-reminders-v72-desc{font-size:9px;color:#718096;line-height:1.4;margin-top:2px;text-transform:none}
-  .simpla-wa-reminders-v72-add{border:0;border-radius:7px;padding:9px 11px;background:#2d3748;color:#fff;font-size:9px;font-weight:900;cursor:pointer}
-  .simpla-wa-reminders-v72-list{display:grid;gap:9px;margin-top:11px}
-  .simpla-wa-reminder-v72{border:1px solid #dbe4ee;border-radius:9px;background:#fff;padding:11px}
-  .simpla-wa-reminder-v72-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:9px}
-  .simpla-wa-reminder-v72-name{font-size:10px;font-weight:900;color:#4a5568;text-transform:none}
-  .simpla-wa-reminder-v72-fields{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:8px}
-  .simpla-wa-reminder-v72-field label{display:block;font-size:8px;font-weight:900;color:#718096;margin-bottom:4px;text-transform:uppercase}
-  .simpla-wa-reminder-v72-field select,.simpla-wa-reminder-v72-field input{width:100%;padding:8px;border:1px solid #cbd5e0;border-radius:6px;background:#fff;font-size:11px;text-transform:none}
-  .simpla-wa-reminder-v72-actions{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin-top:9px}
-  .simpla-wa-reminder-v72-actions-left{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
-  .simpla-wa-reminder-v72-save,.simpla-wa-reminder-v72-delete{border:0;border-radius:6px;padding:7px 9px;font-size:8px;font-weight:900;cursor:pointer}
-  .simpla-wa-reminder-v72-save{background:#1a1c23;color:#fff}
-  .simpla-wa-reminder-v72-delete{background:#fff5f5;color:#c53030}
-  .simpla-wa-reminder-v72-msg{font-size:9px;color:#718096;text-transform:none}
-  .simpla-wa-reminders-v72-empty{padding:12px;border:1px dashed #cbd5e0;border-radius:8px;text-align:center;color:#718096;font-size:10px;text-transform:none}
-  .simpla-wa-reminders-v72-note{margin-top:9px;font-size:9px;color:#718096;line-height:1.4;text-transform:none}
-  @media(max-width:900px){.simpla-wa-reminder-v72-fields{grid-template-columns:1fr 1fr}}
-  @media(max-width:560px){.simpla-wa-reminder-v72-fields{grid-template-columns:1fr}}
-</style>
-
-<script id="simpla-whatsapp-multilembretes-v72">
-(function(){
-  let lembretes=[];
-
-  const OPCOES=[
-    [15,'15 minutos antes'],
-    [30,'30 minutos antes'],
-    [60,'1 hora antes'],
-    [120,'2 horas antes'],
-    [360,'6 horas antes'],
-    [720,'12 horas antes'],
-    [1440,'24 horas antes'],
-    [2880,'48 horas antes'],
-    [4320,'3 dias antes'],
-    [10080,'7 dias antes']
-  ];
-
-  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-
-  function garantir(){
-    const grid=document.getElementById('simpla-wa-rules-v68-grid');
-    if(!grid)return null;
-    let box=document.getElementById('simpla-wa-reminders-v72');
-    if(box)return box;
-
-    box=document.createElement('section');
-    box.id='simpla-wa-reminders-v72';
-    box.className='simpla-wa-reminders-v72';
-    box.innerHTML='<div class="simpla-wa-reminders-v72-head"><div><div class="simpla-wa-reminders-v72-title">Lembretes do agendamento</div><div class="simpla-wa-reminders-v72-desc">Crie quantos lembretes forem necessários, cada um com antecedência e janela de envio próprias.</div></div><button type="button" class="simpla-wa-reminders-v72-add" onclick="adicionarLembreteWhatsAppV72()">+ Adicionar lembrete</button></div><div id="simpla-wa-reminders-v72-list" class="simpla-wa-reminders-v72-list"></div><div class="simpla-wa-reminders-v72-note">Cada lembrete enviado conta individualmente na franquia mensal do WhatsApp.</div>';
-
-    const old=document.getElementById('wa-rule-card-lembrete');
-    if(old)old.insertAdjacentElement('afterend',box);else grid.appendChild(box);
-    return box;
-  }
-
-  function labelAntecedencia(min){
-    const o=OPCOES.find(x=>x[0]===Number(min));
-    return o?o[1]:String(min)+' minutos antes';
-  }
-
-  function options(v){
-    const valor=Number(v||1440);
-    const arr=[...OPCOES];
-    if(!arr.some(x=>x[0]===valor))arr.unshift([valor,valor+' minutos antes']);
-    return arr.map(([n,t])=>'<option value="'+n+'" '+(n===valor?'selected':'')+'>'+t+'</option>').join('');
-  }
-
-  function render(){
-    const list=document.getElementById('simpla-wa-reminders-v72-list');if(!list)return;
-    if(!lembretes.length){
-      list.innerHTML='<div class="simpla-wa-reminders-v72-empty">Nenhum lembrete configurado. Clique em “+ Adicionar lembrete”.</div>';
-      return;
-    }
-    list.innerHTML=lembretes.map((r,i)=>{
-      const key=r.id||('novo-'+i);
-      return '<div class="simpla-wa-reminder-v72" data-key="'+esc(key)+'">'+
-        '<div class="simpla-wa-reminder-v72-top"><div class="simpla-wa-reminder-v72-name">Lembrete '+(i+1)+' · '+esc(labelAntecedencia(r.antecedencia_minutos))+'</div><label style="display:flex;align-items:center;gap:7px;font-size:9px;color:#4a5568;text-transform:none"><input id="wa72-ativo-'+i+'" type="checkbox" '+(r.ativo!==false?'checked':'')+'> Ativo</label></div>'+
-        '<div class="simpla-wa-reminder-v72-fields">'+
-          '<div class="simpla-wa-reminder-v72-field"><label>Antecedência</label><select id="wa72-ant-'+i+'">'+options(r.antecedencia_minutos)+'</select></div>'+
-          '<div class="simpla-wa-reminder-v72-field"><label>Início da janela</label><input id="wa72-ini-'+i+'" type="time" value="'+esc(String(r.horario_inicio||'08:00').slice(0,5))+'"></div>'+
-          '<div class="simpla-wa-reminder-v72-field"><label>Fim da janela</label><input id="wa72-fim-'+i+'" type="time" value="'+esc(String(r.horario_fim||'20:00').slice(0,5))+'"></div>'+
-          '<div class="simpla-wa-reminder-v72-field"><label>Evitar duplicidade</label><select id="wa72-dup-'+i+'"><option value="true" '+(r.bloquear_duplicidade!==false?'selected':'')+'>Sim</option><option value="false" '+(r.bloquear_duplicidade===false?'selected':'')+'>Não</option></select></div>'+
-        '</div>'+
-        '<div class="simpla-wa-reminder-v72-actions"><div class="simpla-wa-reminder-v72-actions-left"><button type="button" class="simpla-wa-reminder-v72-save" onclick="salvarLembreteWhatsAppV72('+i+')">Salvar lembrete</button>'+(r.id?'<button type="button" class="simpla-wa-reminder-v72-delete" onclick="excluirLembreteWhatsAppV72('+i+')">Excluir</button>':'')+'</div><span id="wa72-msg-'+i+'" class="simpla-wa-reminder-v72-msg"></span></div>'+
-      '</div>';
-    }).join('');
-  }
-
-  async function permitido(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return false;
-    const {data:perfil}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    if(String(perfil||'').toUpperCase()!=='ADMIN')return false;
-    return typeof empresaPodeUsarRecurso==='function'?await empresaPodeUsarRecurso('whatsapp_operacional'):false;
-  }
-
-  async function carregar(){
-    garantir();
-    if(!await permitido())return;
-    try{
-      const {data,error}=await CloudDB.from('whatsapp_lembretes_agendamento')
-        .select('id,ativo,antecedencia_minutos,horario_inicio,horario_fim,bloquear_duplicidade,ordem')
-        .eq('empresa_id',empresaAtual.id)
-        .order('ordem',{ascending:true})
-        .order('antecedencia_minutos',{ascending:false});
-      if(error)throw error;
-      lembretes=Array.isArray(data)?data:[];
-      render();
-    }catch(err){
-      console.error('Lembretes WhatsApp v72:',err);
-      const list=document.getElementById('simpla-wa-reminders-v72-list');
-      if(list)list.innerHTML='<div class="simpla-wa-reminders-v72-empty">Não foi possível carregar os lembretes agora.</div>';
-    }
-  }
-
-  window.carregarLembretesWhatsAppV72=carregar;
-
-  window.adicionarLembreteWhatsAppV72=function(){
-    garantir();
-    const usados=new Set(lembretes.map(x=>Number(x.antecedencia_minutos)));
-    const padrao=OPCOES.find(x=>!usados.has(x[0]))?.[0]||1440;
-    lembretes.push({id:null,ativo:true,antecedencia_minutos:padrao,horario_inicio:'08:00',horario_fim:'20:00',bloquear_duplicidade:true,ordem:lembretes.length+1});
-    render();
-    setTimeout(()=>document.querySelector('#simpla-wa-reminders-v72-list .simpla-wa-reminder-v72:last-child')?.scrollIntoView({behavior:'smooth',block:'center'}),50);
-  };
-
-  window.salvarLembreteWhatsAppV72=async function(i){
-    const r=lembretes[i];if(!r)return;
-    const msg=document.getElementById('wa72-msg-'+i);
-    try{
-      if(!await permitido())return;
-      const ant=Number(document.getElementById('wa72-ant-'+i)?.value||1440);
-      const ini=document.getElementById('wa72-ini-'+i)?.value;
-      const fim=document.getElementById('wa72-fim-'+i)?.value;
-      const ativo=!!document.getElementById('wa72-ativo-'+i)?.checked;
-      const dup=document.getElementById('wa72-dup-'+i)?.value==='true';
-      if(!ini||!fim||ini===fim){alert('Informe uma janela de envio válida.');return}
-      msg.textContent='Salvando...';
-      const {data,error}=await CloudDB.rpc('salvar_lembrete_whatsapp',{
-        p_id:r.id||null,
-        p_empresa_id:empresaAtual.id,
-        p_ativo:ativo,
-        p_antecedencia_minutos:ant,
-        p_horario_inicio:ini,
-        p_horario_fim:fim,
-        p_bloquear_duplicidade:dup
-      });
-      if(error)throw error;
-      msg.textContent='Salvo.';
-      await carregar();
-      if(typeof carregarMonitorWhatsAppV67==='function')setTimeout(()=>carregarMonitorWhatsAppV67(),100);
-    }catch(err){
-      console.error('Salvar lembrete v72:',err);
-      msg.textContent='Erro ao salvar.';
-      alert(err?.message||'Não foi possível salvar o lembrete.');
-    }
-  };
-
-  window.excluirLembreteWhatsAppV72=async function(i){
-    const r=lembretes[i];if(!r?.id)return;
-    if(!confirm('Excluir este lembrete? As mensagens pendentes vinculadas a ele serão canceladas.'))return;
-    try{
-      if(!await permitido())return;
-      const {error}=await CloudDB.rpc('excluir_lembrete_whatsapp',{p_id:r.id,p_empresa_id:empresaAtual.id});
-      if(error)throw error;
-      await carregar();
-      if(typeof carregarMonitorWhatsAppV67==='function')setTimeout(()=>carregarMonitorWhatsAppV67(),100);
-    }catch(err){
-      console.error('Excluir lembrete v72:',err);
-      alert(err?.message||'Não foi possível excluir o lembrete.');
-    }
-  };
-
-  function instalar(){garantir();setTimeout(carregar,600)}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,5900));else setTimeout(instalar,5900);
-  document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.cfg-v2-nav button');
-    if(b&&b.dataset.cat==='WhatsApp e Automações')setTimeout(carregar,120);
-  },true);
-  setTimeout(instalar,8000);
-})();
-</script>
-
-
-<style id="simpla-whatsapp-status-meta-v74-css">
-  .wa-meta-v74{display:inline-flex;padding:4px 7px;border-radius:999px;background:#edf2f7;color:#4a5568;font-size:8px;font-weight:900;text-transform:uppercase}
-  .wa-meta-v74.sent{background:#ebf8ff;color:#2b6cb0}
-  .wa-meta-v74.delivered{background:#f0fff4;color:#2f855a}
-  .wa-meta-v74.read{background:#e6fffa;color:#2c7a7b}
-  .wa-meta-v74.failed{background:#fff5f5;color:#c53030}
-</style>
-<script id="simpla-whatsapp-status-meta-v74">
-(function(){
-  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-  function data(v){if(!v)return '—';try{return new Date(v).toLocaleString('pt-BR')}catch(_){return '—'}}
-  function local(v){if(!v)return '—';const s=String(v).replace('T',' ');return esc(s.slice(0,16))}
-  function telefone(v){
-    const d=String(v||'').replace(/\D/g,'');
-    if(d.length<6)return '—';
-    return d.slice(0,2)+'•••••'+d.slice(-3);
-  }
-  function metaLabel(s){
-    const x=String(s||'').toLowerCase();
-    return ({sent:'Enviado',delivered:'Entregue',read:'Lido',failed:'Falhou'})[x]||'—';
-  }
-  function detalhe(r){
-    const partes=[];
-    if(r.entregue_em) partes.push('Entregue: '+data(r.entregue_em));
-    if(r.lido_em) partes.push('Lido: '+data(r.lido_em));
-    if(r.falhou_em) partes.push('Falhou: '+data(r.falhou_em));
-    if(r.provider_erro_codigo) partes.push('Código Meta: '+esc(r.provider_erro_codigo));
-    if(r.erro) partes.push(esc(r.erro));
-    if(!partes.length && r.provider_message_id) partes.push('ID Meta: '+esc(String(r.provider_message_id).slice(-14)));
-    return partes.length?partes.join('<br>'):'—';
-  }
-  async function admin(){
-    if(typeof CloudDB==='undefined'||!CloudDB||typeof empresaAtual==='undefined'||!empresaAtual?.id)return false;
-    const {data}=await CloudDB.rpc('perfil_na_empresa',{p_empresa_id:empresaAtual.id});
-    return String(data||'').toUpperCase()==='ADMIN';
-  }
-  async function carregar(){
-    if(!document.getElementById('simpla-wa-monitor-v67')||!await admin())return;
-    try{
-      const table=document.querySelector('#simpla-wa-monitor-v67 .simpla-wa-monitor-v67-table');
-      if(table){
-        const head=table.querySelector('thead tr');
-        if(head && !head.querySelector('[data-meta-v74]')){
-          const th=document.createElement('th');
-          th.dataset.metaV74='1';
-          th.textContent='Status Meta';
-          head.insertBefore(th,head.lastElementChild);
-        }
-      }
-
-      const {data:rows,error}=await CloudDB.from('whatsapp_mensagens_operacionais')
-        .select('id,tipo,destino,status,origem_automacao,processar_em_local,provider_message_id,provider_status,entregue_em,lido_em,falhou_em,provider_erro_codigo,erro,criado_em')
-        .eq('empresa_id',empresaAtual.id)
-        .order('criado_em',{ascending:false})
-        .limit(100);
-      if(error)throw error;
-
-      const lista=Array.isArray(rows)?rows:[];
-      const n=s=>lista.filter(x=>String(x.status)===s).length;
-      document.getElementById('wa-mon-pendentes').textContent=String(n('PENDENTE')+n('RASCUNHO')+n('PROCESSANDO'));
-      document.getElementById('wa-mon-enviadas').textContent=String(n('ENVIADO'));
-      document.getElementById('wa-mon-erros').textContent=String(n('ERRO'));
-      document.getElementById('wa-mon-canceladas').textContent=String(n('CANCELADO'));
-
-      const body=document.getElementById('wa-mon-body');
-      if(!body)return;
-      if(!lista.length){
-        body.innerHTML='<tr><td colspan="8"><div class="simpla-wa-monitor-v67-empty">A fila ainda está vazia. Novos eventos de agenda aparecerão aqui quando houver regras e templates ativos.</div></td></tr>';
-        return;
-      }
-
-      body.innerHTML=lista.map(r=>{
-        const ps=String(r.provider_status||'').toLowerCase();
-        return '<tr>'+
-          '<td>'+data(r.criado_em)+'</td>'+
-          '<td>'+esc(r.tipo)+'</td>'+
-          '<td>'+telefone(r.destino)+'</td>'+
-          '<td><span class="simpla-wa-monitor-v67-badge '+esc(r.status)+'">'+esc(r.status)+'</span></td>'+
-          '<td>'+(r.origem_automacao?'Automação':'Manual')+'</td>'+
-          '<td>'+local(r.processar_em_local)+'</td>'+
-          '<td><span class="wa-meta-v74 '+esc(ps)+'">'+metaLabel(ps)+'</span></td>'+
-          '<td>'+detalhe(r)+'</td>'+
-        '</tr>';
-      }).join('');
-    }catch(err){
-      console.error('Status Meta WhatsApp v74:',err);
-    }
-  }
-
-  window.carregarStatusMetaWhatsAppV74=carregar;
-
-  const instalar=function(){
-    const old=window.carregarMonitorWhatsAppV67;
-    if(typeof old==='function' && !old.__v74){
-      const wrapped=async function(){
-        try{await old.apply(this,arguments)}catch(_){}
-        await carregar();
-      };
-      wrapped.__v74=true;
-      window.carregarMonitorWhatsAppV67=wrapped;
-    }
-    setTimeout(carregar,300);
-  };
-
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,6500));
-  else setTimeout(instalar,6500);
-
-  document.addEventListener('click',e=>{
-    const b=e.target.closest?.('.cfg-v2-nav button');
-    if(b&&b.dataset.cat==='WhatsApp e Automações')setTimeout(carregar,180);
-  },true);
-
-  setTimeout(instalar,8500);
 })();
 </script>
 
