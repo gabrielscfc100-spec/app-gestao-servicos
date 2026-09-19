@@ -12144,7 +12144,14 @@ hr{
     ajustarFinanceiro();
     sincronizarBottomNav();
     const obs=new MutationObserver(()=>{ aplicarPermissaoMenu(); sincronizarBottomNav(); ajustarFinanceiro(); });
-    obs.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
+    [
+      document.querySelector('.sidebar'),
+      document.querySelector('.simpla-bottom-nav, #simpla-bottom-nav, [data-bottom-nav]'),
+      document.getElementById('financeiro'),
+      document.getElementById('atendimento')
+    ].filter(Boolean).forEach(alvo=>{
+      obs.observe(alvo,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
+    });
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0));
   else setTimeout(init,0);
