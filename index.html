@@ -6677,17 +6677,18 @@ hr{
             carregarNotificacoes().catch(err =>console.warn('Carga inicial automática de notificações:', err)
             );
 
-            // Fallback independente do websocket. Continua ativo mesmo se a aba
-            // estiver em segundo plano (o navegador pode reduzir a frequência,
-            // mas não dependemos mais de clique no sino).
+            // Fallback de segurança do Realtime. A atualização principal continua
+            // sendo instantânea pelo websocket; o polling serve apenas para recuperar
+            // eventuais eventos perdidos, sem gerar consultas desnecessárias.
             timerNotificacoesCloud = setInterval(() => {
+                if(document.visibilityState !== 'visible') return;
                 if(!CloudDB || !empresaAtual?.cloud || !empresaAtual?.id || !usuarioAtual?.id) return;
 
                 carregarNotificacoes().catch(err =>console.warn('Fallback de notificações:', err)
                 );
-            }, 3000);
+            }, 60000);
 
-            console.info('Atualização automática de notificações iniciada: 3s.');
+            console.info('Fallback de notificações iniciado: 60s com Realtime prioritário.');
         }
 
         function iniciarRealtimeNotificacoesCloud() {
