@@ -15164,7 +15164,8 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
 
   const observer=new MutationObserver(()=>{clearTimeout(window.__simplaPlanosV58T);window.__simplaPlanosV58T=setTimeout(aplicar,160)});
   function instalar(){
-    observer.observe(document.body,{childList:true,subtree:true});
+    const dashboard=document.getElementById('dashboard');
+    if(dashboard) observer.observe(dashboard,{childList:true,subtree:true});
     setTimeout(aplicar,800);setTimeout(aplicar,2400);setTimeout(aplicar,4500);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',instalar);else instalar();
@@ -15242,7 +15243,15 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
   }
 
   const observer=new MutationObserver(()=>{clearTimeout(window.__simplaV59T);window.__simplaV59T=setTimeout(()=>{protegerFuncoes();aplicar()},170)});
-  function instalar(){observer.observe(document.body,{childList:true,subtree:true});protegerFuncoes();setTimeout(aplicar,700);setTimeout(()=>{protegerFuncoes();aplicar()},2300);setTimeout(()=>{protegerFuncoes();aplicar()},4500)}
+  function instalar(){
+    [document.getElementById('dashboard'),document.getElementById('configuracoes')].filter(Boolean).forEach(alvo=>{
+      observer.observe(alvo,{childList:true,subtree:true});
+    });
+    protegerFuncoes();
+    setTimeout(aplicar,700);
+    setTimeout(()=>{protegerFuncoes();aplicar()},2300);
+    setTimeout(()=>{protegerFuncoes();aplicar()},4500);
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',instalar);else instalar();
 })();
 </script>
