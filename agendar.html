@@ -220,6 +220,10 @@
     }
     .sucesso h2{margin:0 0 7px}
     .sucesso p{color:var(--muted);line-height:1.5}
+    .wa-optin{margin-top:14px;padding:12px;border:1px solid #dbe4ee;border-radius:8px;background:#f8fafc}
+    .wa-optin label{display:flex;align-items:flex-start;gap:9px;font-size:12px;font-weight:600;color:#2d3748;line-height:1.45;cursor:pointer}
+    .wa-optin input{width:17px;height:17px;margin-top:1px;flex:0 0 auto}
+    .wa-optin small{display:block;margin:7px 0 0 26px;color:#718096;font-size:10px;line-height:1.45}
     [hidden]{display:none!important}
     @media(max-width:620px){
       .wrap{margin-top:14px}
@@ -272,6 +276,13 @@
         <small style="display:block;margin-top:6px;color:#718096;font-size:11px;line-height:1.4;">
           Opcional nesta versão. Quando informado, será associado ao seu cadastro.
         </small>
+      </div>
+      <div class="wa-optin">
+        <label for="cliente-whatsapp-optin">
+          <input id="cliente-whatsapp-optin" type="checkbox">
+          <span>Quero receber confirmação, lembretes e atualizações deste agendamento pelo WhatsApp.</span>
+        </label>
+        <small>Esta autorização é apenas para mensagens operacionais relacionadas ao atendimento. Não inclui campanhas promocionais.</small>
       </div>
       <div class="acoes">
         <button class="btn btn-pri" onclick="irParaProfissionais()">Continuar</button>
@@ -353,7 +364,8 @@
     horario:'',
     nome:'',
     telefone:'',
-    email:''
+    email:'',
+    whatsappOptIn:false
   };
 
   const ROTULOS_SEGMENTO = {
@@ -489,6 +501,7 @@
     state.nome = nome;
     state.telefone = telefone;
     state.email = email;
+    state.whatsappOptIn = document.getElementById('cliente-whatsapp-optin')?.checked === true;
     setStatus('status-global');
     carregarProfissionais();
   }
@@ -649,6 +662,7 @@
       <div class="linha"><span>Valor</span><b>${moeda(state.servico.preco)}</b></div>
       <div class="linha"><span>Data</span><b>${dataPt(state.data)}</b></div>
       <div class="linha"><span>Horário</span><b>${escapeHtml(state.horario)}</b></div>
+      <div class="linha"><span>WhatsApp</span><b>${state.whatsappOptIn ? 'Autorizado para este agendamento' : 'Sem autorização para mensagens automáticas'}</b></div>
     `;
     setStatus('status-confirmacao');
     mostrarEtapa(5);
@@ -671,7 +685,8 @@
         p_horario:state.horario,
         p_cliente_nome:state.nome,
         p_telefone:state.telefone,
-        p_email:state.email || null
+        p_email:state.email || null,
+        p_whatsapp_opt_in:state.whatsappOptIn === true
       });
       if(error) throw error;
 
@@ -680,7 +695,8 @@
       document.getElementById('etapa-sucesso').hidden = false;
       document.querySelectorAll('.step').forEach(el => el.classList.add('on'));
       document.getElementById('sucesso-texto').textContent =
-        `${state.profissional.nome} • ${state.servico.nome} • ${dataPt(state.data)} às ${state.horario}.`;
+        `${state.profissional.nome} • ${state.servico.nome} • ${dataPt(state.data)} às ${state.horario}.` +
+        (state.whatsappOptIn ? ' Você autorizou o recebimento de atualizações deste agendamento pelo WhatsApp.' : ' Você não autorizou mensagens automáticas pelo WhatsApp para este agendamento.');
       setStatus('status-confirmacao');
       window.scrollTo({top:0,behavior:'smooth'});
       console.log('Agendamento criado:', retorno);
@@ -709,7 +725,10 @@
     document.getElementById('cliente-nome').value = '';
     document.getElementById('cliente-telefone').value = '';
     document.getElementById('cliente-email').value = '';
+    const optin = document.getElementById('cliente-whatsapp-optin');
+    if(optin) optin.checked = false;
     state.email = '';
+    state.whatsappOptIn = false;
     mostrarEtapa(1);
   }
 
