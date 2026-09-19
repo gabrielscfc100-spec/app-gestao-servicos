@@ -12465,19 +12465,11 @@ hr{
   };
 
   montarEscolhaCliente();
-  const obs = new MutationObserver(montarEscolhaCliente);
-  obs.observe(document.body,{childList:true,subtree:true});
-
-  function corrigirDisponiveis(){
-    document.querySelectorAll('*').forEach(el=>{
-      if(el.children.length) return;
-      const t=(el.textContent||'').trim();
-      if(/^\d+\s+DISPONIVELIS$/i.test(t)) el.textContent=t.replace(/DISPONIVELIS/i,'DISPONÍVEIS');
-      if(/^1\s+DISPONÍVEIS$/i.test(el.textContent||'')) el.textContent='1 DISPONÍVEL';
-    });
+  const alvoAtendimento = document.getElementById('atendimento');
+  if(alvoAtendimento){
+    const obs = new MutationObserver(montarEscolhaCliente);
+    obs.observe(alvoAtendimento,{childList:true,subtree:true});
   }
-  corrigirDisponiveis();
-  new MutationObserver(corrigirDisponiveis).observe(document.body,{childList:true,subtree:true,characterData:true});
 })();
 </script>
 
