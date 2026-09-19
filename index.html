@@ -6862,33 +6862,82 @@ hr{
             const filtro = document.getElementById('agenda-profissional-filtro');
             const modal = document.getElementById('agenda-profissional');
             const ativos = profissionais.filter(p => p.ativo !== false);
+            const operacional = obterPerfilAtual() === 'FUNCIONARIO';
+            const profissionalVinculado = operacional ? obterProfissionalVinculadoUsuarioAtual() : null;
 
             if(filtro) {
                 const atual = filtro.value;
-                filtro.innerHTML = '<option value="">Agenda Geral</option>';
-                ativos.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p.id;
-                    opt.textContent = p.nome;
-                    filtro.appendChild(opt);
-                });
-                if([...filtro.options].some(o => o.value === atual)) filtro.value = atual;
+                filtro.innerHTML = '';
+
+                if(operacional) {
+                    if(profissionalVinculado) {
+                        const opt = document.createElement('option');
+                        opt.value = profissionalVinculado.id;
+                        opt.textContent = profissionalVinculado.nome;
+                        filtro.appendChild(opt);
+                        filtro.value = String(profissionalVinculado.id);
+                    } else {
+                        const opt = document.createElement('option');
+                        opt.value = '';
+                        opt.textContent = 'Conta sem profissional vinculado';
+                        filtro.appendChild(opt);
+                        filtro.value = '';
+                    }
+                    filtro.disabled = true;
+                    filtro.title = profissionalVinculado
+                        ? 'Seu acesso está vinculado a este profissional.'
+                        : 'Solicite ao administrador o vínculo da sua conta com um profissional.';
+                } else {
+                    filtro.disabled = false;
+                    filtro.title = '';
+                    filtro.innerHTML = '<option value="">Agenda Geral</option>';
+                    ativos.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = p.nome;
+                        filtro.appendChild(opt);
+                    });
+                    if([...filtro.options].some(o => o.value === atual)) filtro.value = atual;
+                }
             }
 
             if(modal) {
                 const atual = modal.value;
-                modal.innerHTML = '<option value="">Selecione o profissional</option>';
-                ativos.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p.id;
-                    opt.textContent = p.nome;
-                    modal.appendChild(opt);
-                });
-                if([...modal.options].some(o => o.value === atual)) modal.value = atual;
+                modal.innerHTML = '';
+
+                if(operacional) {
+                    if(profissionalVinculado) {
+                        const opt = document.createElement('option');
+                        opt.value = profissionalVinculado.id;
+                        opt.textContent = profissionalVinculado.nome;
+                        modal.appendChild(opt);
+                        modal.value = String(profissionalVinculado.id);
+                    } else {
+                        const opt = document.createElement('option');
+                        opt.value = '';
+                        opt.textContent = 'Conta sem profissional vinculado';
+                        modal.appendChild(opt);
+                        modal.value = '';
+                    }
+                    modal.disabled = true;
+                } else {
+                    modal.disabled = false;
+                    modal.innerHTML = '<option value="">Selecione o profissional</option>';
+                    ativos.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = p.nome;
+                        modal.appendChild(opt);
+                    });
+                    if([...modal.options].some(o => o.value === atual)) modal.value = atual;
+                }
             }
         }
 
         function obterProfissionalAgendaSelecionado() {
+            if(obterPerfilAtual() === 'FUNCIONARIO') {
+                return obterProfissionalVinculadoUsuarioAtual()?.id || '';
+            }
             return document.getElementById('agenda-profissional-filtro')?.value || '';
         }
 
@@ -7572,6 +7621,16 @@ hr{
             const grid = document.getElementById('grid-horarios-agenda');
             if(!grid) return;
             grid.innerHTML = '';
+
+            if(obterPerfilAtual() === 'FUNCIONARIO' && !profissionalFiltro) {
+                const infoExpediente = document.getElementById('agenda-expediente-info');
+                if(infoExpediente) infoExpediente.innerText = 'Conta operacional sem profissional vinculado';
+                const avisoVinculo = document.createElement('div');
+                avisoVinculo.style.cssText = 'grid-column:1/-1;background:#fffaf0;border:1px solid #fbd38d;padding:14px;border-radius:8px;color:#975a16;font-size:13px;text-align:center;';
+                avisoVinculo.innerHTML = '<b>Seu acesso ainda não está vinculado a um profissional.</b><br>Solicite ao administrador que faça o vínculo em Configurações → Profissionais.';
+                grid.appendChild(avisoVinculo);
+                return;
+            }
             if (dataRetroativa) {
                 const aviso = document.createElement('div');
                 aviso.style.cssText = 'grid-column:1/-1;background:#edf2f7;border:1px solid #cbd5e0;padding:12px;border-radius:6px;color:#4a5568;font-size:13px;text-align:center;margin-bottom:8px;';
