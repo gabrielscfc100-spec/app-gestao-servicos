@@ -8250,10 +8250,16 @@ hr{
             const dataEntrada = document.getElementById('data-entrada');
 
             if(buscaCliente) {
+                delete buscaCliente.dataset.clienteId;
+
                 if(agendamento.clienteId) {
                     const cliente = clientes.find(c => String(c.id) === String(agendamento.clienteId));
-                    buscaCliente.value = cliente
-                        ? `${cliente.codigo} - ${formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)}` : (agendamento.clienteNome || '');
+                    if(cliente) {
+                        buscaCliente.value = `${cliente.codigo || ''} - ${formatarNomeCompletoCliente(cliente.nome, cliente.sobrenome)}`.trim();
+                        buscaCliente.dataset.clienteId = String(cliente.id);
+                    } else {
+                        buscaCliente.value = agendamento.clienteNome || '';
+                    }
                 } else {
                     buscaCliente.value = agendamento.clienteNome || '';
                 }
@@ -8898,14 +8904,22 @@ hr{
         }
 
         function filtrarClientesBusca(termo) {
-            const busca = normalizarBuscaCliente(termo);
-            if(!busca) return clientes.slice(0, 12);
+            const termoOriginal = String(termo || '');
+            const busca = normalizarBuscaCliente(termoOriginal);
+            const buscaNumerica = termoOriginal.replace(/\D/g, '');
+            if(!busca && !buscaNumerica) return clientes.slice(0, 12);
 
             return clientes.filter(c => {
+                if(!c) return false;
                 const codigo = normalizarBuscaCliente(c.codigo || '');
                 const nomeCompleto = normalizarBuscaCliente(`${c.nome || ''} ${c.sobrenome || ''}`);
-                const telefone = normalizarBuscaCliente(c.telefone || '');
-                return codigo.includes(busca) || nomeCompleto.includes(busca) || telefone.includes(busca);
+                const telefoneTexto = normalizarBuscaCliente(c.telefone || '');
+                const telefoneNumerico = String(c.telefone || '').replace(/\D/g, '');
+
+                return codigo.includes(busca)
+                    || nomeCompleto.includes(busca)
+                    || telefoneTexto.includes(busca)
+                    || (buscaNumerica && telefoneNumerico.includes(buscaNumerica));
             }).slice(0, 20);
         }
 
