@@ -13192,8 +13192,6 @@ hr{
   document.addEventListener('click', function(e){
     if(e.target.closest('#pix-config-v27, [onclick*="salvarConfiguracaoPixV27"]')) sincronizarEmpresaPix();
   }, true);
-  let tentativas=0;
-  const timer=setInterval(function(){sincronizarEmpresaPix();if(++tentativas>=60)clearInterval(timer);},500);
   window.sincronizarEmpresaPixV31=sincronizarEmpresaPix;
 })();
 </script>
