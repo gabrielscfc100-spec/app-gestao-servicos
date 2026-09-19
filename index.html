@@ -10557,6 +10557,33 @@ hr{
     sel._cfgSync=sync;
   }
   function sincronizarSwitches(){document.querySelectorAll('#configuracoes select[data-cfg-switch="1"]').forEach(s=>s._cfgSync&&s._cfgSync());}
+
+  let waLazyPromise=null;
+  function carregarWhatsAppConfigLazy(container){
+    if(!container) return;
+    if(window.SimplAWhatsAppV77){
+      Promise.resolve(window.SimplAWhatsAppV77.mount(container)).catch(console.error);
+      return;
+    }
+    if(waLazyPromise) return;
+    container.innerHTML='<div style="padding:24px;text-align:center;color:#718096;font-size:12px;text-transform:none">Carregando WhatsApp e Automações...</div>';
+    waLazyPromise=new Promise((resolve,reject)=>{
+      const s=document.createElement('script');
+      s.src='./whatsapp-automacoes-v77.js?v=78';
+      s.async=true;
+      s.onload=()=>{
+        if(!window.SimplAWhatsAppV77) return reject(new Error('Módulo WhatsApp não inicializado.'));
+        Promise.resolve(window.SimplAWhatsAppV77.mount(container)).then(resolve,reject);
+      };
+      s.onerror=()=>reject(new Error('Falha ao carregar o módulo WhatsApp.'));
+      document.head.appendChild(s);
+    }).catch(err=>{
+      console.error('SimplA WhatsApp lazy:',err);
+      container.innerHTML='<div style="padding:24px;text-align:center;color:#c53030;font-size:12px;text-transform:none">Não foi possível carregar esta área agora.</div>';
+      waLazyPromise=null;
+    });
+  }
+
   function montar(){
     const tela=document.getElementById('configuracoes');
     const raiz=document.getElementById('sec-config-geral');
@@ -10598,11 +10625,38 @@ hr{
       lista.forEach(sec=>{const box=document.createElement('div');box.className='cfg-v2-section';sec.nodes.forEach(n=>{if(n.nodeType===1&&n.tagName==='HR') return;box.appendChild(n);});g.appendChild(box);});
       content.appendChild(g); if(idx++===0) setTimeout(()=>ativar(cat),0);
     });
+
+    // WhatsApp nasce junto com o menu nativo, mas seu conteúdo continua 100% lazy.
+    const waCat='WhatsApp e Automações';
+    const waBtn=document.createElement('button');
+    waBtn.type='button'; waBtn.dataset.cat=waCat;
+    waBtn.innerHTML='<span>'+waCat+'</span><span>›</span>';
+
+    const waGroup=document.createElement('section');
+    waGroup.className='cfg-v2-group'; waGroup.dataset.cat=waCat;
+    waGroup.innerHTML='<h2>'+waCat+'</h2><p class="cfg-v2-desc">Conexão com a Meta, mensagens operacionais, lembretes, franquia e automações.</p><div id="simpla-wa78-container"></div>';
+
+    waBtn.onclick=()=>{
+      ativar(waCat);
+      carregarWhatsAppConfigLazy(waGroup.querySelector('#simpla-wa78-container'));
+    };
+
+    const geralBtn=[...nav.querySelectorAll('button')].find(b=>b.dataset.cat==='Geral e Aparência');
+    const geralGroup=content.querySelector('.cfg-v2-group[data-cat="Geral e Aparência"]');
+    if(geralBtn) nav.insertBefore(waBtn,geralBtn); else nav.appendChild(waBtn);
+    if(geralGroup) content.insertBefore(waGroup,geralGroup); else content.appendChild(waGroup);
+
     shell.append(nav,content); raiz.appendChild(shell);
   }
   document.addEventListener('DOMContentLoaded',()=>setTimeout(montar,0));
-  const timer=setInterval(()=>{const tela=document.getElementById('configuracoes');if(tela?.classList.contains('active')){montar();sincronizarSwitches();}},700);
-  window.addEventListener('beforeunload',()=>clearInterval(timer));
+  let tentativasLayout=0;
+  const timer=setInterval(()=>{
+    tentativasLayout++;
+    const tela=document.getElementById('configuracoes');
+    if(tela?.classList.contains('active')){montar();sincronizarSwitches();}
+    const raiz=document.getElementById('sec-config-geral');
+    if(raiz?.dataset.layoutV2==='1' || tentativasLayout>60) clearInterval(timer);
+  },700);
 })();
 </script>
 
@@ -10736,14 +10790,26 @@ hr{
   }
 
   function aplicarAtualizacao(){
+    const btn = document.getElementById('simpla-update-btn');
+    if(btn){ btn.disabled = true; btn.textContent = 'Aplicando atualização...'; }
+
     const worker = registroPWA?.waiting;
     if(worker){
-      const btn = document.getElementById('simpla-update-btn');
-      if(btn){ btn.disabled = true; btn.textContent = 'Atualizando...'; }
       worker.postMessage({tipo:'SKIP_WAITING'});
+      // Alguns navegadores demoram ou não disparam controllerchange prontamente.
+      // O reload com cache-buster garante que a nova navegação busque o HTML atual.
+      setTimeout(()=>{
+        if(recarregando) return;
+        const u=new URL(window.location.href);
+        u.searchParams.set('_simpla_update',Date.now().toString());
+        window.location.replace(u.toString());
+      },1800);
       return;
     }
-    window.location.reload();
+
+    const u=new URL(window.location.href);
+    u.searchParams.set('_simpla_update',Date.now().toString());
+    window.location.replace(u.toString());
   }
 
   function observarInstalacao(registro){
@@ -15143,94 +15209,6 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
 })();
 </script>
 
-
-<script id="simpla-whatsapp-lazy-v77">
-(function(){
-  const CAT='WhatsApp e Automações';
-  let carregando=null;
-
-  function ativar(nav,content){
-    nav.querySelectorAll('button').forEach(b=>b.classList.toggle('ativo',b.dataset.cat===CAT));
-    content.querySelectorAll('.cfg-v2-group').forEach(g=>g.classList.toggle('ativo',g.dataset.cat===CAT));
-  }
-
-  function carregarModulo(container){
-    if(window.SimplAWhatsAppV77){
-      window.SimplAWhatsAppV77.mount(container);
-      return Promise.resolve();
-    }
-    if(carregando) return carregando;
-    container.innerHTML='<div style="padding:24px;text-align:center;color:#718096;font-size:12px;text-transform:none">Carregando WhatsApp e Automações...</div>';
-    carregando=new Promise((resolve,reject)=>{
-      const s=document.createElement('script');
-      s.src='./whatsapp-automacoes-v77.js';
-      s.async=true;
-      s.onload=()=>{
-        if(window.SimplAWhatsAppV77){
-          Promise.resolve(window.SimplAWhatsAppV77.mount(container)).then(resolve,reject);
-        }else reject(new Error('Módulo WhatsApp não inicializado.'));
-      };
-      s.onerror=()=>reject(new Error('Não foi possível carregar o módulo WhatsApp.'));
-      document.head.appendChild(s);
-    }).catch(err=>{
-      console.error('SimplA WhatsApp lazy v77:',err);
-      container.innerHTML='<div style="padding:24px;text-align:center;color:#c53030;font-size:12px;text-transform:none">Não foi possível carregar as configurações do WhatsApp agora.</div>';
-      carregando=null;
-    });
-    return carregando;
-  }
-
-  function montar(){
-    const shell=document.querySelector('#configuracoes .cfg-v2-shell');
-    if(!shell)return false;
-    const nav=shell.querySelector('.cfg-v2-nav');
-    const content=shell.querySelector('.cfg-v2-content');
-    if(!nav||!content)return false;
-
-    let btn=[...nav.querySelectorAll('button')].find(b=>b.dataset.cat===CAT);
-    let group=content.querySelector('.cfg-v2-group[data-cat="'+CAT+'"]');
-
-    if(!btn){
-      btn=document.createElement('button');
-      btn.type='button';
-      btn.dataset.cat=CAT;
-      btn.innerHTML='<span>'+CAT+'</span><span>›</span>';
-      const geral=[...nav.querySelectorAll('button')].find(b=>b.dataset.cat==='Geral e Aparência');
-      if(geral)nav.insertBefore(btn,geral);else nav.appendChild(btn);
-    }
-
-    if(!group){
-      group=document.createElement('section');
-      group.className='cfg-v2-group';
-      group.dataset.cat=CAT;
-      group.innerHTML='<h2>'+CAT+'</h2><p class="cfg-v2-desc">Conexão com a Meta, mensagens operacionais, lembretes, franquia e automações.</p><div id="simpla-wa77-container"></div>';
-      const geral=content.querySelector('.cfg-v2-group[data-cat="Geral e Aparência"]');
-      if(geral)content.insertBefore(group,geral);else content.appendChild(group);
-    }
-
-    if(!btn.dataset.lazyWa77){
-      btn.dataset.lazyWa77='1';
-      btn.addEventListener('click',()=>{
-        ativar(nav,content);
-        const container=group.querySelector('#simpla-wa77-container');
-        carregarModulo(container);
-      });
-    }
-    return true;
-  }
-
-  function instalar(){
-    let tentativas=0;
-    const timer=setInterval(()=>{
-      tentativas++;
-      if(montar()||tentativas>=12)clearInterval(timer);
-    },250);
-  }
-
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(instalar,100));
-  else setTimeout(instalar,100);
-})();
-</script>
 
 </body>
 </html>
