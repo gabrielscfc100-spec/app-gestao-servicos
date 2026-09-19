@@ -53,7 +53,7 @@
     .wa77-btn{border:0;border-radius:7px;padding:9px 11px;background:#1a1c23;color:#fff;font-size:9px;font-weight:900;cursor:pointer}.wa77-btn.alt{background:#edf2f7;color:#2d3748}.wa77-btn.danger{background:#fff5f5;color:#c53030}.wa77-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
     .wa77-msg{font-size:9px;color:#718096}.wa77-vars{display:grid;gap:6px;margin-top:9px}.wa77-var-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto auto auto;gap:6px;align-items:center}.wa77-var-pos{font-size:9px;font-weight:900;color:#718096;text-align:center}.wa77-var-btn{border:0;border-radius:6px;padding:7px 8px;background:#edf2f7;color:#4a5568;font-size:9px;font-weight:900;cursor:pointer}.wa77-var-btn.remove{background:#fff5f5;color:#c53030}.wa77-list{display:grid;gap:8px;margin-top:10px}.wa77-rem{border:1px solid #dbe4ee;border-radius:8px;padding:10px;background:#fff}.wa77-rem-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.wa77-switch{display:flex;align-items:center;gap:7px;font-size:9px;color:#4a5568;text-transform:none}
     .wa77-table-wrap{overflow:auto;margin-top:10px}.wa77-table{width:100%;min-width:760px;border-collapse:collapse}.wa77-table th,.wa77-table td{padding:8px;border-bottom:1px solid #edf2f7;font-size:9px;text-align:left;text-transform:none}.wa77-table th{background:#f8fafc;font-size:8px;color:#718096;text-transform:uppercase}
-    .wa77-note{margin-top:10px;padding:9px;border-radius:7px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:9px;line-height:1.4}.wa77-empty{padding:12px;text-align:center;color:#718096;font-size:10px}
+    .wa77-note{margin-top:10px;padding:9px;border-radius:7px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:9px;line-height:1.4}.wa77-guide{border:1px solid #dbe4ee;border-radius:9px;background:#f8fafc;padding:12px;margin-top:12px}.wa77-guide-steps{display:grid;gap:8px;margin-top:10px}.wa77-guide-step{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}.wa77-guide-num{width:24px;height:24px;border-radius:999px;background:#23364d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900}.wa77-guide-step b{display:block;font-size:10px;color:#2d3748}.wa77-guide-step span{display:block;font-size:9px;color:#718096;line-height:1.45;margin-top:2px}.wa77-guide-example{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:10px}.wa77-guide-example b{font-size:9px;color:#2d3748}.wa77-guide-example p{margin-top:4px;font-size:9px;color:#526579;line-height:1.45}.wa77-empty{padding:12px;text-align:center;color:#718096;font-size:10px}
     .wa77-status{font-weight:900}.wa77-status.ENVIADO,.wa77-status.delivered,.wa77-status.read{color:#2f855a}.wa77-status.ERRO,.wa77-status.failed{color:#c53030}.wa77-status.PENDENTE{color:#975a16}
     @media(max-width:800px){.wa77-grid2,.wa77-fields{grid-template-columns:1fr}.wa77-kpis{grid-template-columns:1fr 1fr}.wa77-var-row{grid-template-columns:36px minmax(0,1fr) auto auto auto}}
     `;
@@ -68,6 +68,37 @@
       <section class="wa77-card"><div class="wa77-head"><div><h3>Conexão com a Meta</h3><p>Conecte o WhatsApp oficial da empresa sem expor tokens no navegador.</p></div><span class="wa77-badge" id="wa77-conn-badge">Não configurado</span></div><div class="wa77-kpis"><div class="wa77-kpi"><span>Provedor</span><b id="wa77-provider">Meta Cloud API</b></div><div class="wa77-kpi"><span>Número</span><b id="wa77-number">—</b></div><div class="wa77-kpi"><span>Validação</span><b id="wa77-validation" style="font-size:11px">—</b></div><div class="wa77-kpi"><span>Automação</span><b id="wa77-auto-state" style="font-size:11px">Desativada</b></div></div><div class="wa77-actions"><button class="wa77-btn" data-act="connect-meta" id="wa77-connect">Conectar WhatsApp com a Meta</button><button class="wa77-btn alt" data-act="validate-meta">Validar conexão</button><button class="wa77-btn alt" data-act="toggle-auto" data-value="true">Ativar automação</button><button class="wa77-btn alt" data-act="toggle-auto" data-value="false">Desativar</button><span class="wa77-msg" id="wa77-conn-msg"></span></div></section>
 
       <section class="wa77-card"><h3>Fuso horário da empresa</h3><p>Necessário para calcular lembretes e janelas de envio.</p><div class="wa77-grid2"><div class="wa77-field"><label>Fuso horário</label><select id="wa77-timezone"></select></div><div class="wa77-actions" style="align-items:end"><button class="wa77-btn" data-act="save-timezone">Salvar fuso</button><span class="wa77-msg" id="wa77-timezone-msg"></span></div></div></section>
+
+      <section class="wa77-card">
+        <div class="wa77-head">
+          <div><h3>Guia para criar templates aceitos pela Meta</h3><p>Use este passo a passo antes de cadastrar ou validar um template no SimplA.</p></div>
+          <button class="wa77-btn alt" data-act="toggle-template-guide">Ver passo a passo</button>
+        </div>
+        <div id="wa77-template-guide" class="wa77-guide" style="display:none">
+          <div class="wa77-guide-steps">
+            <div class="wa77-guide-step"><div class="wa77-guide-num">1</div><div><b>Use uma finalidade operacional clara</b><span>Confirmação, lembrete, cancelamento e reagendamento devem tratar apenas do atendimento/agendamento correspondente. Evite misturar oferta, desconto, propaganda ou venda dentro desses modelos operacionais.</span></div></div>
+            <div class="wa77-guide-step"><div class="wa77-guide-num">2</div><div><b>Escreva uma mensagem objetiva</b><span>Identifique a empresa, explique o motivo da mensagem e informe apenas os dados necessários. Evite textos vagos, enganosos, excessivamente promocionais ou que possam surpreender o cliente.</span></div></div>
+            <div class="wa77-guide-step"><div class="wa77-guide-num">3</div><div><b>Use variáveis apenas onde o conteúdo muda</b><span>Ex.: nome do cliente, serviço, data, horário e profissional. No SimplA, a ordem das variáveis deve ser exatamente a mesma de {{1}}, {{2}}, {{3}}... aprovada na Meta.</span></div></div>
+            <div class="wa77-guide-step"><div class="wa77-guide-num">4</div><div><b>Não inclua dados sensíveis desnecessários</b><span>Evite documentos, dados financeiros, informações clínicas ou outros dados confidenciais no texto do template.</span></div></div>
+            <div class="wa77-guide-step"><div class="wa77-guide-num">5</div><div><b>Garanta que o cliente espera receber a mensagem</b><span>O número deve ter sido fornecido pelo cliente e a empresa deve ter a autorização necessária para contatá-lo pelo WhatsApp.</span></div></div>
+            <div class="wa77-guide-step"><div class="wa77-guide-num">6</div><div><b>Crie o template na Meta e aguarde a aprovação</b><span>Depois de aprovado, copie para o SimplA o nome exato do template e o idioma usado na Meta.</span></div></div>
+            <div class="wa77-guide-step"><div class="wa77-guide-num">7</div><div><b>Mapeie as variáveis no SimplA</b><span>Configure {{1}}, {{2}}, {{3}}... na mesma ordem usada no corpo do template.</span></div></div>
+            <div class="wa77-guide-step"><div class="wa77-guide-num">8</div><div><b>Valide antes de ativar</b><span>Use “Validar na Meta”. O SimplA confere nome, idioma, aprovação e quantidade de variáveis antes de liberar o uso automático.</span></div></div>
+          </div>
+
+          <div class="wa77-grid2" style="margin-top:12px">
+            <div class="wa77-guide-example"><b>Exemplo — Confirmação</b><p>Olá, {{1}}. Seu agendamento de {{2}} na {{3}} está confirmado para {{4}} às {{5}} com {{6}}.</p></div>
+            <div class="wa77-guide-example"><b>Exemplo — Lembrete</b><p>Olá, {{1}}. Este é um lembrete do seu agendamento de {{2}} na {{3}}, marcado para {{4}} às {{5}}.</p></div>
+            <div class="wa77-guide-example"><b>Exemplo — Cancelamento</b><p>Olá, {{1}}. Seu agendamento de {{2}}, previsto para {{3}} às {{4}}, foi cancelado.</p></div>
+            <div class="wa77-guide-example"><b>Exemplo — Reagendamento</b><p>Olá, {{1}}. Seu agendamento de {{2}} foi reagendado para {{3}} às {{4}} com {{5}}.</p></div>
+          </div>
+
+          <div class="wa77-note">
+            A aprovação final é da Meta. Mesmo um template já aprovado pode ser revisado, pausado ou rejeitado posteriormente. O SimplA ajuda a configurar e validar, mas não substitui a análise da Meta.
+          </div>
+          <div class="wa77-actions"><a class="wa77-btn alt" href="https://business.whatsapp.com/policy/preview?lang=pt_BR" target="_blank" rel="noopener noreferrer">Abrir política oficial do WhatsApp</a></div>
+        </div>
+      </section>
 
       <section class="wa77-card"><h3>Templates operacionais</h3><p>Nomes dos templates aprovados na Meta.</p><div class="wa77-grid2" id="wa77-templates"></div></section>
 
@@ -235,6 +266,14 @@
   async function handle(e){
     const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
     try{
+      if(a==='toggle-template-guide'){
+        const box=document.getElementById('wa77-template-guide');
+        if(box){
+          const abrir=box.style.display==='none'||!box.style.display;
+          box.style.display=abrir?'block':'none';
+          b.textContent=abrir?'Ocultar passo a passo':'Ver passo a passo';
+        }
+      }
       if(a==='refresh-quota')await loadQuota();
       if(a==='refresh-monitor')await loadMonitor();
       if(a==='save-timezone'){const f=document.getElementById('wa77-timezone').value;if(!f)return alert('Selecione o fuso.');const {error}=await db().rpc('salvar_fuso_horario_empresa',{p_empresa_id:empresaId(),p_fuso_horario:f});if(error)throw error;document.getElementById('wa77-timezone-msg').textContent='Fuso salvo.'}
