@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v79-whatsapp-menu-fix';
+const CACHE_VERSION = 'simpla-shell-v80-update-stable';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
@@ -89,6 +89,13 @@ self.addEventListener('fetch', event => {
 self.addEventListener('message', event => {
   if(event.data === 'SKIP_WAITING' || event.data?.tipo === 'SKIP_WAITING') {
     self.skipWaiting();
+    return;
+  }
+
+  if(event.data?.tipo === 'GET_VERSION') {
+    try {
+      event.ports?.[0]?.postMessage({ versao: CACHE_VERSION });
+    } catch (_) {}
   }
 });
 

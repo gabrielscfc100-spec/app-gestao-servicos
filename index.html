@@ -10769,39 +10769,96 @@ hr{
 (function simplaGerenciadorAtualizacaoPWA(){
   if(!('serviceWorker' in navigator)) return;
 
-  let registroPWA = null;
-  let recarregando = false;
+  const STORAGE_KEY='simpla_pwa_update_aplicado';
+  let registroPWA=null;
+  let recarregando=false;
+  let versaoEmEspera=null;
+
+  try{
+    const u=new URL(window.location.href);
+    if(u.searchParams.has('_simpla_update')){
+      u.searchParams.delete('_simpla_update');
+      history.replaceState(null,'',u.pathname+u.search+u.hash);
+    }
+  }catch(_){}
 
   function obterBanner(){
-    let banner = document.getElementById('simpla-update-banner');
+    let banner=document.getElementById('simpla-update-banner');
     if(banner) return banner;
-    banner = document.createElement('div');
-    banner.id = 'simpla-update-banner';
-    banner.className = 'simpla-update-banner';
+    banner=document.createElement('div');
+    banner.id='simpla-update-banner';
+    banner.className='simpla-update-banner';
     banner.setAttribute('role','status');
     banner.setAttribute('aria-live','polite');
-    banner.innerHTML = '<div class="simpla-update-texto"><strong>Nova versão do SimplA disponível</strong><span>Atualize agora para receber as correções e melhorias mais recentes.</span></div><button type="button" class="simpla-update-btn" id="simpla-update-btn">Atualizar agora</button>';
+    banner.innerHTML='<div class="simpla-update-texto"><strong>Nova versão do SimplA disponível</strong><span>Atualize agora para receber as correções e melhorias mais recentes.</span></div><button type="button" class="simpla-update-btn" id="simpla-update-btn">Atualizar agora</button>';
     document.body.appendChild(banner);
-    banner.querySelector('#simpla-update-btn').addEventListener('click', aplicarAtualizacao);
+    banner.querySelector('#simpla-update-btn').addEventListener('click',aplicarAtualizacao);
     return banner;
   }
 
-  function mostrarAtualizacao(){
-    const banner = obterBanner();
-    banner.classList.add('show');
+  function esconderAtualizacao(){
+    const banner=document.getElementById('simpla-update-banner');
+    if(banner) banner.classList.remove('show');
   }
 
-  function aplicarAtualizacao(){
-    const btn = document.getElementById('simpla-update-btn');
-    if(btn){ btn.disabled = true; btn.textContent = 'Aplicando atualização...'; }
+  function obterVersaoWorker(worker){
+    return new Promise(resolve=>{
+      if(!worker) return resolve(null);
+      try{
+        const canal=new MessageChannel();
+        const timer=setTimeout(()=>resolve(null),1200);
+        canal.port1.onmessage=e=>{
+          clearTimeout(timer);
+          resolve(e?.data?.versao||null);
+        };
+        worker.postMessage({tipo:'GET_VERSION'},[canal.port2]);
+      }catch(_){resolve(null)}
+    });
+  }
 
-    const worker = registroPWA?.waiting;
+  async function avaliarWaiting(registro){
+    const waiting=registro?.waiting;
+    if(!waiting || !navigator.serviceWorker.controller){
+      esconderAtualizacao();
+      return;
+    }
+
+    const [vWaiting,vAtiva]=await Promise.all([
+      obterVersaoWorker(waiting),
+      obterVersaoWorker(navigator.serviceWorker.controller)
+    ]);
+
+    versaoEmEspera=vWaiting||null;
+    const jaAplicada=localStorage.getItem(STORAGE_KEY);
+
+    if(vWaiting && vAtiva && vWaiting===vAtiva){
+      esconderAtualizacao();
+      return;
+    }
+
+    if(vWaiting && jaAplicada===vWaiting){
+      esconderAtualizacao();
+      waiting.postMessage({tipo:'SKIP_WAITING'});
+      return;
+    }
+
+    obterBanner().classList.add('show');
+  }
+
+  async function aplicarAtualizacao(){
+    const btn=document.getElementById('simpla-update-btn');
+    if(btn){btn.disabled=true;btn.textContent='Aplicando atualização...';}
+
+    const worker=registroPWA?.waiting;
     if(worker){
+      const alvo=versaoEmEspera || await obterVersaoWorker(worker);
+      if(alvo) localStorage.setItem(STORAGE_KEY,alvo);
+      esconderAtualizacao();
       worker.postMessage({tipo:'SKIP_WAITING'});
-      // Alguns navegadores demoram ou não disparam controllerchange prontamente.
-      // O reload com cache-buster garante que a nova navegação busque o HTML atual.
+
       setTimeout(()=>{
         if(recarregando) return;
+        recarregando=true;
         const u=new URL(window.location.href);
         u.searchParams.set('_simpla_update',Date.now().toString());
         window.location.replace(u.toString());
@@ -10809,45 +10866,63 @@ hr{
       return;
     }
 
-    const u=new URL(window.location.href);
-    u.searchParams.set('_simpla_update',Date.now().toString());
-    window.location.replace(u.toString());
+    esconderAtualizacao();
+    window.location.reload();
   }
 
   function observarInstalacao(registro){
-    if(registro.waiting && navigator.serviceWorker.controller) mostrarAtualizacao();
-    registro.addEventListener('updatefound', () => {
-      const novo = registro.installing;
+    avaliarWaiting(registro);
+    registro.addEventListener('updatefound',()=>{
+      const novo=registro.installing;
       if(!novo) return;
-      novo.addEventListener('statechange', () => {
-        if(novo.state === 'installed' && navigator.serviceWorker.controller){
-          mostrarAtualizacao();
+      novo.addEventListener('statechange',()=>{
+        if(novo.state==='installed' && navigator.serviceWorker.controller){
+          setTimeout(()=>avaliarWaiting(registro),50);
         }
       });
     });
   }
 
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
+  navigator.serviceWorker.addEventListener('controllerchange',async()=>{
     if(recarregando) return;
-    recarregando = true;
+    recarregando=true;
+
+    try{
+      const ativa=navigator.serviceWorker.controller;
+      const vAtiva=await obterVersaoWorker(ativa);
+      const jaAplicada=localStorage.getItem(STORAGE_KEY);
+      if(vAtiva && jaAplicada===vAtiva) localStorage.removeItem(STORAGE_KEY);
+    }catch(_){}
+
     window.location.reload();
   });
 
-  window.addEventListener('load', async () => {
+  window.addEventListener('load',async()=>{
     try{
-      registroPWA = await navigator.serviceWorker.getRegistration('./') || await navigator.serviceWorker.register('./service-worker.js', {scope:'./'});
+      registroPWA=await navigator.serviceWorker.getRegistration('./')
+        || await navigator.serviceWorker.register('./service-worker.js',{scope:'./'});
+
       observarInstalacao(registroPWA);
       await registroPWA.update().catch(()=>{});
+      await avaliarWaiting(registroPWA);
 
-      // Verifica novamente enquanto o app fica aberto.
-      setInterval(() => registroPWA?.update().catch(()=>{}), 5 * 60 * 1000);
+      const ativa=navigator.serviceWorker.controller;
+      const vAtiva=await obterVersaoWorker(ativa);
+      const jaAplicada=localStorage.getItem(STORAGE_KEY);
+      if(vAtiva && jaAplicada===vAtiva){
+        localStorage.removeItem(STORAGE_KEY);
+        esconderAtualizacao();
+      }
 
-      // Ao retornar para o app no iPhone/PWA, força nova verificação.
-      document.addEventListener('visibilitychange', () => {
-        if(document.visibilityState === 'visible') registroPWA?.update().catch(()=>{});
+      setInterval(()=>registroPWA?.update().then(()=>avaliarWaiting(registroPWA)).catch(()=>{}),5*60*1000);
+
+      document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState==='visible'){
+          registroPWA?.update().then(()=>avaliarWaiting(registroPWA)).catch(()=>{});
+        }
       });
     }catch(err){
-      console.warn('SimplA PWA: falha ao verificar atualização.', err);
+      console.warn('SimplA PWA: falha ao verificar atualização.',err);
     }
   });
 })();
