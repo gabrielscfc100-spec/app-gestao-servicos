@@ -1,0 +1,35 @@
+name: Patch WhatsApp Consent v83
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-whatsapp-consent-v83.yml'
+      - '.github/scripts/patch-whatsapp-consent-v83.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python .github/scripts/patch-whatsapp-consent-v83.py
+      - name: Validar
+        run: |
+          grep -q "cli-whatsapp-preferencia" index.html
+          grep -q "edit-cli-whatsapp-preferencia" index.html
+          grep -q "salvar_preferencia_whatsapp_cliente" index.html
+          grep -q "whatsapp_permitido" index.html
+          grep -q "simpla-shell-v83-whatsapp-consent" service-worker.js
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html service-worker.js
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "feat: controlar consentimento WhatsApp por cliente"
+          git push
