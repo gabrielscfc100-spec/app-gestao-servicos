@@ -53,7 +53,7 @@
     .wa77-btn{border:0;border-radius:7px;padding:9px 11px;background:#1a1c23;color:#fff;font-size:9px;font-weight:900;cursor:pointer}.wa77-btn.alt{background:#edf2f7;color:#2d3748}.wa77-btn.danger{background:#fff5f5;color:#c53030}.wa77-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
     .wa77-msg{font-size:9px;color:#718096}.wa77-vars{display:grid;gap:6px;margin-top:9px}.wa77-var-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto auto auto;gap:6px;align-items:center}.wa77-var-pos{font-size:9px;font-weight:900;color:#718096;text-align:center}.wa77-var-btn{border:0;border-radius:6px;padding:7px 8px;background:#edf2f7;color:#4a5568;font-size:9px;font-weight:900;cursor:pointer}.wa77-var-btn.remove{background:#fff5f5;color:#c53030}.wa77-list{display:grid;gap:8px;margin-top:10px}.wa77-rem{border:1px solid #dbe4ee;border-radius:8px;padding:10px;background:#fff}.wa77-rem-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.wa77-switch{display:flex;align-items:center;gap:7px;font-size:9px;color:#4a5568;text-transform:none}
     .wa77-table-wrap{overflow:auto;margin-top:10px}.wa77-table{width:100%;min-width:760px;border-collapse:collapse}.wa77-table th,.wa77-table td{padding:8px;border-bottom:1px solid #edf2f7;font-size:9px;text-align:left;text-transform:none}.wa77-table th{background:#f8fafc;font-size:8px;color:#718096;text-transform:uppercase}
-    .wa77-note{margin-top:10px;padding:9px;border-radius:7px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:9px;line-height:1.4}.wa77-guide{border:1px solid #dbe4ee;border-radius:9px;background:#f8fafc;padding:12px;margin-top:12px}.wa77-guide-steps{display:grid;gap:8px;margin-top:10px}.wa77-guide-step{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}.wa77-guide-num{width:24px;height:24px;border-radius:999px;background:#23364d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900}.wa77-guide-step b{display:block;font-size:10px;color:#2d3748}.wa77-guide-step span{display:block;font-size:9px;color:#718096;line-height:1.45;margin-top:2px}.wa77-guide-example{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:10px}.wa77-guide-example b{font-size:9px;color:#2d3748}.wa77-guide-example p{margin-top:4px;font-size:9px;color:#526579;line-height:1.45}.wa77-empty{padding:12px;text-align:center;color:#718096;font-size:10px}
+    .wa77-note{margin-top:10px;padding:9px;border-radius:7px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:9px;line-height:1.4}.wa77-guide{border:1px solid #dbe4ee;border-radius:9px;background:#f8fafc;padding:12px;margin-top:12px}.wa77-guide-steps{display:grid;gap:8px;margin-top:10px}.wa77-guide-step{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}.wa77-guide-num{width:24px;height:24px;border-radius:999px;background:#23364d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900}.wa77-guide-step b{display:block;font-size:10px;color:#2d3748}.wa77-guide-step span{display:block;font-size:9px;color:#718096;line-height:1.45;margin-top:2px}.wa77-guide-example{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:10px}.wa77-guide-example b{font-size:9px;color:#2d3748}.wa77-guide-example p{margin-top:4px;font-size:9px;color:#526579;line-height:1.45}.wa77-test{display:none;margin-top:10px;padding:10px;border:1px solid #bee3f8;border-radius:8px;background:#ebf8ff}.wa77-test.show{display:block}.wa77-test-vars{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.wa77-empty{padding:12px;text-align:center;color:#718096;font-size:10px}
     .wa77-status{font-weight:900}.wa77-status.ENVIADO,.wa77-status.delivered,.wa77-status.read{color:#2f855a}.wa77-status.ERRO,.wa77-status.failed{color:#c53030}.wa77-status.PENDENTE{color:#975a16}
     @media(max-width:800px){.wa77-grid2,.wa77-fields{grid-template-columns:1fr}.wa77-kpis{grid-template-columns:1fr 1fr}.wa77-var-row{grid-template-columns:36px minmax(0,1fr) auto auto auto}}
     `;
@@ -223,7 +223,14 @@
           '<label class="wa77-switch"><input type="checkbox" id="wa77-tpl-active-'+s+'" '+(r.ativo?'checked':'')+'> Ativo</label>'+
           '<button class="wa77-btn" data-act="save-template" data-tipo="'+t+'">Salvar template</button>'+
           '<button class="wa77-btn alt" data-act="validate-template" data-tipo="'+t+'">Validar na Meta</button>'+
+          '<button class="wa77-btn alt" data-act="toggle-test-template" data-tipo="'+t+'" '+(valid?'':'disabled')+'>Testar template</button>'+
           '<span class="wa77-msg" id="wa77-tpl-msg-'+s+'"></span>'+
+        '</div>'+
+        '<div class="wa77-test" id="wa77-test-'+s+'">'+
+          '<div class="wa77-field"><label>Número de teste</label><input type="text" id="wa77-test-phone-'+s+'" placeholder="Ex.: 5581999999999"></div>'+
+          '<div class="wa77-test-vars">'+vars.map((v,i)=>'<div class="wa77-field"><label>{{'+(i+1)+'}} · '+esc((TEMPLATE_VARS.find(x=>x[0]===v)||[v,v])[1])+'</label><input type="text" data-test-var="'+t+'" data-pos="'+i+'" placeholder="Valor de teste"></div>').join('')+'</div>'+
+          '<div class="wa77-actions"><button class="wa77-btn" data-act="send-test-template" data-tipo="'+t+'">Enviar mensagem de teste</button><span class="wa77-msg" id="wa77-test-msg-'+s+'"></span></div>'+
+          '<div class="wa77-note">Este envio é real, conta na franquia mensal e aparecerá no histórico como TESTE MANUAL.</div>'+
         '</div>'+
       '</div>';
     }).join('');
@@ -243,8 +250,8 @@
   function renderReminders(){document.getElementById('wa77-reminders').innerHTML=state.reminders.length?state.reminders.map(reminderHtml).join(''):'<div class="wa77-empty">Nenhum lembrete configurado.</div>'}
 
   async function loadMonitor(){
-    const {data,error}=await db().from('whatsapp_mensagens_operacionais').select('tipo,destino,status,provider_status,processar_em_local,provider_message_id,erro,criado_em').eq('empresa_id',empresaId()).order('criado_em',{ascending:false}).limit(50);if(error)throw error;
-    const rows=data||[];document.getElementById('wa77-monitor').innerHTML=rows.length?rows.map(r=>`<tr><td>${fmt(r.criado_em)}</td><td>${esc(r.tipo)}</td><td>${phone(r.destino)}</td><td class="wa77-status ${esc(r.status)}">${esc(r.status)}</td><td class="wa77-status ${esc(r.provider_status||'')}">${esc(r.provider_status||'—')}</td><td>${esc(String(r.processar_em_local||'—').replace('T',' ').slice(0,16))}</td><td>${esc(r.erro||(r.provider_message_id?'ID Meta: '+String(r.provider_message_id).slice(-12):'—'))}</td></tr>`).join(''):'<tr><td colspan="7" class="wa77-empty">Fila vazia.</td></tr>';
+    const {data,error}=await db().from('whatsapp_mensagens_operacionais').select('tipo,destino,status,provider_status,processar_em_local,provider_message_id,erro,criado_em,parametros,origem_automacao').eq('empresa_id',empresaId()).order('criado_em',{ascending:false}).limit(50);if(error)throw error;
+    const rows=data||[];document.getElementById('wa77-monitor').innerHTML=rows.length?rows.map(r=>{const origem=String(r?.parametros?.origem||'');const detalheOrigem=origem==='TESTE_MANUAL'?'TESTE MANUAL':(r.origem_automacao?'AUTOMAÇÃO':'MANUAL');return `<tr><td>${fmt(r.criado_em)}</td><td>${esc(r.tipo)}<br><span class="wa77-badge">${esc(detalheOrigem)}</span></td><td>${phone(r.destino)}</td><td class="wa77-status ${esc(r.status)}">${esc(r.status)}</td><td class="wa77-status ${esc(r.provider_status||'')}">${esc(r.provider_status||'—')}</td><td>${esc(String(r.processar_em_local||'—').replace('T',' ').slice(0,16))}</td><td>${esc(r.erro||(r.provider_message_id?'ID Meta: '+String(r.provider_message_id).slice(-12):'—'))}</td></tr>`}).join(''):'<tr><td colspan="7" class="wa77-empty">Fila vazia.</td></tr>';
   }
 
   async function refreshAll(){
@@ -297,6 +304,26 @@
         if(dir<0&&row.previousElementSibling)row.parentNode.insertBefore(row,row.previousElementSibling);
         if(dir>0&&row.nextElementSibling)row.parentNode.insertBefore(row.nextElementSibling,row);
         rerenderTemplateVarPositions(t);
+      }
+      if(a==='toggle-test-template'){
+        const t=b.dataset.tipo,s=slug(t),box=document.getElementById('wa77-test-'+s);
+        if(box)box.classList.toggle('show');
+      }
+      if(a==='send-test-template'){
+        const t=b.dataset.tipo,s=slug(t),msg=document.getElementById('wa77-test-msg-'+s);
+        const telefone=document.getElementById('wa77-test-phone-'+s)?.value?.trim()||'';
+        const valores=[...document.querySelectorAll('[data-test-var="'+t+'"]')].sort((a,b)=>Number(a.dataset.pos)-Number(b.dataset.pos)).map(x=>x.value.trim());
+        if(!telefone)return alert('Informe o número que receberá a mensagem de teste.');
+        if(valores.some(v=>!v))return alert('Preencha todas as variáveis de teste.');
+        if(!confirm('Enviar uma mensagem REAL de teste para '+telefone+'? Este envio conta na franquia mensal.'))return;
+        if(msg)msg.textContent='Enviando teste...';
+        const {data,error}=await db().functions.invoke('whatsapp-testar-template',{
+          body:{empresa_id:empresaId(),tipo:t,destino:telefone,valores}
+        });
+        if(error)throw error;
+        if(!data?.ok)throw new Error(data?.detail||data?.message||data?.error||'Falha no envio de teste.');
+        if(msg)msg.textContent='Mensagem de teste enviada.';
+        await Promise.all([loadQuota(),loadMonitor()]);
       }
       if(a==='save-template'){
         const t=b.dataset.tipo,s=slug(t);
