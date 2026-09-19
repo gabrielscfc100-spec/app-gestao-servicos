@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v80-update-stable';
+const CACHE_VERSION = 'simpla-shell-v81-template-vars';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
@@ -53,6 +53,21 @@ self.addEventListener('fetch', event => {
             || (await caches.match('./index.html'))
             || (await caches.match(OFFLINE_URL));
         })
+    );
+    return;
+  }
+
+  if(url.pathname.endsWith('/whatsapp-automacoes-v77.js')) {
+    event.respondWith(
+      fetch(request, { cache: 'no-store' })
+        .then(response => {
+          if(response && response.ok) {
+            const copia = response.clone();
+            caches.open(CACHE_VERSION).then(cache => cache.put(request, copia));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
     );
     return;
   }

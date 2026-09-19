@@ -51,11 +51,11 @@
     .wa77-bar{height:10px;background:#edf2f7;border-radius:999px;overflow:hidden;margin-top:10px}.wa77-fill{height:100%;width:0;background:#345a7d;transition:.2s}
     .wa77-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.wa77-rule{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px}.wa77-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.wa77-field label{display:block;font-size:8px;font-weight:900;color:#718096;margin-bottom:4px;text-transform:uppercase}.wa77 input[type=time],.wa77 input[type=text],.wa77 select{width:100%;padding:8px;border:1px solid #cbd5e0;border-radius:6px;background:#fff;font-size:11px;text-transform:none;box-sizing:border-box}
     .wa77-btn{border:0;border-radius:7px;padding:9px 11px;background:#1a1c23;color:#fff;font-size:9px;font-weight:900;cursor:pointer}.wa77-btn.alt{background:#edf2f7;color:#2d3748}.wa77-btn.danger{background:#fff5f5;color:#c53030}.wa77-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
-    .wa77-msg{font-size:9px;color:#718096}.wa77-list{display:grid;gap:8px;margin-top:10px}.wa77-rem{border:1px solid #dbe4ee;border-radius:8px;padding:10px;background:#fff}.wa77-rem-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.wa77-switch{display:flex;align-items:center;gap:7px;font-size:9px;color:#4a5568;text-transform:none}
+    .wa77-msg{font-size:9px;color:#718096}.wa77-vars{display:grid;gap:6px;margin-top:9px}.wa77-var-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto auto auto;gap:6px;align-items:center}.wa77-var-pos{font-size:9px;font-weight:900;color:#718096;text-align:center}.wa77-var-btn{border:0;border-radius:6px;padding:7px 8px;background:#edf2f7;color:#4a5568;font-size:9px;font-weight:900;cursor:pointer}.wa77-var-btn.remove{background:#fff5f5;color:#c53030}.wa77-list{display:grid;gap:8px;margin-top:10px}.wa77-rem{border:1px solid #dbe4ee;border-radius:8px;padding:10px;background:#fff}.wa77-rem-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.wa77-switch{display:flex;align-items:center;gap:7px;font-size:9px;color:#4a5568;text-transform:none}
     .wa77-table-wrap{overflow:auto;margin-top:10px}.wa77-table{width:100%;min-width:760px;border-collapse:collapse}.wa77-table th,.wa77-table td{padding:8px;border-bottom:1px solid #edf2f7;font-size:9px;text-align:left;text-transform:none}.wa77-table th{background:#f8fafc;font-size:8px;color:#718096;text-transform:uppercase}
     .wa77-note{margin-top:10px;padding:9px;border-radius:7px;background:#fffaf0;border:1px solid #f6e05e;color:#744210;font-size:9px;line-height:1.4}.wa77-empty{padding:12px;text-align:center;color:#718096;font-size:10px}
     .wa77-status{font-weight:900}.wa77-status.ENVIADO,.wa77-status.delivered,.wa77-status.read{color:#2f855a}.wa77-status.ERRO,.wa77-status.failed{color:#c53030}.wa77-status.PENDENTE{color:#975a16}
-    @media(max-width:800px){.wa77-grid2,.wa77-fields{grid-template-columns:1fr}.wa77-kpis{grid-template-columns:1fr 1fr}}
+    @media(max-width:800px){.wa77-grid2,.wa77-fields{grid-template-columns:1fr}.wa77-kpis{grid-template-columns:1fr 1fr}.wa77-var-row{grid-template-columns:36px minmax(0,1fr) auto auto auto}}
     `;
     document.head.appendChild(st);
   }
@@ -119,11 +119,68 @@
     if(data?.fuso_horario){if(![...sel.options].some(o=>o.value===data.fuso_horario)){const o=document.createElement('option');o.value=data.fuso_horario;o.textContent=data.fuso_horario;sel.appendChild(o)}sel.value=data.fuso_horario}else if(detected)sel.value=detected;
   }
 
+  const TEMPLATE_VARS=[
+    ['CLIENTE_NOME','Nome do cliente'],
+    ['EMPRESA_NOME','Nome da empresa'],
+    ['SERVICO_NOME','Serviço'],
+    ['DATA','Data do agendamento'],
+    ['HORARIO','Horário do agendamento'],
+    ['PROFISSIONAL_NOME','Nome do profissional']
+  ];
+
+  function templateVarOptions(atual){
+    return '<option value="">Selecione...</option>'+TEMPLATE_VARS.map(([v,n])=>'<option value="'+v+'" '+(v===atual?'selected':'')+'>'+n+'</option>').join('');
+  }
+
+  function templateVarRow(tipo,valor,pos){
+    return '<div class="wa77-var-row" data-var-tipo="'+tipo+'">'+
+      '<span class="wa77-var-pos">{{'+(pos+1)+'}}</span>'+
+      '<select data-tpl-var="'+tipo+'">'+templateVarOptions(valor)+'</select>'+
+      '<button type="button" class="wa77-var-btn" data-act="move-template-var" data-tipo="'+tipo+'" data-pos="'+pos+'" data-dir="-1" title="Subir">↑</button>'+
+      '<button type="button" class="wa77-var-btn" data-act="move-template-var" data-tipo="'+tipo+'" data-pos="'+pos+'" data-dir="1" title="Descer">↓</button>'+
+      '<button type="button" class="wa77-var-btn remove" data-act="remove-template-var" data-tipo="'+tipo+'" data-pos="'+pos+'" title="Remover">×</button>'+
+    '</div>';
+  }
+
+  function rerenderTemplateVarPositions(tipo){
+    document.querySelectorAll('[data-var-tipo="'+tipo+'"]').forEach((row,i)=>{
+      row.querySelector('.wa77-var-pos').textContent='{{'+(i+1)+'}}';
+      row.querySelectorAll('[data-pos]').forEach(b=>b.dataset.pos=String(i));
+    });
+  }
+
   async function loadTemplates(){
-    const {data,error}=await db().from('whatsapp_templates_operacionais').select('tipo,template_codigo,language_code,status_meta,ativo').eq('empresa_id',empresaId());if(error)throw error;
+    const {data,error}=await db().from('whatsapp_templates_operacionais')
+      .select('tipo,template_codigo,language_code,status_meta,ativo,variaveis_body')
+      .eq('empresa_id',empresaId());
+    if(error)throw error;
+
     const map=new Map((data||[]).map(r=>[r.tipo,r]));
-    const types=[['CONFIRMACAO','Confirmação'],['LEMBRETE','Lembrete'],['CANCELAMENTO','Cancelamento'],['REAGENDAMENTO','Reagendamento']];
-    document.getElementById('wa77-templates').innerHTML=types.map(([t,n])=>{const r=map.get(t)||{};const s=slug(t);return `<div class="wa77-rule"><div class="wa77-head"><b>${n}</b><span class="wa77-badge">${esc(r.status_meta||'DESCONHECIDO')}</span></div><div class="wa77-fields"><div class="wa77-field"><label>Nome na Meta</label><input type="text" id="wa77-tpl-code-${s}" value="${esc(r.template_codigo||'')}"></div><div class="wa77-field"><label>Idioma</label><input type="text" id="wa77-tpl-lang-${s}" value="${esc(r.language_code||'pt_BR')}"></div></div><div class="wa77-actions"><label class="wa77-switch"><input type="checkbox" id="wa77-tpl-active-${s}" ${r.ativo?'checked':''}> Ativo</label><button class="wa77-btn" data-act="save-template" data-tipo="${t}">Salvar</button></div></div>`}).join('');
+    const types=[
+      ['CONFIRMACAO','Confirmação'],
+      ['LEMBRETE','Lembrete'],
+      ['CANCELAMENTO','Cancelamento'],
+      ['REAGENDAMENTO','Reagendamento']
+    ];
+
+    document.getElementById('wa77-templates').innerHTML=types.map(([t,n])=>{
+      const r=map.get(t)||{};
+      const s=slug(t);
+      const vars=Array.isArray(r.variaveis_body)?r.variaveis_body:[];
+      return '<div class="wa77-rule">'+
+        '<div class="wa77-head"><b>'+n+'</b><span class="wa77-badge">'+esc(r.status_meta||'DESCONHECIDO')+'</span></div>'+
+        '<div class="wa77-fields">'+
+          '<div class="wa77-field"><label>Nome na Meta</label><input type="text" id="wa77-tpl-code-'+s+'" value="'+esc(r.template_codigo||'')+'"></div>'+
+          '<div class="wa77-field"><label>Idioma</label><input type="text" id="wa77-tpl-lang-'+s+'" value="'+esc(r.language_code||'pt_BR')+'"></div>'+
+        '</div>'+
+        '<div style="margin-top:10px"><div class="wa77-field"><label>Variáveis do corpo do template</label></div>'+
+          '<p style="margin:3px 0 0">A ordem abaixo corresponde a {{1}}, {{2}}, {{3}}... do template aprovado na Meta.</p>'+
+          '<div class="wa77-vars" id="wa77-tpl-vars-'+s+'">'+vars.map((v,i)=>templateVarRow(t,v,i)).join('')+'</div>'+
+          '<div class="wa77-actions"><button type="button" class="wa77-btn alt" data-act="add-template-var" data-tipo="'+t+'">+ Adicionar variável</button></div>'+
+        '</div>'+
+        '<div class="wa77-actions"><label class="wa77-switch"><input type="checkbox" id="wa77-tpl-active-'+s+'" '+(r.ativo?'checked':'')+'> Ativo</label><button class="wa77-btn" data-act="save-template" data-tipo="'+t+'">Salvar template</button></div>'+
+      '</div>';
+    }).join('');
   }
 
   async function loadRules(){
@@ -169,7 +226,41 @@
       if(a==='toggle-auto'){const on=b.dataset.value==='true';if(on&&!confirm('Ativar os envios automáticos?'))return;const {error}=await db().rpc('salvar_automacao_whatsapp_operacional',{p_empresa_id:empresaId(),p_envios_automaticos_ativos:on});if(error)throw error;await loadConnection()}
       if(a==='validate-meta'){document.getElementById('wa77-conn-msg').textContent='Validando...';const {data,error}=await db().functions.invoke('whatsapp-validar-integracao',{body:{empresa_id:empresaId()}});if(error)throw error;document.getElementById('wa77-conn-msg').textContent=data?.ok?'Conexão validada.':'Validação não concluída.';await loadConnection()}
       if(a==='connect-meta'){await startEmbedded()}
-      if(a==='save-template'){const t=b.dataset.tipo,s=slug(t);const {error}=await db().rpc('salvar_template_whatsapp_operacional',{p_empresa_id:empresaId(),p_tipo:t,p_template_codigo:document.getElementById('wa77-tpl-code-'+s).value.trim(),p_language_code:document.getElementById('wa77-tpl-lang-'+s).value.trim()||'pt_BR',p_ativo:document.getElementById('wa77-tpl-active-'+s).checked});if(error)throw error;await loadTemplates()}
+      if(a==='add-template-var'){
+        const t=b.dataset.tipo,s=slug(t),box=document.getElementById('wa77-tpl-vars-'+s);
+        const pos=box.querySelectorAll('[data-var-tipo="'+t+'"]').length;
+        if(pos>=10)return alert('Cada template pode ter no máximo 10 variáveis.');
+        box.insertAdjacentHTML('beforeend',templateVarRow(t,'',pos));
+      }
+      if(a==='remove-template-var'){
+        const t=b.dataset.tipo;
+        b.closest('.wa77-var-row')?.remove();
+        rerenderTemplateVarPositions(t);
+      }
+      if(a==='move-template-var'){
+        const t=b.dataset.tipo,row=b.closest('.wa77-var-row'),dir=Number(b.dataset.dir||0);
+        if(!row)return;
+        if(dir<0&&row.previousElementSibling)row.parentNode.insertBefore(row,row.previousElementSibling);
+        if(dir>0&&row.nextElementSibling)row.parentNode.insertBefore(row.nextElementSibling,row);
+        rerenderTemplateVarPositions(t);
+      }
+      if(a==='save-template'){
+        const t=b.dataset.tipo,s=slug(t);
+        const vars=[...document.querySelectorAll('[data-tpl-var="'+t+'"]')].map(x=>x.value).filter(Boolean);
+        if(new Set(vars.map((v,i)=>v+'#'+i)).size!==vars.length){}
+        const codigo=document.getElementById('wa77-tpl-code-'+s).value.trim();
+        if(!codigo)return alert('Informe o nome do template aprovado na Meta.');
+        const {error}=await db().rpc('salvar_template_whatsapp_operacional_v2',{
+          p_empresa_id:empresaId(),
+          p_tipo:t,
+          p_template_codigo:codigo,
+          p_language_code:document.getElementById('wa77-tpl-lang-'+s).value.trim()||'pt_BR',
+          p_ativo:document.getElementById('wa77-tpl-active-'+s).checked,
+          p_variaveis_body:vars
+        });
+        if(error)throw error;
+        await loadTemplates();
+      }
       if(a==='save-rule')await saveRule(b.dataset.tipo);
       if(a==='add-reminder'){const used=new Set(state.reminders.map(x=>Number(x.antecedencia_minutos)));const d=ANT.find(x=>!used.has(x[0]))?.[0]||1440;state.reminders.push({id:null,ativo:true,antecedencia_minutos:d,horario_inicio:'08:00',horario_fim:'20:00',bloquear_duplicidade:true});renderReminders()}
       if(a==='save-reminder')await saveReminder(Number(b.dataset.i));
