@@ -151,7 +151,7 @@
 
   async function loadTemplates(){
     const {data,error}=await db().from('whatsapp_templates_operacionais')
-      .select('tipo,template_codigo,language_code,status_meta,ativo,variaveis_body')
+      .select('tipo,template_codigo,language_code,status_meta,ativo,variaveis_body,validacao_ok,validacao_detalhe,ultima_validacao_em,meta_category,meta_body_vars_count')
       .eq('empresa_id',empresaId());
     if(error)throw error;
 
@@ -167,8 +167,17 @@
       const r=map.get(t)||{};
       const s=slug(t);
       const vars=Array.isArray(r.variaveis_body)?r.variaveis_body:[];
+      const valid=!!r.validacao_ok;
+      const badge=valid?'VALIDADO':(r.status_meta||'NÃO VALIDADO');
+      const detalhe=r.validacao_detalhe||'Salve o template e valide na Meta antes de usar na automação.';
+      const metaInfo=[
+        r.meta_category?('Categoria: '+r.meta_category):null,
+        Number.isFinite(Number(r.meta_body_vars_count))?('Variáveis Meta: '+Number(r.meta_body_vars_count)):null,
+        r.ultima_validacao_em?('Validado em: '+fmt(r.ultima_validacao_em)):null
+      ].filter(Boolean).join(' · ');
+
       return '<div class="wa77-rule">'+
-        '<div class="wa77-head"><b>'+n+'</b><span class="wa77-badge">'+esc(r.status_meta||'DESCONHECIDO')+'</span></div>'+
+        '<div class="wa77-head"><b>'+n+'</b><span class="wa77-badge" style="'+(valid?'background:#f0fff4;color:#2f855a':'')+'">'+esc(badge)+'</span></div>'+
         '<div class="wa77-fields">'+
           '<div class="wa77-field"><label>Nome na Meta</label><input type="text" id="wa77-tpl-code-'+s+'" value="'+esc(r.template_codigo||'')+'"></div>'+
           '<div class="wa77-field"><label>Idioma</label><input type="text" id="wa77-tpl-lang-'+s+'" value="'+esc(r.language_code||'pt_BR')+'"></div>'+
@@ -178,7 +187,13 @@
           '<div class="wa77-vars" id="wa77-tpl-vars-'+s+'">'+vars.map((v,i)=>templateVarRow(t,v,i)).join('')+'</div>'+
           '<div class="wa77-actions"><button type="button" class="wa77-btn alt" data-act="add-template-var" data-tipo="'+t+'">+ Adicionar variável</button></div>'+
         '</div>'+
-        '<div class="wa77-actions"><label class="wa77-switch"><input type="checkbox" id="wa77-tpl-active-'+s+'" '+(r.ativo?'checked':'')+'> Ativo</label><button class="wa77-btn" data-act="save-template" data-tipo="'+t+'">Salvar template</button></div>'+
+        '<div class="wa77-note" style="'+(valid?'background:#f0fff4;border-color:#9ae6b4;color:#276749':'')+'">'+esc(detalhe)+(metaInfo?'<br>'+esc(metaInfo):'')+'</div>'+
+        '<div class="wa77-actions">'+
+          '<label class="wa77-switch"><input type="checkbox" id="wa77-tpl-active-'+s+'" '+(r.ativo?'checked':'')+'> Ativo</label>'+
+          '<button class="wa77-btn" data-act="save-template" data-tipo="'+t+'">Salvar template</button>'+
+          '<button class="wa77-btn alt" data-act="validate-template" data-tipo="'+t+'">Validar na Meta</button>'+
+          '<span class="wa77-msg" id="wa77-tpl-msg-'+s+'"></span>'+
+        '</div>'+
       '</div>';
     }).join('');
   }
@@ -247,9 +262,10 @@
       if(a==='save-template'){
         const t=b.dataset.tipo,s=slug(t);
         const vars=[...document.querySelectorAll('[data-tpl-var="'+t+'"]')].map(x=>x.value).filter(Boolean);
-        if(new Set(vars.map((v,i)=>v+'#'+i)).size!==vars.length){}
         const codigo=document.getElementById('wa77-tpl-code-'+s).value.trim();
         if(!codigo)return alert('Informe o nome do template aprovado na Meta.');
+        const msg=document.getElementById('wa77-tpl-msg-'+s);
+        if(msg)msg.textContent='Salvando...';
         const {error}=await db().rpc('salvar_template_whatsapp_operacional_v2',{
           p_empresa_id:empresaId(),
           p_tipo:t,
@@ -259,6 +275,17 @@
           p_variaveis_body:vars
         });
         if(error)throw error;
+        if(msg)msg.textContent='Salvo. Valide novamente na Meta.';
+        await loadTemplates();
+      }
+      if(a==='validate-template'){
+        const t=b.dataset.tipo,s=slug(t),msg=document.getElementById('wa77-tpl-msg-'+s);
+        if(msg)msg.textContent='Validando na Meta...';
+        const {data,error}=await db().functions.invoke('whatsapp-validar-template',{
+          body:{empresa_id:empresaId(),tipo:t}
+        });
+        if(error)throw error;
+        if(msg)msg.textContent=data?.ok?'Template validado.':(data?.detail||'Template não compatível.');
         await loadTemplates();
       }
       if(a==='save-rule')await saveRule(b.dataset.tipo);
