@@ -10537,26 +10537,7 @@ hr{
     </script><!-- Modal de confirmação via WhatsApp --><div class="modal-overlay" id="modal-confirmacao-whatsapp" style="z-index:5200;"><div class="modal-balao" style="max-width:430px;text-transform:none;"><div style="font-size:42px;margin-bottom:10px;"></div><h3 style="text-transform:none;margin-bottom:10px;">Agendamento confirmado com sucesso!</h3><p id="modal-confirmacao-whatsapp-texto" style="text-transform:none;line-height:1.5;margin-bottom:20px;">Deseja enviar a mensagem de confirmação para o seu cliente?
             </p><div style="display:flex;gap:12px;width:100%;"><a id="btn-modal-confirmacao-whatsapp" href="#" target="_blank" rel="noopener noreferrer" onclick="setTimeout(fecharModalConfirmacaoWhatsapp,150)" style="flex:1;padding:11px 16px;border-radius:6px;background:#25D366;color:white;text-decoration:none;font-weight:bold;text-align:center;text-transform:none;">Sim
                 </a><button type="button" onclick="fecharModalConfirmacaoWhatsapp()" style="flex:1;padding:11px 16px;border:0;border-radius:6px;background:#edf2f7;color:#2d3748;font-weight:bold;cursor:pointer;text-transform:none;">Não
-                </button></div></div></div><script>// -----------------------------------------------------------
-        // SIMPLA PWA v1.2 — Notificações + abertura do agendamento
-        // -----------------------------------------------------------
-        (function registrarSimplaPWA(){
-            if(!('serviceWorker' in navigator)) return;
-
-            window.addEventListener('load', async () => {
-                try {
-                    const registro = await navigator.serviceWorker.register('./service-worker.js', {
-                        scope: './' });
-                    console.info('SimplA PWA: Service Worker registrado.', registro.scope);
-
-                    // Verifica atualizações do SW em cada abertura.
-                    registro.update().catch(() => {});
-                } catch(err) {
-                    console.warn('SimplA PWA: não foi possível registrar o Service Worker.', err);
-                }
-            });
-        })();
-    </script>
+                </button></div></div></div>
 <script id="simpla-config-layout-v2-js">
 (function(){
   function txt(el){return String(el?.textContent||'').replace(/\s+/g,' ').trim();}
@@ -10621,7 +10602,7 @@ hr{
     container.innerHTML='<div style="padding:24px;text-align:center;color:#718096;font-size:12px;text-transform:none">Carregando WhatsApp e Automações...</div>';
     waLazyPromise=new Promise((resolve,reject)=>{
       const s=document.createElement('script');
-      s.src='./whatsapp-automacoes-v77.js?v=82';
+      s.src='./whatsapp-automacoes-v77.js?v=84';
       s.async=true;
       s.onload=()=>{
         if(!window.SimplAWhatsAppV77) return reject(new Error('Módulo WhatsApp não inicializado.'));
@@ -11117,13 +11098,12 @@ hr{
   function normalizarLabel(label){
     if(!label || label.dataset.simplaSwitchFinal === '1') return;
     if(label.classList.contains('cfg-switch')) return;
-      if(label.classList.contains('cfg-dia-label') || cb.classList.contains('cfg-dia-funcionamento')) return;
     if(label.classList.contains('profissional-servico-item')) return;
-      if(label.classList.contains('cfg-dia-label') || cb.classList.contains('cfg-dia-funcionamento')) return;
     if(label.querySelector('.cfg-switch-track')) return;
 
     const cb = Array.from(label.children).find(el => el.matches && el.matches('input[type="checkbox"]'));
     if(!cb) return;
+    if(label.classList.contains('cfg-dia-label') || cb.classList.contains('cfg-dia-funcionamento')) return;
 
     const span = document.createElement('span');
     span.className = 'simpla-switch-label-text-final';
