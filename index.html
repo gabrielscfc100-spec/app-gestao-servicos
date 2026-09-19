@@ -8804,16 +8804,32 @@ hr{
         function atualizarTabelaClientes() {
             const filtroInput = document.getElementById('filtro-cliente-input');
             if(!filtroInput) return;
-            const filtro = filtroInput.value.toLowerCase();
+
+            const termoOriginal = String(filtroInput.value || '');
+            const filtro = normalizarBuscaCliente(termoOriginal);
+            const filtroNumerico = termoOriginal.replace(/\D/g, '');
+
             const tbody = document.getElementById('tabela-clientes-corpo');
             if(!tbody) return;
             tbody.innerHTML = '';
 
-            const filtrados = clientes.filter(c =>c.nome.toLowerCase().includes(filtro) || 
-                (c.sobrenome && c.sobrenome.toLowerCase().includes(filtro)) || 
-                (c.telefone && c.telefone.includes(filtro)) ||
-                (c.codigo || '').toLowerCase().includes(filtro)
-            );
+            const filtrados = clientes.filter(c => {
+                if(!c) return false;
+
+                const codigo = normalizarBuscaCliente(c.codigo || '');
+                const nomeCompleto = normalizarBuscaCliente(
+                    formatarNomeCompletoCliente(c.nome || '', c.sobrenome || '')
+                );
+                const telefoneTexto = normalizarBuscaCliente(c.telefone || '');
+                const telefoneNumerico = String(c.telefone || '').replace(/\D/g, '');
+
+                if(!filtro && !filtroNumerico) return true;
+
+                return codigo.includes(filtro)
+                    || nomeCompleto.includes(filtro)
+                    || telefoneTexto.includes(filtro)
+                    || (filtroNumerico && telefoneNumerico.includes(filtroNumerico));
+            });
 
             if (filtrados.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #a0aec0;">Nenhum cliente encontrado.</td></tr>`;
@@ -8832,12 +8848,13 @@ hr{
 
                 let telFmt = c.telefone || '-';
                 let telZap = c.telefone ? c.telefone.replace(/\D/g, '') : '';
-                let msgTexto = mensagemAniversario.replace(/\[NOME\]/g, c.nome);
+                let msgTexto = mensagemAniversario.replace(/\[NOME\]/g, c.nome || '');
                 let linkZap = telZap ? `https://wa.me/55${telZap}?text=${encodeURIComponent(msgTexto)}` : '#';
                 let telColuna = telZap ? `<a href="${linkZap}" target="_blank" style="color: #38a169; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;"><span></span> ${telFmt}</a>` : '-';
 
+                const nomeExibicao = formatarNomeCompletoCliente(c.nome || '', c.sobrenome || '') || 'Cliente sem nome';
                 let tr = document.createElement('tr');
-                tr.innerHTML = ` <td><b>${c.codigo}</b></td><td><a href="#" onclick="abrirHistoricoCliente('${c.id}'); return false;" style="color: #3182ce; font-weight: bold; text-decoration: none;">${c.nome} ${c.sobrenome || ''}</a></td><td>${telColuna}</td><td>${aniversarioFmt}</td><td>${ultimoCorte}</td><td>${c.obs || '-'}</td>`;
+                tr.innerHTML = ` <td><b>${c.codigo || '-'}</b></td><td><a href="#" onclick="abrirHistoricoCliente('${c.id}'); return false;" style="color: #3182ce; font-weight: bold; text-decoration: none;">${nomeExibicao}</a></td><td>${telColuna}</td><td>${aniversarioFmt}</td><td>${ultimoCorte}</td><td>${c.obs || '-'}</td>`;
                 tbody.appendChild(tr);
             });
         }
