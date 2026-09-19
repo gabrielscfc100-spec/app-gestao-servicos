@@ -15454,5 +15454,111 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
 </script>
 
 
+
+<style id="simpla-pwa-install-v85">
+#simpla-pwa-install-v85-card{margin:14px 0;padding:14px 15px;border:1px solid #dbe4ee;border-radius:10px;background:#f8fafc;text-transform:none}
+#simpla-pwa-install-v85-card h4{margin:0 0 6px;color:#1a1c23;font-size:14px;text-transform:none}
+#simpla-pwa-install-v85-card p{margin:0 0 10px;color:#64748b;font-size:11px;line-height:1.5;text-transform:none}
+#simpla-pwa-install-v85-status{font-size:11px;color:#475569;margin-top:8px;text-transform:none}
+#simpla-pwa-install-v85-btn{border:0;border-radius:8px;background:#1a1c23;color:#fff;font-weight:700;font-size:12px;padding:10px 13px;cursor:pointer;text-transform:none}
+#simpla-pwa-install-v85-btn[hidden]{display:none!important}
+</style>
+<script id="simpla-pwa-install-v85">
+(function(){
+  let promptInstalacao=null;
+
+  function emModoApp(){
+    return window.matchMedia?.('(display-mode: standalone)').matches === true
+      || window.navigator.standalone === true;
+  }
+
+  function ehIOS(){
+    return /iphone|ipad|ipod/i.test(navigator.userAgent || '');
+  }
+
+  function montar(){
+    const raiz=document.getElementById('sec-config-geral');
+    if(!raiz || document.getElementById('simpla-pwa-install-v85-card')) return;
+
+    const card=document.createElement('div');
+    card.id='simpla-pwa-install-v85-card';
+    card.innerHTML='<h4>Aplicativo SimplA</h4><p id="simpla-pwa-install-v85-texto">Instale o SimplA neste dispositivo para abrir em formato de aplicativo e ter acesso mais rápido.</p><button id="simpla-pwa-install-v85-btn" type="button" hidden>Instalar SimplA</button><div id="simpla-pwa-install-v85-status"></div>';
+
+    const primeiro=raiz.querySelector('.section-box-cfg, hr');
+    if(primeiro) raiz.insertBefore(card,primeiro); else raiz.prepend(card);
+
+    card.querySelector('#simpla-pwa-install-v85-btn')?.addEventListener('click',async()=>{
+      if(!promptInstalacao) return;
+      const btn=document.getElementById('simpla-pwa-install-v85-btn');
+      try{
+        btn.disabled=true;
+        await promptInstalacao.prompt();
+        const escolha=await promptInstalacao.userChoice;
+        const status=document.getElementById('simpla-pwa-install-v85-status');
+        if(status) status.textContent=escolha?.outcome==='accepted'
+          ? 'Instalação iniciada.'
+          : 'Instalação não concluída.';
+      }catch(err){
+        console.warn('Instalação PWA SimplA:',err);
+      }finally{
+        promptInstalacao=null;
+        atualizar();
+        if(btn) btn.disabled=false;
+      }
+    });
+
+    atualizar();
+  }
+
+  function atualizar(){
+    const btn=document.getElementById('simpla-pwa-install-v85-btn');
+    const status=document.getElementById('simpla-pwa-install-v85-status');
+    const texto=document.getElementById('simpla-pwa-install-v85-texto');
+    if(!btn || !status) return;
+
+    if(emModoApp()){
+      btn.hidden=true;
+      status.textContent='SimplA já está instalado neste dispositivo.';
+      if(texto) texto.textContent='Você está usando o SimplA em modo aplicativo.';
+      return;
+    }
+
+    if(promptInstalacao){
+      btn.hidden=false;
+      status.textContent='Este dispositivo está pronto para instalar o SimplA.';
+      return;
+    }
+
+    btn.hidden=true;
+    if(ehIOS()){
+      status.textContent='No iPhone/iPad: toque em Compartilhar e escolha “Adicionar à Tela de Início”.';
+    }else{
+      status.textContent='Quando a instalação estiver disponível neste navegador, o botão aparecerá aqui.';
+    }
+  }
+
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    promptInstalacao=e;
+    montar();
+    atualizar();
+  });
+
+  window.addEventListener('appinstalled',()=>{
+    promptInstalacao=null;
+    atualizar();
+  });
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    montar();
+    setTimeout(montar,700);
+  });
+
+  document.addEventListener('simpla:empresa-pronta',()=>{
+    montar();
+    atualizar();
+  });
+})();
+</script>
 </body>
 </html>
