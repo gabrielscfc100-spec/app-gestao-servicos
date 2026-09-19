@@ -1,5 +1,5 @@
 // SimplA Service Worker — PWA com atualização controlada
-const CACHE_VERSION = 'simpla-shell-v63-whatsapp-templates';
+const CACHE_VERSION = 'simpla-shell-v64-meta-embedded-signup';
 const OFFLINE_URL = './offline.html';
 
 const APP_SHELL = [
