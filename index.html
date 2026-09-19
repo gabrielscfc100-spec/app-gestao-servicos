@@ -12948,9 +12948,35 @@ hr{
       res.textContent='Valor do Pix: '+valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); st.textContent='Confirme manualmente o recebimento antes de finalizar o atendimento.';
     }catch(e){console.error(e);st.textContent='Não foi possível gerar o QR Code: '+(e?.message||'erro desconhecido');}
   };
-  function boot(){montarConfig();montarBox();carregar(false).then(()=>atualizarPixUI(false));}
-  document.addEventListener('DOMContentLoaded',()=>{boot();setTimeout(montarConfig,150);setTimeout(montarConfig,800);});
-  setInterval(()=>{if(document.getElementById('atendimento')?.classList.contains('active')) atualizarPixUI(false);},1200);
+  function instalarGatilhosPix(){
+    const sel=document.getElementById('pag-entrada');
+    if(sel && !sel.dataset.pixV27Listener){
+      sel.dataset.pixV27Listener='1';
+      sel.addEventListener('change',()=>atualizarPixUI(false));
+    }
+
+    if(typeof window.atualizarCarrinhoUI==='function' && !window.atualizarCarrinhoUI.__simplaPixV27){
+      const original=window.atualizarCarrinhoUI;
+      const wrapper=function(){
+        const resultado=original.apply(this,arguments);
+        Promise.resolve().then(()=>atualizarPixUI(false));
+        return resultado;
+      };
+      wrapper.__simplaPixV27=true;
+      window.atualizarCarrinhoUI=wrapper;
+    }
+  }
+  function boot(){
+    montarConfig();
+    montarBox();
+    instalarGatilhosPix();
+    carregar(false).then(()=>atualizarPixUI(false));
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    boot();
+    setTimeout(()=>{montarConfig();instalarGatilhosPix();},150);
+    setTimeout(()=>{montarConfig();instalarGatilhosPix();},800);
+  });
 })();
 </script>
 
