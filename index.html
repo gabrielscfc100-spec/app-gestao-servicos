@@ -4627,6 +4627,8 @@ hr{
                 aplicarPermissoesPerfil();
                 aplicarAcessoAdministrativoUI();
                 carregarUsuariosEmpresa().catch(console.error);
+                document.dispatchEvent(new CustomEvent('simpla:empresa-pronta',{detail:{empresaId:empresaAtual?.id||null}}));
+                document.dispatchEvent(new CustomEvent('simpla:empresa-pronta',{detail:{empresaId:empresaAtual?.id||null}}));
             } catch(err) {
                 console.error('Erro ao localizar empresa:', err);
                 exibirMensagemCloud('cloud-auth-message','A conta foi autenticada, mas não foi possível consultar a empresa. Verifique a estrutura/RLS do Supabase.','error');
@@ -15164,7 +15166,8 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
   function instalar(){
     const dashboard=document.getElementById('dashboard');
     if(dashboard) observer.observe(dashboard,{childList:true,subtree:true});
-    setTimeout(aplicar,800);setTimeout(aplicar,2400);setTimeout(aplicar,4500);
+    document.addEventListener('simpla:empresa-pronta',aplicar);
+    setTimeout(aplicar,1000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',instalar);else instalar();
 })();
@@ -15246,9 +15249,8 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
       observer.observe(alvo,{childList:true,subtree:true});
     });
     protegerFuncoes();
-    setTimeout(aplicar,700);
-    setTimeout(()=>{protegerFuncoes();aplicar()},2300);
-    setTimeout(()=>{protegerFuncoes();aplicar()},4500);
+    document.addEventListener('simpla:empresa-pronta',()=>{protegerFuncoes();aplicar()});
+    setTimeout(()=>{protegerFuncoes();aplicar()},1000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',instalar);else instalar();
 })();
@@ -15302,7 +15304,11 @@ window.addEventListener('load',aplicarBloqueioAdminUI);
     const wrapped=async function(...args){if(!(await pode('auditoria_completa'))){abrirPlano();return false}return await original.apply(this,args)};
     wrapped.__simplaV60=true;window.carregarAuditoria=wrapped;
   }
-  function instalar(){protegerAuditoria();setTimeout(()=>{protegerAuditoria();aplicar()},900);setTimeout(()=>{protegerAuditoria();aplicar()},2600);setTimeout(()=>{protegerAuditoria();aplicar()},4800)}
+  function instalar(){
+    protegerAuditoria();
+    document.addEventListener('simpla:empresa-pronta',()=>{protegerAuditoria();aplicar()});
+    setTimeout(()=>{protegerAuditoria();aplicar()},1100);
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',instalar);else instalar();
 })();
 </script>
