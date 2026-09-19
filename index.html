@@ -12553,7 +12553,10 @@ hr{
   document.addEventListener('click', e => {
     if(e.target.closest('.tab,#financeiro,.menu-btn')) setTimeout(aplicar,50);
   }, true);
-  new MutationObserver(()=>requestAnimationFrame(aplicar)).observe(document.body,{childList:true,subtree:true});
+  const alvoFinanceiro=document.getElementById('financeiro');
+  if(alvoFinanceiro){
+    new MutationObserver(()=>requestAnimationFrame(aplicar)).observe(alvoFinanceiro,{childList:true,subtree:true});
+  }
   setTimeout(aplicar,300);
   setTimeout(aplicar,1000);
 })();
